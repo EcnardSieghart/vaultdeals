@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultDeals — Find the best game deals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #141210;
+  --bg2:       #1c1a17;
+  --bg3:       #242018;
+  --border:    #2e2a24;
+  --border2:   #3d3830;
+  --text:      #fafaf9;
+  --text2:     #c4bdb4;
+  --text3:     #78716c;
+  --amber:     #f59e0b;
+  --amber2:    #d4860a;
+  --amber-dim: #2d1d02;
+  --green:     #4ade80;
+  --green-dim: #0d2a18;
+  --red:       #f87171;
+  --red-dim:   #2d0f0f;
+  --blue:      #60a5fa;
+  --blue-dim:  #0f1f3a;
+  --fh: 'Plus Jakarta Sans', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+  --r: 8px; --r2: 14px;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(20,18,16,.94);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem; height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -.5px; text-decoration: none; display: flex; align-items: center; gap: 9px; }
+.logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.logo span { color: var(--amber); }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-a { font-size: 13px; color: var(--text3); text-decoration: none; padding: 6px 12px; border-radius: var(--r); transition: all .15s; }
+.nav-a:hover { color: var(--text2); background: var(--bg2); }
+.nav-btn { font-family: var(--fb); font-size: 13px; font-weight: 600; color: #141210; background: var(--amber); border: none; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.nav-btn:hover { background: var(--amber2); transform: translateY(-1px); }
+
+/* ── HERO ── */
+.hero { position: relative; padding: 80px 2rem 52px; text-align: center; overflow: hidden; }
+.hero-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(245,158,11,.09) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+.hero-inner { position: relative; z-index: 1; }
+.hero-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; letter-spacing: .05em; text-transform: uppercase; }
+.pill-dot { width: 5px; height: 5px; background: var(--amber); border-radius: 50%; animation: blink 2.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hero-h1 { font-family: var(--fh); font-size: clamp(32px, 5.5vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -2px; color: var(--text); margin-bottom: 18px; }
+.hero-h1 em { color: var(--amber); font-style: normal; }
+.hero-sub { font-size: 16px; font-weight: 400; color: var(--text3); max-width: 460px; margin: 0 auto 38px; line-height: 1.8; }
+
+/* ── SEARCH ── */
+.search-wrap { max-width: 564px; margin: 0 auto 14px; position: relative; }
+.search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: 100px; padding: 15px 140px 15px 50px; font-family: var(--fb); font-size: 15px; color: var(--text); outline: none; transition: all .2s; }
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus { border-color: rgba(245,158,11,.45); box-shadow: 0 0 0 3px rgba(245,158,11,.09); }
+.search-ico { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 17px; pointer-events: none; }
+.search-go { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: var(--amber); color: #141210; border: none; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.search-go:hover { background: var(--amber2); }
+.trending { font-size: 12px; color: var(--text3); margin-bottom: 52px; }
+.trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; }
+.trending a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* ── STATS ── */
+.stats { display: flex; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px; }
+.stat { padding: 22px 40px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-n { font-family: var(--fh); font-size: 26px; font-weight: 800; color: var(--amber); display: block; letter-spacing: -.5px; }
+.stat-l { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* ── LAYOUT ── */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+.sec { margin-bottom: 60px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+.sec-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.sec-more { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .15s; }
+.sec-more:hover { color: var(--amber); }
+
+/* ── CARDS ── */
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; transition: border-color .2s, transform .18s; cursor: pointer; }
+.card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.card.gold { border-color: rgba(245,158,11,.28); }
+.card.gold:hover { border-color: rgba(245,158,11,.5); }
+
+.card-img { height: 120px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; }
+.card-img::after { content:''; position:absolute; bottom:0; left:0; right:0; height:36px; background:linear-gradient(transparent,var(--bg2)); }
+.badges { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 1; }
+
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: .02em; }
+.b-low  { background: var(--amber-dim); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
+.b-sale { background: var(--green-dim); color: var(--green);  border: 1px solid rgba(74,222,128,.18); }
+.b-hot  { background: var(--red-dim);   color: var(--red);    border: 1px solid rgba(248,113,113,.18); }
+.b-new  { background: var(--blue-dim);  color: var(--blue);   border: 1px solid rgba(96,165,250,.18); }
+
+.card-body { padding: 12px 14px 15px; }
+.card-row  { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+.card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.score { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 20px; border-radius: 5px; font-family: var(--fh); font-size: 10px; font-weight: 800; flex-shrink: 0; }
+.s-a { background: var(--green-dim); color: var(--green); }
+.s-b { background: var(--amber-dim); color: var(--amber); }
+.s-c { background: var(--bg3); color: var(--text3); }
+.card-genre { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.price-row { display: flex; align-items: center; justify-content: space-between; }
+.price { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--green); letter-spacing: -.3px; }
+.was   { font-size: 11px; color: var(--text3); text-decoration: line-through; }
+.store { font-size: 11px; color: var(--amber); margin-top: 5px; }
+
+/* ── FEATURED ── */
+.featured { background: var(--bg2); border: 1px solid rgba(245,158,11,.25); border-radius: var(--r2); padding: 22px 24px; display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; cursor: pointer; transition: border-color .2s; margin-bottom: 12px; }
+.featured:hover { border-color: rgba(245,158,11,.45); }
+.feat-img { width: 80px; height: 80px; background: var(--bg3); border-radius: var(--r); display: flex; align-items: center; justify-content: center; font-size: 34px; flex-shrink: 0; }
+.feat-name { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -.3px; }
+.feat-sub  { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
+.feat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.feat-right { text-align: right; flex-shrink: 0; }
+.feat-price { font-family: var(--fh); font-size: 32px; font-weight: 800; color: var(--green); display: block; letter-spacing: -1px; }
+.feat-was   { font-size: 13px; color: var(--text3); text-decoration: line-through; display: block; margin-bottom: 10px; }
+.buy-btn { display: inline-block; background: var(--amber); color: #141210; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; transition: background .15s; }
+.buy-btn:hover { background: var(--amber2); }
+
+/* ── COUNTDOWN ── */
+.cd-strip { background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); border-radius: var(--r2); padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.cd-label { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--amber); }
+.cd-timer { display: flex; align-items: center; gap: 6px; }
+.cd-unit { text-align: center; }
+.cd-n { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--text); background: var(--bg2); border-radius: 7px; padding: 5px 10px; display: block; min-width: 44px; }
+.cd-sep { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--amber); }
+.cd-lbl { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+/* ── ALERT BANNER ── */
+.alert-banner { border: 1px dashed var(--border2); border-radius: var(--r2); padding: 28px 32px; text-align: center; }
+.ab-title { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -.3px; }
+.ab-sub { font-size: 14px; color: var(--text3); margin-bottom: 20px; line-height: 1.7; }
+.ab-form { display: flex; max-width: 420px; margin: 0 auto; gap: 8px; }
+.ab-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); border-radius: 100px; padding: 11px 20px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: all .2s; }
+.ab-input::placeholder { color: var(--text3); }
+.ab-input:focus { border-color: rgba(245,158,11,.4); }
+.ab-btn { background: var(--amber); color: #141210; border: none; padding: 11px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.ab-btn:hover { background: var(--amber2); }
+
+/* ── FOOTER ── */
+footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20px; }
+.foot { max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.foot-logo { font-family: var(--fh); font-size: 15px; font-weight: 800; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.foot-logo-icon { width: 20px; height: 20px; background: var(--amber); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.foot-note { font-size: 12px; color: var(--text3); max-width: 460px; line-height: 1.7; }
+.foot-note a { color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
+.foot-links { display: flex; gap: 18px; }
+.foot-a { font-size: 12px; color: var(--text3); text-decoration: none; transition: color .15s; }
+.foot-a:hover { color: var(--text2); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+.f1 { animation: fadeUp .45s .05s both ease; }
+.f2 { animation: fadeUp .45s .15s both ease; }
+.f3 { animation: fadeUp .45s .25s both ease; }
+.f4 { animation: fadeUp .45s .35s both ease; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  .grid4 { grid-template-columns: repeat(2,1fr); }
+  .featured { grid-template-columns: 72px 1fr; }
+  .feat-right { grid-column: 1/-1; display: flex; align-items: center; gap: 16px; }
+  .feat-price { font-size: 24px; }
+  .feat-right { text-align: left; }
+}
+@media (max-width: 600px) {
+  .grid4, .grid3 { grid-template-columns: 1fr 1fr; }
+  .stats .stat { padding: 16px 20px; }
+  nav .nav-links .nav-a { display: none; }
+  .hero-h1 { letter-spacing: -1.2px; }
+  .feat-right { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .ab-form { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">🔒</div>
+    Vault<em>Deals</em>.io
+  </a>
+  <div class="nav-links">
+    <a href="#" class="nav-a">Deals</a>
+    <a href="#" class="nav-a">Historical lows</a>
+    <a href="#" class="nav-a">Bundles</a>
+    <a href="#" class="nav-a">Wishlist</a>
+    <a href="#" class="nav-btn">🔔 Alert me</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero f1">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores</div>
+    <h1 class="hero-h1">Stop overpaying.<br><em>Find the deal, then buy.</em></h1>
+    <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
+    <div class="search-wrap f2">
+      <span class="search-ico">🔍</span>
+      <input class="search-input" type="text" placeholder="Search any game — Elden Ring, Cyberpunk 2077…">
+      <button class="search-go">Search</button>
+    </div>
+    <p class="trending f3">Trending: <a href="#">Elden Ring</a> · <a href="#">Baldur's Gate 3</a> · <a href="#">Cyberpunk 2077</a> · <a href="#">RDR2</a></p>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats f3">
+  <div class="stat"><span class="stat-n">300k+</span><span class="stat-l">Games tracked</span></div>
+  <div class="stat"><span class="stat-n">12</span><span class="stat-l">Authorized stores only</span></div>
+  <div class="stat"><span class="stat-n">Hourly</span><span class="stat-l">Price updates</span></div>
+  <div class="stat"><span class="stat-n">Free</span><span class="stat-l">Always, no catch</span></div>
+</div>
+
+<div class="container">
+
+  <!-- COUNTDOWN -->
+  <div class="sec f4">
+    <div class="cd-strip">
+      <div class="cd-label">⚡ Fanatical Flash Sale ending in</div>
+      <div class="cd-timer">
+        <div class="cd-unit"><span class="cd-n" id="cdh">04</span><div class="cd-lbl">hrs</div></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-n" id="cdm">37</span><div class="cd-lbl">min</div></div>
+        <span class="cd-sep">:</span>
+        <div class="cd-unit"><span class="cd-n" id="cds">12</span><div class="cd-lbl">sec</div></div>
+      </div>
+      <button class="buy-btn">View flash deals →</button>
+    </div>
+  </div>
+
+  <!-- DEAL OF THE DAY -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">🏆 Deal of the day</div>
+      <a href="#" class="sec-more">All top deals →</a>
+    </div>
+    <div class="featured">
+      <div class="feat-img">🎮</div>
+      <div>
+        <div class="feat-name">Elden Ring</div>
+        <div class="feat-sub">Action RPG · FromSoftware · Steam key</div>
+        <div class="feat-tags">
+          <span class="badge b-low">All-time low</span>
+          <span class="badge b-hot">Deal score A+</span>
+          <span class="badge b-sale">−58% off</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <span class="feat-price">$24.99</span>
+        <span class="feat-was">Was $59.99</span>
+        <button class="buy-btn">Buy via Fanatical →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORICAL LOWS -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">🔥 At or near historical low</div>
+      <a href="#" class="sec-more">View all →</a>
+    </div>
+    <div class="grid4">
+
+      <div class="card gold">
+        <div class="card-img">
+          <div class="badges"><span class="badge b-low">All-time low</span></div>⚔️
+        </div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Baldur's Gate 3</div><span class="score s-a">A+</span></div>
+          <div class="card-genre">RPG · Larian Studios</div>
+          <div class="price-row"><span class="price">$33.49</span><span class="was">$59.99</span></div>
+          <div class="store">via Green Man Gaming</div>
+        </div>
+      </div>
+
+      <div class="card gold">
+        <div class="card-img">
+          <div class="badges"><span class="badge b-low">Near low</span></div>🚗
+        </div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Cyberpunk 2077</div><span class="score s-a">A</span></div>
+          <div class="card-genre">RPG · CD Projekt Red</div>
+          <div class="price-row"><span class="price">$19.99</span><span class="was">$59.99</span></div>
+          <div class="store">via Humble Bundle</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img">
+          <div class="badges"><span class="badge b-sale">−45%</span></div>🤠
+        </div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Red Dead Redemption 2</div><span class="score s-b">B+</span></div>
+          <div class="card-genre">Action · Rockstar Games</div>
+          <div class="price-row"><span class="price">$26.99</span><span class="was">$49.99</span></div>
+          <div class="store">via Fanatical</div>
+        </div>
+      </div>
+
+      <div class="card gold">
+        <div class="card-img">
+          <div class="badges"><span class="badge b-low">All-time low</span></div>🕷️
+        </div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Marvel's Spider-Man</div><span class="score s-a">A+</span></div>
+          <div class="card-genre">Action · Insomniac Games</div>
+          <div class="price-row"><span class="price">$17.99</span><span class="was">$59.99</span></div>
+          <div class="store">via GOG</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOP DISCOUNTS -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">💸 Today's top discounts</div>
+      <a href="#" class="sec-more">View all →</a>
+    </div>
+    <div class="grid4">
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-sale">−70%</span></div>🏔️</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">The Witcher 3</div><span class="score s-b">B</span></div>
+          <div class="card-genre">RPG · CD Projekt Red</div>
+          <div class="price-row"><span class="price">$8.99</span><span class="was">$29.99</span></div>
+          <div class="store">via GOG</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-new">New deal</span></div>🚀</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Mass Effect Legendary</div><span class="score s-b">B+</span></div>
+          <div class="card-genre">RPG · BioWare / EA</div>
+          <div class="price-row"><span class="price">$14.99</span><span class="was">$59.99</span></div>
+          <div class="store">via Fanatical</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-sale">−60%</span></div>🧟</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">The Last of Us Part I</div><span class="score s-c">C+</span></div>
+          <div class="card-genre">Action · Naughty Dog</div>
+          <div class="price-row"><span class="price">$23.99</span><span class="was">$59.99</span></div>
+          <div class="store">via GMG</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-sale">−55%</span></div>🌍</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">AC Mirage</div><span class="score s-b">B</span></div>
+          <div class="card-genre">Action · Ubisoft</div>
+          <div class="price-row"><span class="price">$17.99</span><span class="was">$39.99</span></div>
+          <div class="store">via Ubisoft Store</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HIDDEN GEMS -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title">💎 Hidden gems under $10</div>
+      <a href="#" class="sec-more">View all →</a>
+    </div>
+    <div class="grid4">
+
+      <div class="card gold">
+        <div class="card-img"><div class="badges"><span class="badge b-low">All-time low</span></div>🌿</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Disco Elysium</div><span class="score s-a">A+</span></div>
+          <div class="card-genre">RPG · ZA/UM · 97 Metacritic</div>
+          <div class="price-row"><span class="price">$5.99</span><span class="was">$39.99</span></div>
+          <div class="store">via Fanatical</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-sale">−80%</span></div>🔦</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Alan Wake Remastered</div><span class="score s-b">B+</span></div>
+          <div class="card-genre">Thriller · Remedy</div>
+          <div class="price-row"><span class="price">$4.99</span><span class="was">$29.99</span></div>
+          <div class="store">via Epic Games</div>
+        </div>
+      </div>
+
+      <div class="card gold">
+        <div class="card-img"><div class="badges"><span class="badge b-low">Near low</span></div>🎻</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Hades</div><span class="score s-a">A</span></div>
+          <div class="card-genre">Roguelike · Supergiant</div>
+          <div class="price-row"><span class="price">$7.49</span><span class="was">$24.99</span></div>
+          <div class="store">via Humble Bundle</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-img"><div class="badges"><span class="badge b-sale">−75%</span></div>🌊</div>
+        <div class="card-body">
+          <div class="card-row"><div class="card-name">Control Ultimate Edition</div><span class="score s-b">B+</span></div>
+          <div class="card-genre">Action · Remedy</div>
+          <div class="price-row"><span class="price">$7.99</span><span class="was">$39.99</span></div>
+          <div class="store">via GMG</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ALERT SIGNUP -->
+  <div class="sec">
+    <div class="alert-banner">
+      <div class="ab-title">🔔 Get alerted when your game drops in price</div>
+      <p class="ab-sub">Add games to your wishlist and we email you the moment the price falls below what you want to pay.<br>No spam. One click to unsubscribe.</p>
+      <div class="ab-form">
+        <input class="ab-input" type="email" placeholder="your@email.com">
+        <button class="ab-btn">Get free alerts →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot">
+    <div class="foot-logo">
+      <div class="foot-logo-icon">🔒</div>
+      VaultDeals.io
+    </div>
+    <p class="foot-note">This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
+    <div class="foot-links">
+      <a href="#" class="foot-a">About</a>
+      <a href="#" class="foot-a">FAQ</a>
+      <a href="#" class="foot-a">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Countdown
+(function() {
+  const key = 'dv_cd_target';
+  let target = localStorage.getItem(key);
+  if (!target) {
+    const t = new Date(Date.now() + (4*3600 + 37*60 + 12) * 1000);
+    target = t.toISOString();
+    localStorage.setItem(key, target);
+  }
+  function tick() {
+    const diff = Math.max(0, new Date(target) - Date.now());
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cdh').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdm').textContent = String(m).padStart(2,'0');
+    document.getElementById('cds').textContent = String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// Search enter key
+document.querySelector('.search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.querySelector('.search-go').click();
+});
+</script>
+</body>
+</html>

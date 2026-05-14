@@ -11,8 +11,10 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
+    // Fetch multiple pages to get enough quality deals
+    // CheapShark params: minimumSavings filters out tiny discounts server-side
     const res = await fetch(
-      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1',
+      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1&minimumSavings=30',
       { headers: { 'Accept': 'application/json' } }
     );
 
@@ -31,7 +33,8 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const normal = parseFloat(d.normalPrice);
         const current = parseFloat(d.salePrice);
-        return savings > 0 && normal > 0 && current > 0;
+        // Filter out DLC, packs, artbooks — they have no Steam image and low prices
+        return savings >= 30 && normal >= 3 && current > 0;
       })
       .map(d => {
         const current = parseFloat(d.salePrice);
@@ -78,6 +81,7 @@ exports.handler = async (event) => {
         };
       });
 
+    // Sort by score then discount %
     const scoreOrder = ['A+','A','B+','B','C+','C'];
     processed.sort((a,b) => {
       const scoreDiff = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
@@ -86,7 +90,9 @@ exports.handler = async (event) => {
 
     const historicalLows = processed.filter(d => ['A+','A'].includes(d.score)).slice(0,4);
     const topDeals = processed.filter(d => ['B+','B'].includes(d.score)).slice(0,4);
-    const hiddenGems = processed.filter(d => parseFloat(d.currentPrice) <= 10).slice(0,4);
+    const hiddenGems = processed.filter(d => parseFloat(d.currentPrice) <= 10 && d.steamId).slice(0,4);
+
+    // Deal of day = highest grade with a Steam image
     const dealOfDay = processed.find(d => d.image) || processed[0] || null;
 
     return {

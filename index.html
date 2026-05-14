@@ -564,7 +564,7 @@ async function loadDeals() {
     var cfg = await cfgRes.json();
     var apiKey = cfg.apiKey;
     var games = cfg.games;
-    var apiBase = cfg.apiBase;
+    var apiBase = '/gg-api/v1/prices/by-steam-app-id/';
     if (!apiKey) throw new Error('No API key');
 
     var ids = games.map(function(g){return g.steamId;}).join(',');

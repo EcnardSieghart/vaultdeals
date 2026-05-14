@@ -467,164 +467,153 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 </footer>
 
 <script>
-// ── COUNTDOWN ──────────────────────────────────────────────
+// COUNTDOWN
 (function() {
-  const key = 'dv_cd_target';
-  let target = localStorage.getItem(key);
+  var key = 'dv_cd_target';
+  var target = localStorage.getItem(key);
   if (!target) {
-    const t = new Date(Date.now() + (4*3600 + 37*60 + 12) * 1000);
+    var t = new Date(Date.now() + (4*3600 + 37*60 + 12) * 1000);
     target = t.toISOString();
     localStorage.setItem(key, target);
   }
   function tick() {
-    const diff = Math.max(0, new Date(target) - Date.now());
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    document.getElementById('cdh').textContent = String(h).padStart(2,'0');
-    document.getElementById('cdm').textContent = String(m).padStart(2,'0');
-    document.getElementById('cds').textContent = String(s).padStart(2,'0');
+    var diff = Math.max(0, new Date(target) - Date.now());
+    document.getElementById('cdh').textContent = String(Math.floor(diff/3600000)).padStart(2,'0');
+    document.getElementById('cdm').textContent = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    document.getElementById('cds').textContent = String(Math.floor(diff%60000/1000)).padStart(2,'0');
   }
   tick();
   setInterval(tick, 1000);
 })();
 
-// ── SEARCH ─────────────────────────────────────────────────
-document.querySelector('.search-input').addEventListener('keydown', e => {
+// SEARCH
+document.querySelector('.search-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') document.querySelector('.search-go').click();
 });
 
-// ── LIVE DEALS — Client-side GG.deals fetch ────────────────
-const SCORE_COLOR = { 'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c' };
-const BADGE_CLASS = { 'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new' };
-
-function calculateScore(current, historical) {
-  if (!historical || historical <= 0) return { grade: 'C+', label: 'On sale' };
-  const ratio = current / historical;
-  if (ratio <= 1.05) return { grade: 'A+', label: 'At historical low' };
-  if (ratio <= 1.20) return { grade: 'A',  label: 'Near historical low' };
-  if (ratio <= 1.50) return { grade: 'B+', label: 'Good deal' };
-  if (ratio <= 2.00) return { grade: 'B',  label: 'Decent deal' };
-  return { grade: 'C+', label: 'On sale' };
+// DEAL SCORE
+function calcScore(current, historical) {
+  if (!historical || historical <= 0) return {grade:'C+', label:'On sale'};
+  var r = current / historical;
+  if (r <= 1.05) return {grade:'A+', label:'At historical low'};
+  if (r <= 1.20) return {grade:'A',  label:'Near historical low'};
+  if (r <= 1.50) return {grade:'B+', label:'Good deal'};
+  if (r <= 2.00) return {grade:'B',  label:'Decent deal'};
+  return {grade:'C+', label:'On sale'};
 }
 
 function getBadge(grade, pct) {
-  if (grade === 'A+') return { type:'low',  text:'All-time low' };
-  if (grade === 'A')  return { type:'low',  text:'Near low' };
-  if (pct >= 50)      return { type:'hot',  text:\`-\${pct}% off\` };
-  return { type:'sale', text:\`-\${pct}% off\` };
+  if (grade === 'A+') return {type:'low',  text:'All-time low'};
+  if (grade === 'A')  return {type:'low',  text:'Near low'};
+  if (pct >= 50)      return {type:'hot',  text:'-'+pct+'% off'};
+  return {type:'sale', text:'-'+pct+'% off'};
 }
 
-function buildCard(deal) {
-  const sc = SCORE_COLOR[deal.score] || 's-c';
-  const bc = BADGE_CLASS[deal.badge?.type] || 'b-sale';
-  const isGold = ['A+','A'].includes(deal.score) ? 'gold' : '';
-  const imgHtml = deal.image
-    ? \`<div style="position:absolute;inset:0;overflow:hidden;"><img src="\${deal.image}" alt="\${deal.title}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"></div>\`
-    : '🎮';
-  return \`
-    <div class="card \${isGold}" onclick="window.open('\${deal.storeUrl}','_blank')" style="cursor:pointer">
-      <div class="card-img" style="position:relative;">
-        <div class="badges"><span class="badge \${bc}">\${deal.badge?.text||'On sale'}</span></div>
-        \${imgHtml}
-      </div>
-      <div class="card-body">
-        <div class="card-row">
-          <div class="card-name">\${deal.title}</div>
-          <span class="score \${sc}">\${deal.score}</span>
-        </div>
-        <div class="card-genre">\${deal.genre}</div>
-        <div class="price-row">
-          <span class="price">$\${deal.currentPrice}</span>
-          <span class="was">$\${deal.originalPrice}</span>
-        </div>
-        <div class="store">via GG.deals</div>
-      </div>
-    </div>\`;
+var SCORE_CSS = {'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
+var BADGE_CSS = {'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new'};
+
+function buildCard(d) {
+  var sc = SCORE_CSS[d.score] || 's-c';
+  var bc = BADGE_CSS[d.badge.type] || 'b-sale';
+  var gold = ['A+','A'].indexOf(d.score) >= 0 ? 'gold' : '';
+  var img = d.image
+    ? '<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="'+d.title+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"></div>'
+    : '\uD83C\uDFAE';
+  return '<div class="card '+gold+'" onclick="window.open(\''+d.storeUrl+'\',\'_blank\')" style="cursor:pointer">'
+    +'<div class="card-img" style="position:relative;">'
+    +'<div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'
+    +img+'</div>'
+    +'<div class="card-body">'
+    +'<div class="card-row"><div class="card-name">'+d.title+'</div><span class="score '+sc+'">'+d.score+'</span></div>'
+    +'<div class="card-genre">'+d.genre+'</div>'
+    +'<div class="price-row"><span class="price">$'+d.currentPrice+'</span><span class="was">$'+d.originalPrice+'</span></div>'
+    +'<div class="store">via GG.deals</div>'
+    +'</div></div>';
 }
 
-function buildFeatured(deal) {
-  return \`
-    <div class="featured" onclick="window.open('\${deal.storeUrl}','_blank')" style="cursor:pointer">
-      <div class="feat-img">
-        \${deal.image ? \`<img src="\${deal.image}" alt="\${deal.title}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'">\` : '🎮'}
-      </div>
-      <div>
-        <div class="feat-name">\${deal.title}</div>
-        <div class="feat-sub">\${deal.genre}</div>
-        <div class="feat-tags">
-          <span class="badge b-low">\${deal.badge?.text||'Deal'}</span>
-          <span class="badge b-hot">Score \${deal.score}</span>
-          <span class="badge b-sale">-\${deal.discountPercent}% off</span>
-        </div>
-      </div>
-      <div class="feat-right">
-        <span class="feat-price">$\${deal.currentPrice}</span>
-        <span class="feat-was">Was $\${deal.originalPrice}</span>
-        <button class="buy-btn">See best price →</button>
-      </div>
-    </div>\`;
+function buildFeatured(d) {
+  var img = d.image
+    ? '<img src="'+d.image+'" alt="'+d.title+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\'">'
+    : '\uD83C\uDFAE';
+  return '<div class="featured" onclick="window.open(\''+d.storeUrl+'\',\'_blank\')" style="cursor:pointer">'
+    +'<div class="feat-img">'+img+'</div>'
+    +'<div>'
+    +'<div class="feat-name">'+d.title+'</div>'
+    +'<div class="feat-sub">'+d.genre+'</div>'
+    +'<div class="feat-tags">'
+    +'<span class="badge b-low">'+d.badge.text+'</span>'
+    +'<span class="badge b-hot">Score '+d.score+'</span>'
+    +'<span class="badge b-sale">-'+d.discountPercent+'% off</span>'
+    +'</div></div>'
+    +'<div class="feat-right">'
+    +'<span class="feat-price">$'+d.currentPrice+'</span>'
+    +'<span class="feat-was">Was $'+d.originalPrice+'</span>'
+    +'<button class="buy-btn">See best price \u2192</button>'
+    +'</div></div>';
 }
 
 function renderSection(id, deals) {
-  const el = document.getElementById(id);
-  if (!el || !deals?.length) return;
+  var el = document.getElementById(id);
+  if (!el || !deals.length) return;
   el.innerHTML = deals.map(buildCard).join('');
 }
 
 async function loadDeals() {
   try {
-    const cfgRes = await fetch('/api/deals');
-    const cfg = await cfgRes.json();
-    const { apiKey, games, apiBase } = cfg;
+    var cfgRes = await fetch('/api/deals');
+    var cfg = await cfgRes.json();
+    var apiKey = cfg.apiKey;
+    var games = cfg.games;
+    var apiBase = cfg.apiBase;
     if (!apiKey) throw new Error('No API key');
 
-    const ids = games.map(g => g.steamId).join(',');
-    const ggRes = await fetch(\`\${apiBase}?key=\${apiKey}&ids=\${ids}&region=us\`);
-    const ggData = await ggRes.json();
-    if (!ggData.success || !ggData.data) throw new Error('GG.deals returned no data');
+    var ids = games.map(function(g){return g.steamId;}).join(',');
+    var ggRes = await fetch(apiBase + '?key=' + apiKey + '&ids=' + ids + '&region=us');
+    var ggData = await ggRes.json();
+    if (!ggData.success || !ggData.data) throw new Error('No data from GG.deals');
 
-    const deals = [];
-    for (const game of games) {
-      const info = ggData.data[game.steamId];
-      if (!info?.prices) continue;
-      const current = parseFloat(info.prices.currentRetail);
-      const historical = parseFloat(info.prices.historicalRetail);
+    var deals = [];
+    for (var i = 0; i < games.length; i++) {
+      var game = games[i];
+      var info = ggData.data[game.steamId];
+      if (!info || !info.prices) continue;
+      var current = parseFloat(info.prices.currentRetail);
+      var historical = parseFloat(info.prices.historicalRetail);
       if (!current || current <= 0) continue;
-      const discountPct = Math.round((1 - current / game.originalPrice) * 100);
-      if (discountPct < 15) continue;
-      const score = calculateScore(current, historical);
-      const badge = getBadge(score.grade, discountPct);
+      var discPct = Math.round((1 - current / game.originalPrice) * 100);
+      if (discPct < 15) continue;
+      var score = calcScore(current, historical);
+      var badge = getBadge(score.grade, discPct);
       deals.push({
         steamId: game.steamId,
         title: info.title || game.title,
         genre: game.genre,
         currentPrice: current.toFixed(2),
         originalPrice: game.originalPrice.toFixed(2),
-        discountPercent: discountPct,
+        discountPercent: discPct,
         score: score.grade,
         scoreLabel: score.label,
-        badge,
+        badge: badge,
         storeUrl: info.url || 'https://gg.deals/',
-        image: \`https://cdn.cloudflare.steamstatic.com/steam/apps/\${game.steamId}/header.jpg\`,
+        image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/' + game.steamId + '/header.jpg'
       });
     }
 
-    const order = ['A+','A','B+','B','C+','C'];
-    deals.sort((a,b) => {
-      const d = order.indexOf(a.score) - order.indexOf(b.score);
+    deals.sort(function(a,b){
+      var order = ['A+','A','B+','B','C+','C'];
+      var d = order.indexOf(a.score) - order.indexOf(b.score);
       return d !== 0 ? d : b.discountPercent - a.discountPercent;
     });
 
-    const dotd = document.getElementById('deal-of-day');
+    var dotd = document.getElementById('deal-of-day');
     if (dotd && deals[0]) dotd.innerHTML = buildFeatured(deals[0]);
 
-    renderSection('historical-lows', deals.filter(d => ['A+','A'].includes(d.score)).slice(0,4));
-    renderSection('top-discounts',   deals.filter(d => ['B+','B'].includes(d.score)).slice(0,4));
-    renderSection('hidden-gems',     deals.filter(d => parseFloat(d.currentPrice) <= 10).slice(0,4));
+    renderSection('historical-lows', deals.filter(function(d){return ['A+','A'].indexOf(d.score)>=0;}).slice(0,4));
+    renderSection('top-discounts',   deals.filter(function(d){return ['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
+    renderSection('hidden-gems',     deals.filter(function(d){return parseFloat(d.currentPrice)<=10;}).slice(0,4));
 
-    const lu = document.getElementById('last-updated');
-    if (lu) lu.textContent = \`Updated \${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}\`;
+    var lu = document.getElementById('last-updated');
+    if (lu) lu.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
   } catch(err) {
     console.warn('Could not load live deals:', err.message);

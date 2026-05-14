@@ -68,6 +68,43 @@ nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); ba
 .search-go { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: var(--amber); color: #141210; border: none; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
 .search-go:hover { background: var(--amber2); }
 .search-go.loading { opacity: .7; cursor: not-allowed; }
+
+/* AUTOCOMPLETE SUGGESTIONS */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  overflow: hidden;
+  z-index: 200;
+  display: none;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+.search-suggestions.open { display: block; }
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background .12s;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover, .suggestion-item.active { background: var(--bg3); }
+.suggestion-thumb {
+  width: 48px; height: 22px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+.suggestion-name { font-family: var(--fh); font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.suggestion-score { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+
 .trending { font-size: 12px; color: var(--text3); margin-bottom: 52px; }
 .trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; cursor: pointer; }
 .trending a:hover { color: var(--amber); border-bottom-color: var(--amber); }
@@ -290,14 +327,23 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
     <div class="search-wrap f2">
       <span class="search-ico">🔍</span>
-      <input class="search-input" id="search-input" type="text" placeholder="Search any game — Elden Ring, Cyberpunk 2077…">
+      <input
+        class="search-input"
+        id="search-input"
+        type="text"
+        placeholder="Search any game — Elden Ring, Cyberpunk 2077…"
+        autocomplete="off"
+        spellcheck="false"
+      >
       <button class="search-go" id="search-go" onclick="handleSearch()">Search</button>
+      <!-- Autocomplete dropdown -->
+      <div id="search-suggestions" class="search-suggestions"></div>
     </div>
     <p class="trending f3" id="trending-bar">Trending: <a onclick="searchGame('Elden Ring')">Elden Ring</a> · <a onclick="searchGame('Baldur\'s Gate 3')">Baldur's Gate 3</a> · <a onclick="searchGame('Cyberpunk 2077')">Cyberpunk 2077</a> · <a onclick="searchGame('Red Dead Redemption 2')">RDR2</a></p>
   </div>
 </section>
 
-<!-- SEARCH RESULTS (hidden until search fires) -->
+<!-- SEARCH RESULTS -->
 <div id="search-results" class="scroll-target">
   <div class="search-results-inner">
     <div class="search-results-head">
@@ -318,7 +364,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
 <div class="container">
 
-  <!-- SALES STRIP -->
   <div class="sec f4">
     <div class="sales-strip">
       <div class="sales-label">🛍️ Browse current sales</div>
@@ -332,43 +377,26 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     </div>
   </div>
 
-  <!-- DEAL OF THE DAY -->
   <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title">🏆 Deal of the day</div>
-      <a href="#" class="sec-more">All top deals →</a>
-    </div>
+    <div class="sec-head"><div class="sec-title">🏆 Deal of the day</div><a href="#" class="sec-more">All top deals →</a></div>
     <div id="deal-of-day"></div>
   </div>
 
-  <!-- HISTORICAL LOWS -->
   <div class="sec scroll-target" id="historical-lows-sec">
-    <div class="sec-head">
-      <div class="sec-title">🔥 At or near historical low</div>
-      <a href="#" class="sec-more">View all →</a>
-    </div>
+    <div class="sec-head"><div class="sec-title">🔥 At or near historical low</div><a href="#" class="sec-more">View all →</a></div>
     <div class="grid4" id="historical-lows"></div>
   </div>
 
-  <!-- TOP DISCOUNTS -->
   <div class="sec scroll-target" id="top-discounts">
-    <div class="sec-head">
-      <div class="sec-title">💸 Today's top discounts</div>
-      <a href="#" class="sec-more">View all →</a>
-    </div>
+    <div class="sec-head"><div class="sec-title">💸 Today's top discounts</div><a href="#" class="sec-more">View all →</a></div>
     <div class="grid4" id="top-discounts-grid"></div>
   </div>
 
-  <!-- HIDDEN GEMS -->
   <div class="sec">
-    <div class="sec-head">
-      <div class="sec-title">💎 Hidden gems under $10</div>
-      <a href="#" class="sec-more">View all →</a>
-    </div>
+    <div class="sec-head"><div class="sec-title">💎 Hidden gems under $10</div><a href="#" class="sec-more">View all →</a></div>
     <div class="grid4" id="hidden-gems"></div>
   </div>
 
-  <!-- FREE GAMES -->
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
       <div class="sec-title">🎁 Free right now</div>
@@ -377,7 +405,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <div class="free-grid" id="free-games"></div>
   </div>
 
-  <!-- ALERT SIGNUP -->
   <div class="sec scroll-target" id="alert-section">
     <div class="alert-banner">
       <div class="ab-title">🔔 Get alerted when your game drops in price</div>
@@ -394,10 +421,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <!-- FOOTER -->
 <footer>
   <div class="foot">
-    <div class="foot-logo">
-      <div class="foot-logo-icon">🔒</div>
-      VaultDeals.io
-    </div>
+    <div class="foot-logo"><div class="foot-logo-icon">🔒</div>VaultDeals.io</div>
     <p class="foot-note">
       Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot;
       This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores.
@@ -458,11 +482,11 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <h3>What we collect</h3>
       <p>VaultDeals.io does not collect personal data simply from visiting the site. We do not use tracking pixels, behavioral analytics, or fingerprinting of any kind.</p>
       <p>If you sign up for price alerts, your email address is stored solely to send you notifications. You can unsubscribe at any time using the link in every email — this permanently removes your address from our system.</p>
-      <h3>Cookies &amp; local storage</h3>
+      <h3>Cookies and local storage</h3>
       <p>We use browser localStorage for session preferences only. No advertising cookies or third-party tracking cookies are set by VaultDeals.</p>
       <h3>Third-party services</h3>
-      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. You can block fonts.googleapis.com in your browser — the site will fall back to system fonts.</p>
-      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level — this is outside our control. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
+      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. You can block fonts.googleapis.com in your browser and the site will fall back to system fonts.</p>
+      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level as standard practice. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
       <p>When you click through to a store, that store may set its own cookies. Price data is provided by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> and free game data by <a href="https://www.gamerpower.com" target="_blank" rel="noopener">GamerPower</a>.</p>
       <h3>Contact</h3>
       <p><button class="foot-btn" onclick="closeModal('modal-privacy');openModal('modal-contact')">Contact us →</button></p>
@@ -475,7 +499,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <button class="modal-close" onclick="closeModal('modal-disclosure')">✕</button>
     <div class="modal-title">Affiliate Disclosure</div>
     <div class="modal-body">
-      <p>VaultDeals.io participates in affiliate programs with authorized game retailers. When you click a link on our site and make a purchase, we may earn a small commission — at no additional cost to you.</p>
+      <p>VaultDeals.io participates in affiliate programs with authorized game retailers. When you click a link on our site and make a purchase, we may earn a small commission at no additional cost to you.</p>
       <p>Affiliate relationships do not influence which games we feature, what prices we display, or how deals are scored. All deal scores are calculated from real pricing data regardless of any affiliate relationship.</p>
       <h3>Stores we may earn commissions from</h3>
       <p>Amazon, Green Man Gaming, GOG, Fanatical, Humble Bundle, and others. Not every link on this site is an affiliate link.</p>
@@ -540,12 +564,19 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 </div>
 
 <script>
+// Clear search bar on every page load — prevents browser form restore
+window.addEventListener('load', function(){ document.getElementById('search-input').value = ''; });
+
 // MODAL SYSTEM
 function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
 function handleOverlayClick(e,id){ if(e.target===e.currentTarget)closeModal(id); }
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){ document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); }); document.body.style.overflow=''; }
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); });
+    document.body.style.overflow='';
+    closeSuggestions();
+  }
 });
 
 // SCROLL
@@ -577,11 +608,6 @@ document.getElementById('contact-form').addEventListener('submit',async function
   btn.disabled=false; btn.textContent='Send message →';
 });
 
-// SEARCH INPUT
-document.getElementById('search-input').addEventListener('keydown',function(e){
-  if(e.key==='Enter') handleSearch();
-});
-
 // DEAL SCORING
 function calcScore(current,historical){
   if(historical===0)return{grade:'C+',label:'Was free before'};
@@ -602,15 +628,109 @@ function getBadge(grade,pct,wasFree){
 }
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
 var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
-
-// Cached from loadDeals to avoid re-fetching on every search
 var cachedApiKey=null;
 var cachedApiBase=null;
 
-// SEARCH
+// ── AUTOCOMPLETE ────────────────────────────────────────────
+var suggestTimer=null;
+var currentSuggestions=[];
+var activeSuggIdx=-1;
+
+var searchInput=document.getElementById('search-input');
+
+searchInput.addEventListener('input',function(){
+  clearTimeout(suggestTimer);
+  var q=this.value.trim();
+  if(q.length<2){ closeSuggestions(); return; }
+  suggestTimer=setTimeout(function(){ fetchSuggestions(q); }, 280);
+});
+
+searchInput.addEventListener('keydown',function(e){
+  var box=document.getElementById('search-suggestions');
+  var open=box.classList.contains('open');
+
+  if(e.key==='ArrowDown'){
+    if(!open) return;
+    e.preventDefault();
+    activeSuggIdx=Math.min(activeSuggIdx+1, currentSuggestions.length-1);
+    highlightSuggestion();
+  } else if(e.key==='ArrowUp'){
+    if(!open) return;
+    e.preventDefault();
+    activeSuggIdx=Math.max(activeSuggIdx-1, -1);
+    highlightSuggestion();
+  } else if(e.key==='Enter'){
+    e.preventDefault();
+    if(open && activeSuggIdx>=0 && currentSuggestions[activeSuggIdx]){
+      selectSuggestion(currentSuggestions[activeSuggIdx].name);
+    } else {
+      closeSuggestions();
+      handleSearch();
+    }
+  } else if(e.key==='Escape'){
+    closeSuggestions();
+  }
+});
+
+async function fetchSuggestions(q){
+  try{
+    var res=await fetch('/steam-search/?term='+encodeURIComponent(q)+'&l=english&cc=US');
+    if(!res.ok) return;
+    var data=await res.json();
+    // Suggestions: show all app types, scored games first — adult shovelware sinks naturally
+    currentSuggestions=(data.items||[])
+      .filter(function(i){ return i.type==='app'; })
+      .sort(function(a,b){ return (parseInt(b.metascore)||0)-(parseInt(a.metascore)||0); })
+      .slice(0,6);
+    renderSuggestions();
+  }catch(e){ /* silent fail */ }
+}
+
+function renderSuggestions(){
+  var box=document.getElementById('search-suggestions');
+  if(!currentSuggestions.length){ closeSuggestions(); return; }
+  activeSuggIdx=-1;
+  box.innerHTML=currentSuggestions.map(function(item,idx){
+    var scoreHtml=item.metascore?'<span class="suggestion-score">'+item.metascore+'</span>':'';
+    var safeName=item.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="suggestion-item" data-idx="'+idx+'" onclick="selectSuggestion(\''+safeName+'\')">'
+      +'<img class="suggestion-thumb" src="'+item.tiny_image+'" alt="" onerror="this.style.display=\'none\'">'
+      +'<span class="suggestion-name">'+item.name+'</span>'
+      +scoreHtml
+      +'</div>';
+  }).join('');
+  box.classList.add('open');
+}
+
+function highlightSuggestion(){
+  var items=document.querySelectorAll('.suggestion-item');
+  items.forEach(function(el,i){ el.classList.toggle('active', i===activeSuggIdx); });
+  if(activeSuggIdx>=0 && currentSuggestions[activeSuggIdx]){
+    searchInput.value=currentSuggestions[activeSuggIdx].name;
+  }
+}
+
+function selectSuggestion(name){
+  searchInput.value=name;
+  closeSuggestions();
+  handleSearch();
+}
+
+function closeSuggestions(){
+  document.getElementById('search-suggestions').classList.remove('open');
+  activeSuggIdx=-1;
+}
+
+// Close suggestions when clicking outside search bar
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.search-wrap')) closeSuggestions();
+});
+
+// ── FULL SEARCH ─────────────────────────────────────────────
 async function handleSearch(){
-  var query=document.getElementById('search-input').value.trim();
-  if(!query)return;
+  var query=searchInput.value.trim();
+  if(!query) return;
+  closeSuggestions();
 
   var panel=document.getElementById('search-results');
   var grid=document.getElementById('search-results-grid');
@@ -620,46 +740,44 @@ async function handleSearch(){
   label.textContent=query;
   panel.style.display='block';
   grid.innerHTML='<div class="search-status">Searching…</div>';
-  btn.classList.add('loading');
-  btn.textContent='Searching…';
+  btn.classList.add('loading'); btn.textContent='Searching…';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 
   try{
-    // Step 1: Steam store search → get appIds
     var steamRes=await fetch('/steam-search/?term='+encodeURIComponent(query)+'&l=english&cc=US');
-    if(!steamRes.ok)throw new Error('Steam search failed');
+    if(!steamRes.ok) throw new Error('Steam search failed');
     var steamData=await steamRes.json();
-    var apps=(steamData.items||[]).filter(function(i){return i.type==='app';}).slice(0,8);
+
+    // Final results: require Metacritic score — filters adult shovelware and unscored junk
+    var apps=(steamData.items||[])
+      .filter(function(i){ return i.type==='app' && i.metascore!==''; })
+      .sort(function(a,b){ return (parseInt(b.metascore)||0)-(parseInt(a.metascore)||0); })
+      .slice(0,8);
 
     if(!apps.length){
-      grid.innerHTML='<div class="search-status">No games found for "'+query+'". Try a different title.</div>';
+      grid.innerHTML='<div class="search-status">No reviewed games found for "'+query+'". Try a different title.</div>';
       return;
     }
 
-    // Step 2: GG.deals prices for those appIds
-    // Use cached key if available, otherwise fetch
     if(!cachedApiKey){
       var cfgRes=await fetch('/api/deals');
       var cfg=await cfgRes.json();
       cachedApiKey=cfg.apiKey;
       cachedApiBase=cfg.apiBase;
     }
-    var ids=apps.map(function(a){return String(a.id);}).join(',');
+
+    var ids=apps.map(function(a){ return String(a.id); }).join(',');
     var priceRes=await fetch(cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us');
     var priceText=await priceRes.text();
     var priceData;
     try{ priceData=JSON.parse(priceText); }catch(e){ priceData={success:false}; }
     var prices=(priceData.success&&priceData.data)?priceData.data:{};
 
-    // Step 3: Render results
     var html=apps.map(function(app){
       var p=prices[String(app.id)];
       var img='https://cdn.cloudflare.steamstatic.com/steam/apps/'+app.id+'/header.jpg';
       var storeUrl=p?p.url:'https://gg.deals/search/?title='+encodeURIComponent(app.name);
-      var priceHtml='';
-      var scoreHtml='';
-      var badgeHtml='';
-      var gold='';
+      var priceHtml='',scoreHtml='',badgeHtml='',gold='';
 
       if(p&&p.prices&&p.prices.currentRetail){
         var current=parseFloat(p.prices.currentRetail);
@@ -672,15 +790,14 @@ async function handleSearch(){
         var badge=getBadge(score.grade,discPct,wasFree);
         var sc=SCORE_CSS[score.grade]||'s-c';
         var bc=BADGE_CSS[badge.type]||'b-sale';
-        if(score.grade==='A+'||score.grade==='A')gold='gold';
-        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span>'+(original>0&&discPct>0?'<span class="was">$'+original.toFixed(2)+'</span>':'')+'</div>';
+        if(score.grade==='A+'||score.grade==='A') gold='gold';
+        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span>'
+          +(original>0&&discPct>0?'<span class="was">$'+original.toFixed(2)+'</span>':'')+'</div>';
         scoreHtml='<span class="score '+sc+'">'+score.grade+'</span>';
         badgeHtml='<span class="badge '+bc+'">'+badge.text+'</span>';
       }else{
         priceHtml='<div class="search-no-price">Check on GG.deals →</div>';
       }
-
-      var metaStr=app.metascore?'Metacritic: '+app.metascore:'PC Game';
 
       return '<div class="card '+gold+'" data-url="'+storeUrl+'">'
         +'<div class="card-img" style="position:relative;">'
@@ -689,7 +806,7 @@ async function handleSearch(){
         +'</div>'
         +'<div class="card-body">'
         +'<div class="card-row"><div class="card-name">'+app.name+'</div>'+scoreHtml+'</div>'
-        +'<div class="card-genre">'+metaStr+'</div>'
+        +'<div class="card-genre">'+(app.metascore?'Metacritic: '+app.metascore:'PC Game')+'</div>'
         +priceHtml
         +'<div class="store">via GG.deals</div>'
         +'</div></div>';
@@ -697,36 +814,34 @@ async function handleSearch(){
 
     grid.innerHTML=html;
     grid.querySelectorAll('[data-url]').forEach(function(el){
-      el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+      el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
     });
 
   }catch(err){
     grid.innerHTML='<div class="search-status">Something went wrong. Please try again.</div>';
     console.warn('Search error:',err.message);
   }finally{
-    btn.classList.remove('loading');
-    btn.textContent='Search';
+    btn.classList.remove('loading'); btn.textContent='Search';
   }
 }
 
 function closeSearch(){
   document.getElementById('search-results').style.display='none';
-  document.getElementById('search-input').value='';
+  searchInput.value='';
 }
 
 function searchGame(title){
-  document.getElementById('search-input').value=title;
+  searchInput.value=title;
   handleSearch();
 }
 
-// UPDATE TRENDING from live deals data
+// TRENDING — updated from live deals after loadDeals runs
 function updateTrending(deals){
-  if(!deals||!deals.length)return;
-  var top=deals.slice(0,5);
+  if(!deals||!deals.length) return;
   var bar=document.getElementById('trending-bar');
-  if(!bar)return;
-  var links=top.map(function(d){
-    var safe=d.title.replace(/'/g,"\\'");
+  if(!bar) return;
+  var links=deals.slice(0,5).map(function(d){
+    var safe=d.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return '<a onclick="searchGame(\''+safe+'\')">'+d.title+'</a>';
   }).join(' · ');
   bar.innerHTML='Trending deals: '+links;
@@ -758,32 +873,32 @@ function buildFeatured(d){
 }
 function renderSection(id,deals){
   var el=document.getElementById(id);
-  if(!el||!deals.length)return;
+  if(!el||!deals.length) return;
   el.innerHTML=deals.map(buildCard).join('');
 }
 
 // FREE GAMES
 function formatExpiry(dateStr){
-  if(!dateStr||dateStr==='N/A')return'While supplies last';
+  if(!dateStr||dateStr==='N/A') return'While supplies last';
   var d=new Date(dateStr);
   var days=Math.ceil((d-new Date())/86400000);
-  if(days<=0)return'Ending soon';
-  if(days===1)return'Ends tomorrow';
+  if(days<=0) return'Ending soon';
+  if(days===1) return'Ends tomorrow';
   return'Ends in '+days+' days';
 }
 var MAJOR=['epic games store','steam','gog'];
 async function loadFreeGames(){
   try{
     var res=await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
-    if(!res.ok)throw new Error('GamerPower '+res.status);
+    if(!res.ok) throw new Error('GamerPower '+res.status);
     var games=await res.json();
-    if(!Array.isArray(games))throw new Error('bad data');
+    if(!Array.isArray(games)) throw new Error('bad data');
     var filtered=games.filter(function(g){
       var worth=parseFloat(g.worth.replace('$',''))||0;
       var plat=g.platforms.toLowerCase();
-      return MAJOR.some(function(p){return plat.indexOf(p)>=0;})&&worth>=9.99&&g.status==='Active';
+      return MAJOR.some(function(p){ return plat.indexOf(p)>=0; })&&worth>=9.99&&g.status==='Active';
     }).slice(0,4);
-    if(!filtered.length)return;
+    if(!filtered.length) return;
     var html=filtered.map(function(g){
       var expiry=formatExpiry(g.end_date);
       var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
@@ -795,9 +910,9 @@ async function loadFreeGames(){
         +'</div></div>';
     }).join('');
     var el=document.getElementById('free-games');
-    if(el){ el.innerHTML=html; el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');}; }); }
+    if(el){ el.innerHTML=html; el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; }); }
   }catch(err){
-    var sec=document.getElementById('free-games-sec'); if(sec)sec.style.display='none';
+    var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
     console.warn('Free games error:',err.message);
   }
 }
@@ -810,42 +925,42 @@ async function loadDeals(){
     cachedApiKey=cfg.apiKey;
     cachedApiBase=cfg.apiBase;
     var games=cfg.games;
-    if(!cachedApiKey)throw new Error('No API key');
+    if(!cachedApiKey) throw new Error('No API key');
 
     var allData={};
     for(var b=0;b<games.length;b+=10){
       var batch=games.slice(b,b+10);
-      var ids=batch.map(function(g){return g.steamId;}).join(',');
+      var ids=batch.map(function(g){ return g.steamId; }).join(',');
       var url=cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us';
       console.log('Fetching batch:',url);
       var batchRes=await fetch(url);
       var batchText=await batchRes.text();
       var batchJson;
-      try{batchJson=JSON.parse(batchText);}catch(e){console.warn('Batch parse error:',batchText.slice(0,200));continue;}
-      if(batchJson.success&&batchJson.data)Object.assign(allData,batchJson.data);
+      try{ batchJson=JSON.parse(batchText); }catch(e){ console.warn('Batch parse error:',batchText.slice(0,200)); continue; }
+      if(batchJson.success&&batchJson.data) Object.assign(allData,batchJson.data);
     }
-    if(!Object.keys(allData).length)throw new Error('No GG.deals data');
+    if(!Object.keys(allData).length) throw new Error('No GG.deals data');
 
     var deals=[];
     for(var i=0;i<games.length;i++){
       var game=games[i];
       var info=allData[game.steamId];
-      if(!info||!info.prices)continue;
+      if(!info||!info.prices) continue;
       var ggTitle=(info.title||'').toLowerCase();
-      var words=game.title.toLowerCase().split(' ').filter(function(w){return w.length>3;});
-      if(!words.some(function(w){return ggTitle.indexOf(w)>=0;}))continue;
+      var words=game.title.toLowerCase().split(' ').filter(function(w){ return w.length>3; });
+      if(!words.some(function(w){ return ggTitle.indexOf(w)>=0; })) continue;
       var current=parseFloat(info.prices.currentRetail);
       var historical=parseFloat(info.prices.historicalRetail);
-      if(!current||current<=0)continue;
+      if(!current||current<=0) continue;
       var wasFree=historical===0;
       var discPct=Math.round((1-current/game.originalPrice)*100);
-      if(discPct<20||game.originalPrice<19.99)continue;
+      if(discPct<20||game.originalPrice<19.99) continue;
       var score=calcScore(current,historical);
       var badge=getBadge(score.grade,discPct,wasFree);
       deals.push({
-        steamId:game.steamId,title:info.title||game.title,genre:game.genre,
-        currentPrice:current.toFixed(2),originalPrice:game.originalPrice.toFixed(2),
-        discountPercent:discPct,score:score.grade,scoreLabel:score.label,badge:badge,
+        steamId:game.steamId, title:info.title||game.title, genre:game.genre,
+        currentPrice:current.toFixed(2), originalPrice:game.originalPrice.toFixed(2),
+        discountPercent:discPct, score:score.grade, scoreLabel:score.label, badge:badge,
         storeUrl:info.url||'https://gg.deals/',
         image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg'
       });
@@ -861,24 +976,23 @@ async function loadDeals(){
     if(dotd&&deals[0]){
       dotd.innerHTML=buildFeatured(deals[0]);
       var feat=dotd.querySelector('[data-url]');
-      if(feat)feat.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+      if(feat) feat.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
     }
 
-    var historicalLows=deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;});
+    var historicalLows=deals.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
     if(historicalLows.length<4){
-      var used=historicalLows.map(function(d){return d.steamId;});
-      var fillers=deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0&&used.indexOf(d.steamId)<0;});
+      var used=historicalLows.map(function(d){ return d.steamId; });
+      var fillers=deals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0&&used.indexOf(d.steamId)<0; });
       historicalLows=historicalLows.concat(fillers).slice(0,4);
     }
     renderSection('historical-lows',historicalLows);
-    renderSection('top-discounts-grid',deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
-    renderSection('hidden-gems',deals.filter(function(d){return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20;}).slice(0,4));
+    renderSection('top-discounts-grid',deals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0; }).slice(0,4));
+    renderSection('hidden-gems',deals.filter(function(d){ return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20; }).slice(0,4));
 
     document.querySelectorAll('[data-url]').forEach(function(el){
-      el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+      el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
     });
 
-    // Update trending with live deals
     updateTrending(deals);
 
   }catch(err){

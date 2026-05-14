@@ -688,15 +688,19 @@ function renderSuggestions(){
   if(!currentSuggestions.length){ closeSuggestions(); return; }
   activeSuggIdx=-1;
   box.innerHTML=currentSuggestions.map(function(item,idx){
-    var priceHtml=item.cheapest?'<span class="suggestion-score">from $'+item.cheapest+'</span>':'';
-    var safeName=item.external.replace(/'/g,"&apos;");
-    return '<div class="suggestion-item" data-idx="'+idx+'" onclick="selectSuggestion('"+safeName+"')">'
-      +'<img class="suggestion-thumb" src="'+item.thumb+'" alt="" onerror="this.style.display=\'none\'">'
-      +'<span class="suggestion-name">'+item.external+'</span>'
+    var priceHtml=item.cheapest?"<span class=\"suggestion-score\">from $"+item.cheapest+"</span>":"";
+    var safeName=item.external.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return "<div class=\"suggestion-item\" data-idx=\""+idx+"\" data-name=\""+safeName+"\">"
+      +"<img class=\"suggestion-thumb\" src=\""+item.thumb+"\" alt=\"\">"
+      +"<span class=\"suggestion-name\">"+item.external+"</span>"
       +priceHtml
-      +'</div>';
-  }).join('');
+      +"</div>";
+  }).join("");
   box.classList.add('open');
+  // Wire click handlers via data-name to avoid all inline onclick quoting issues
+  box.querySelectorAll('.suggestion-item').forEach(function(el){
+    el.addEventListener('click',function(){ selectSuggestion(this.getAttribute('data-name')); });
+  });
 }
 
 function highlightSuggestion(){

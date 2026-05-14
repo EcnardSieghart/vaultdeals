@@ -689,7 +689,7 @@ function renderSuggestions(){
   activeSuggIdx=-1;
   box.innerHTML=currentSuggestions.map(function(item,idx){
     var priceHtml=item.cheapest?'<span class="suggestion-score">from $'+item.cheapest+'</span>':'';
-    var safeName=item.external.replace(/\/g,'\\').replace(/'/g,"\'");
+    var safeName=item.external.replace(/'/g,"&apos;");
     return '<div class="suggestion-item" data-idx="'+idx+'" onclick="selectSuggestion('"+safeName+"')">'
       +'<img class="suggestion-thumb" src="'+item.thumb+'" alt="" onerror="this.style.display=\'none\'">'
       +'<span class="suggestion-name">'+item.external+'</span>'

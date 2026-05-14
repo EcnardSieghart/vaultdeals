@@ -1,5 +1,6 @@
 // VaultDeals — Netlify Serverless Function
-// CheapShark API — free, no attribution required
+// CheapShark API — verified working endpoint, no attribution required
+// Key insight: dealRating field is unreliable (returns 0.0), filter by savings only
 
 exports.handler = async (event) => {
   const headers = {
@@ -11,9 +12,9 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    // Fetch sorted by Deal Rating — CheapShark's own quality score
+    // Verified working endpoint — returns 60 deals sorted by savings desc
     const res = await fetch(
-      'https://www.cheapshark.com/api/1.0/deals?sortBy=DealRating&desc=1&pageSize=60&onSale=1',
+      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1',
       { headers: { 'Accept': 'application/json' } }
     );
 
@@ -32,9 +33,8 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const normal = parseFloat(d.normalPrice);
         const current = parseFloat(d.salePrice);
-        const rating = parseFloat(d.dealRating);
-        // Filter: meaningful savings, real game price, decent deal rating
-        return savings >= 30 && normal >= 3 && current > 0 && rating >= 5;
+        // Only filter on savings % and price — dealRating is unreliable
+        return savings >= 30 && normal >= 5 && current > 0 && current < normal;
       })
       .map(d => {
         const current = parseFloat(d.salePrice);
@@ -42,18 +42,13 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const steamRating = parseFloat(d.steamRatingPercent) || 0;
         const metacritic = parseFloat(d.metacriticScore) || 0;
-        const dealRating = parseFloat(d.dealRating) || 0;
 
-        // Score based on savings % + deal rating combined
+        // Score purely on savings %
         let grade, label;
-        if (savings >= 75 || (savings >= 60 && dealRating >= 9))
-          { grade = 'A+'; label = 'Exceptional deal'; }
-        else if (savings >= 60 || (savings >= 45 && dealRating >= 8))
-          { grade = 'A';  label = 'Near historical low'; }
-        else if (savings >= 45 || dealRating >= 7)
-          { grade = 'B+'; label = 'Good deal'; }
-        else
-          { grade = 'B';  label = 'Decent deal'; }
+        if (savings >= 80)      { grade = 'A+'; label = 'Exceptional deal'; }
+        else if (savings >= 65) { grade = 'A';  label = 'Near historical low'; }
+        else if (savings >= 50) { grade = 'B+'; label = 'Good deal'; }
+        else                    { grade = 'B';  label = 'Decent deal'; }
 
         let badge;
         if (grade === 'A+')     badge = { type: 'low',  text: 'Best deal' };
@@ -83,12 +78,11 @@ exports.handler = async (event) => {
             ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${d.steamAppID}/header.jpg`
             : null,
           steamRating: Math.round(steamRating),
-          dealRating: dealRating.toFixed(1),
         };
       });
 
-    // Sort by grade then savings
-    const scoreOrder = ['A+','A','B+','B','C+','C'];
+    // Sort by grade then savings %
+    const scoreOrder = ['A+','A','B+','B'];
     processed.sort((a,b) => {
       const scoreDiff = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
       return scoreDiff !== 0 ? scoreDiff : b.discountPercent - a.discountPercent;

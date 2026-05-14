@@ -1,5 +1,5 @@
 // VaultDeals — Netlify Serverless Function
-// CheapShark API — free, no attribution, covers Steam/GOG/Humble/Fanatical/GMG/Epic
+// CheapShark API — free, no attribution required
 
 exports.handler = async (event) => {
   const headers = {
@@ -11,10 +11,8 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    // Fetch deals sorted by savings % with quality filters
-    // AAA/popular games tend to have higher normal prices so we filter upperPrice 60
     const res = await fetch(
-      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1&steamRating=70&lowerPrice=5&upperPrice=60',
+      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1',
       { headers: { 'Accept': 'application/json' } }
     );
 
@@ -33,8 +31,7 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const normal = parseFloat(d.normalPrice);
         const current = parseFloat(d.salePrice);
-        // Must have meaningful discount on a real game
-        return savings >= 30 && normal >= 5 && current > 0;
+        return savings > 0 && normal > 0 && current > 0;
       })
       .map(d => {
         const current = parseFloat(d.salePrice);
@@ -43,7 +40,6 @@ exports.handler = async (event) => {
         const steamRating = parseFloat(d.steamRatingPercent) || 0;
         const metacritic = parseFloat(d.metacriticScore) || 0;
 
-        // Score based purely on savings % — simple and accurate
         let grade, label;
         if (savings >= 80)      { grade = 'A+'; label = 'Exceptional deal'; }
         else if (savings >= 65) { grade = 'A';  label = 'Near historical low'; }
@@ -51,14 +47,12 @@ exports.handler = async (event) => {
         else if (savings >= 35) { grade = 'B';  label = 'Decent deal'; }
         else                    { grade = 'C+'; label = 'Mild discount'; }
 
-        // Badge
         let badge;
-        if (grade === 'A+')        badge = { type: 'low',  text: 'Best deal' };
-        else if (grade === 'A')    badge = { type: 'low',  text: 'Near low' };
-        else if (savings >= 50)    badge = { type: 'hot',  text: `-${Math.round(savings)}% off` };
-        else                       badge = { type: 'sale', text: `-${Math.round(savings)}% off` };
+        if (grade === 'A+')     badge = { type: 'low',  text: 'Best deal' };
+        else if (grade === 'A') badge = { type: 'low',  text: 'Near low' };
+        else if (savings >= 50) badge = { type: 'hot',  text: `-${Math.round(savings)}% off` };
+        else                    badge = { type: 'sale', text: `-${Math.round(savings)}% off` };
 
-        // Genre label from ratings
         let genre = 'On Sale';
         if (steamRating >= 90)      genre = 'Highly Rated';
         else if (steamRating >= 80) genre = 'Well Reviewed';
@@ -84,22 +78,15 @@ exports.handler = async (event) => {
         };
       });
 
-    // Sort: A+ first, then A, then by discount % within each grade
     const scoreOrder = ['A+','A','B+','B','C+','C'];
     processed.sort((a,b) => {
       const scoreDiff = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
-      if (scoreDiff !== 0) return scoreDiff;
-      return b.discountPercent - a.discountPercent;
+      return scoreDiff !== 0 ? scoreDiff : b.discountPercent - a.discountPercent;
     });
 
-    // Build sections
     const historicalLows = processed.filter(d => ['A+','A'].includes(d.score)).slice(0,4);
     const topDeals = processed.filter(d => ['B+','B'].includes(d.score)).slice(0,4);
-    const hiddenGems = processed
-      .filter(d => parseFloat(d.currentPrice) <= 10 && d.steamId)
-      .slice(0,4);
-
-    // Deal of day = highest scored, highest discount, has a Steam image
+    const hiddenGems = processed.filter(d => parseFloat(d.currentPrice) <= 10).slice(0,4);
     const dealOfDay = processed.find(d => d.image) || processed[0] || null;
 
     return {
@@ -126,7 +113,7 @@ exports.handler = async (event) => {
         message: err.message,
         dealOfDay: getFallback()[0],
         historicalLows: getFallback(),
-        topDeals: getFallback(),
+        topDeals: getFallback().slice(2),
         hiddenGems: [],
       })
     };

@@ -274,23 +274,8 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🏆 Deal of the day</div>
       <a href="#" class="sec-more">All top deals →</a>
     </div>
-    <div class="featured">
-      <div class="feat-img">🎮</div>
-      <div>
-        <div class="feat-name">Elden Ring</div>
-        <div class="feat-sub">Action RPG · FromSoftware · Steam key</div>
-        <div class="feat-tags">
-          <span class="badge b-low">All-time low</span>
-          <span class="badge b-hot">Deal score A+</span>
-          <span class="badge b-sale">−58% off</span>
-        </div>
-      </div>
-      <div class="feat-right">
-        <span class="feat-price">$24.99</span>
-        <span class="feat-was">Was $59.99</span>
-        <button class="buy-btn">Buy via Fanatical →</button>
-      </div>
-    </div>
+    <!-- ✅ FIX 1: replaced hardcoded featured card with live target -->
+    <div id="deal-of-day"></div>
   </div>
 
   <!-- HISTORICAL LOWS -->
@@ -299,57 +284,8 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🔥 At or near historical low</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
-
-      <div class="card gold">
-        <div class="card-img">
-          <div class="badges"><span class="badge b-low">All-time low</span></div>⚔️
-        </div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Baldur's Gate 3</div><span class="score s-a">A+</span></div>
-          <div class="card-genre">RPG · Larian Studios</div>
-          <div class="price-row"><span class="price">$33.49</span><span class="was">$59.99</span></div>
-          <div class="store">via Green Man Gaming</div>
-        </div>
-      </div>
-
-      <div class="card gold">
-        <div class="card-img">
-          <div class="badges"><span class="badge b-low">Near low</span></div>🚗
-        </div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Cyberpunk 2077</div><span class="score s-a">A</span></div>
-          <div class="card-genre">RPG · CD Projekt Red</div>
-          <div class="price-row"><span class="price">$19.99</span><span class="was">$59.99</span></div>
-          <div class="store">via Humble Bundle</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img">
-          <div class="badges"><span class="badge b-sale">−45%</span></div>🤠
-        </div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Red Dead Redemption 2</div><span class="score s-b">B+</span></div>
-          <div class="card-genre">Action · Rockstar Games</div>
-          <div class="price-row"><span class="price">$26.99</span><span class="was">$49.99</span></div>
-          <div class="store">via Fanatical</div>
-        </div>
-      </div>
-
-      <div class="card gold">
-        <div class="card-img">
-          <div class="badges"><span class="badge b-low">All-time low</span></div>🕷️
-        </div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Marvel's Spider-Man</div><span class="score s-a">A+</span></div>
-          <div class="card-genre">Action · Insomniac Games</div>
-          <div class="price-row"><span class="price">$17.99</span><span class="was">$59.99</span></div>
-          <div class="store">via GOG</div>
-        </div>
-      </div>
-
-    </div>
+    <!-- ✅ FIX 2: added id="historical-lows" -->
+    <div class="grid4" id="historical-lows"></div>
   </div>
 
   <!-- TOP DISCOUNTS -->
@@ -358,49 +294,8 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💸 Today's top discounts</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-sale">−70%</span></div>🏔️</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">The Witcher 3</div><span class="score s-b">B</span></div>
-          <div class="card-genre">RPG · CD Projekt Red</div>
-          <div class="price-row"><span class="price">$8.99</span><span class="was">$29.99</span></div>
-          <div class="store">via GOG</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-new">New deal</span></div>🚀</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Mass Effect Legendary</div><span class="score s-b">B+</span></div>
-          <div class="card-genre">RPG · BioWare / EA</div>
-          <div class="price-row"><span class="price">$14.99</span><span class="was">$59.99</span></div>
-          <div class="store">via Fanatical</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-sale">−60%</span></div>🧟</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">The Last of Us Part I</div><span class="score s-c">C+</span></div>
-          <div class="card-genre">Action · Naughty Dog</div>
-          <div class="price-row"><span class="price">$23.99</span><span class="was">$59.99</span></div>
-          <div class="store">via GMG</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-sale">−55%</span></div>🌍</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">AC Mirage</div><span class="score s-b">B</span></div>
-          <div class="card-genre">Action · Ubisoft</div>
-          <div class="price-row"><span class="price">$17.99</span><span class="was">$39.99</span></div>
-          <div class="store">via Ubisoft Store</div>
-        </div>
-      </div>
-
-    </div>
+    <!-- ✅ FIX 3: added id="top-discounts" -->
+    <div class="grid4" id="top-discounts"></div>
   </div>
 
   <!-- HIDDEN GEMS -->
@@ -409,52 +304,10 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💎 Hidden gems under $10</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
-
-      <div class="card gold">
-        <div class="card-img"><div class="badges"><span class="badge b-low">All-time low</span></div>🌿</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Disco Elysium</div><span class="score s-a">A+</span></div>
-          <div class="card-genre">RPG · ZA/UM · 97 Metacritic</div>
-          <div class="price-row"><span class="price">$5.99</span><span class="was">$39.99</span></div>
-          <div class="store">via Fanatical</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-sale">−80%</span></div>🔦</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Alan Wake Remastered</div><span class="score s-b">B+</span></div>
-          <div class="card-genre">Thriller · Remedy</div>
-          <div class="price-row"><span class="price">$4.99</span><span class="was">$29.99</span></div>
-          <div class="store">via Epic Games</div>
-        </div>
-      </div>
-
-      <div class="card gold">
-        <div class="card-img"><div class="badges"><span class="badge b-low">Near low</span></div>🎻</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Hades</div><span class="score s-a">A</span></div>
-          <div class="card-genre">Roguelike · Supergiant</div>
-          <div class="price-row"><span class="price">$7.49</span><span class="was">$24.99</span></div>
-          <div class="store">via Humble Bundle</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-img"><div class="badges"><span class="badge b-sale">−75%</span></div>🌊</div>
-        <div class="card-body">
-          <div class="card-row"><div class="card-name">Control Ultimate Edition</div><span class="score s-b">B+</span></div>
-          <div class="card-genre">Action · Remedy</div>
-          <div class="price-row"><span class="price">$7.99</span><span class="was">$39.99</span></div>
-          <div class="store">via GMG</div>
-        </div>
-      </div>
-
-    </div>
+    <!-- ✅ FIX 4: added id="hidden-gems" -->
+    <div class="grid4" id="hidden-gems"></div>
   </div>
 
-  <!-- ALERT SIGNUP -->
   <!-- FREE GAMES -->
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
@@ -464,6 +317,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <div class="free-grid" id="free-games"></div>
   </div>
 
+  <!-- ALERT SIGNUP -->
   <div class="sec">
     <div class="alert-banner">
       <div class="ab-title">🔔 Get alerted when your game drops in price</div>
@@ -532,7 +386,7 @@ function getBadge(grade,pct){
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
 var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new'};
 
-// BUILD CARD — uses data-url to avoid quote nesting
+// BUILD CARD
 function buildCard(d){
   var sc=SCORE_CSS[d.score]||'s-c';
   var bc=BADGE_CSS[d.badge.type]||'b-sale';
@@ -646,21 +500,22 @@ async function loadDeals(){
     for(var b=0;b<games.length;b+=batchSize){
       var batch=games.slice(b,b+batchSize);
       var batchIds=batch.map(function(g){return g.steamId;}).join(',');
-      var batchRes=await fetch(apiBase+'?key='+apiKey+'&ids='+batchIds+'&region=us');
+      var url=apiBase+'?key='+apiKey+'&ids='+batchIds+'&region=us';
+      console.log('Fetching batch:',url);
+      var batchRes=await fetch(url);
       var batchText=await batchRes.text();
       var batchJson;
-      try{batchJson=JSON.parse(batchText);}catch(e){console.warn('Batch parse error:',batchText.slice(0,100));continue;}
+      try{batchJson=JSON.parse(batchText);}catch(e){console.warn('Batch parse error:',batchText.slice(0,200));continue;}
       if(batchJson.success&&batchJson.data){
         Object.assign(allData,batchJson.data);
       }
     }
-    var ggData={success:true,data:allData};
     if(!Object.keys(allData).length)throw new Error('No GG.deals data');
 
     var deals=[];
     for(var i=0;i<games.length;i++){
       var game=games[i];
-      var info=ggData.data[game.steamId];
+      var info=allData[game.steamId];
       if(!info||!info.prices)continue;
 
       // Title validation — skip wrong games
@@ -669,13 +524,6 @@ async function loadDeals(){
       var words=ourTitle.split(' ').filter(function(w){return w.length>3;});
       var match=words.some(function(w){return ggTitle.indexOf(w)>=0;});
       if(!match)continue;
-
-      // Title validation - skip if GG.deals returned wrong game
-      var ggT=(info.title||'').toLowerCase();
-      var ourT=game.title.toLowerCase();
-      var wds=ourT.split(' ').filter(function(w){return w.length>3;});
-      var ok=wds.some(function(w){return ggT.indexOf(w)>=0;});
-      if(!ok)continue;
 
       var current=parseFloat(info.prices.currentRetail);
       var historical=parseFloat(info.prices.historicalRetail);

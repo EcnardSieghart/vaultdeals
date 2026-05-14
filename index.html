@@ -109,6 +109,7 @@ nav {
 .b-sale { background: var(--green-dim); color: var(--green);  border: 1px solid rgba(74,222,128,.18); }
 .b-hot  { background: var(--red-dim);   color: var(--red);    border: 1px solid rgba(248,113,113,.18); }
 .b-new  { background: var(--blue-dim);  color: var(--blue);   border: 1px solid rgba(96,165,250,.18); }
+.b-free { background: #1a0a2e;          color: #c084fc;       border: 1px solid rgba(192,132,252,.2); }
 
 .card-body { padding: 12px 14px 15px; }
 .card-row  { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
@@ -369,6 +370,7 @@ document.querySelector('.search-input').addEventListener('keydown',function(e){
 
 // DEAL SCORING
 function calcScore(current,historical){
+  if(historical===0)return{grade:'C+',label:'Was free before'};
   if(!historical||historical<=0)return{grade:'C+',label:'On sale'};
   var r=current/historical;
   if(r<=1.05)return{grade:'A+',label:'At historical low'};
@@ -377,14 +379,15 @@ function calcScore(current,historical){
   if(r<=2.00)return{grade:'B',label:'Decent deal'};
   return{grade:'C+',label:'On sale'};
 }
-function getBadge(grade,pct){
+function getBadge(grade,pct,wasFree){
+  if(wasFree)return{type:'free',text:'Was free'};
   if(grade==='A+')return{type:'low',text:'All-time low'};
   if(grade==='A')return{type:'low',text:'Near low'};
   if(pct>=50)return{type:'hot',text:'-'+pct+'% off'};
   return{type:'sale',text:'-'+pct+'% off'};
 }
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
-var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new'};
+var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
 
 // BUILD CARD
 function buildCard(d){
@@ -528,12 +531,13 @@ async function loadDeals(){
       var current=parseFloat(info.prices.currentRetail);
       var historical=parseFloat(info.prices.historicalRetail);
       if(!current||current<=0)continue;
+      var wasFree=historical===0;
       var discPct=Math.round((1-current/game.originalPrice)*100);
       if(discPct<20)continue;
       if(game.originalPrice<19.99)continue;
 
       var score=calcScore(current,historical);
-      var badge=getBadge(score.grade,discPct);
+      var badge=getBadge(score.grade,discPct,wasFree);
       deals.push({
         steamId:game.steamId,
         title:info.title||game.title,
@@ -562,7 +566,13 @@ async function loadDeals(){
       if(feat)feat.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     }
 
-    renderSection('historical-lows',deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;}).slice(0,4));
+    var historicalLows=deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;});
+    if(historicalLows.length<4){
+      var used=historicalLows.map(function(d){return d.steamId;});
+      var fillers=deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0&&used.indexOf(d.steamId)<0;});
+      historicalLows=historicalLows.concat(fillers).slice(0,4);
+    }
+    renderSection('historical-lows',historicalLows);
     renderSection('top-discounts',deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
     renderSection('hidden-gems',deals.filter(function(d){return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20;}).slice(0,4));
 

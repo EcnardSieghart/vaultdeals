@@ -190,6 +190,24 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   .feat-right { flex-direction: column; align-items: flex-start; gap: 8px; }
   .ab-form { flex-direction: column; }
 }
+
+/* FREE GAMES SECTION */
+.free-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.free-card { background: linear-gradient(135deg, #0d2a18 0%, #1c1a17 100%); border: 1px solid rgba(74,222,128,.25); border-radius: var(--r2); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .18s; }
+.free-card:hover { border-color: rgba(74,222,128,.5); transform: translateY(-3px); }
+.free-img { height: 120px; background: var(--bg3); overflow: hidden; position: relative; }
+.free-img img { width: 100%; height: 100%; object-fit: cover; }
+.free-badge { position: absolute; top: 8px; left: 8px; background: var(--green); color: #0d2a18; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px; letter-spacing: .02em; }
+.free-expires { position: absolute; top: 8px; right: 8px; background: rgba(13,42,24,.85); color: var(--green); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(74,222,128,.3); }
+.free-body { padding: 12px 14px 14px; }
+.free-title { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.free-platform { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.free-worth { font-size: 12px; color: var(--green); font-weight: 600; }
+.free-worth span { color: var(--text3); text-decoration: line-through; margin-left: 4px; font-weight: 400; font-size: 11px; }
+.free-btn { display: block; width: 100%; margin-top: 10px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,.3); padding: 8px; border-radius: var(--r); font-family: var(--fb); font-size: 12px; font-weight: 600; text-align: center; cursor: pointer; transition: background .15s; }
+.free-btn:hover { background: rgba(74,222,128,.2); }
+@media(max-width:960px){ .free-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:600px){ .free-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
 <body>
@@ -436,6 +454,17 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     </div>
   </div>
 
+  <!-- FREE GAMES -->
+  <div class="sec" id="free-games-sec">
+    <div class="sec-head">
+      <div class="sec-title">🎁 Free right now</div>
+      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower →</a>
+    </div>
+    <div class="free-grid" id="free-games">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
   <!-- ALERT SIGNUP -->
   <div class="sec">
     <div class="alert-banner">
@@ -457,7 +486,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="foot-logo-icon">🔒</div>
       VaultDeals.io
     </div>
-    <p class="foot-note">This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
+    <p class="foot-note">Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> · This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
     <div class="foot-links">
       <a href="#" class="foot-a">About</a>
       <a href="#" class="foot-a">FAQ</a>
@@ -577,11 +606,24 @@ async function loadDeals() {
       var game = games[i];
       var info = ggData.data[game.steamId];
       if (!info || !info.prices) continue;
+
+      // Title validation — skip if GG.deals returned a completely different game
+      var ggTitle = (info.title || '').toLowerCase();
+      var ourTitle = game.title.toLowerCase();
+      // Check if at least one word from our title appears in GG.deals title
+      var titleWords = ourTitle.split(' ').filter(function(w) { return w.length > 3; });
+      var titleMatch = titleWords.some(function(w) { return ggTitle.indexOf(w) >= 0; });
+      if (!titleMatch) continue;
+
       var current = parseFloat(info.prices.currentRetail);
       var historical = parseFloat(info.prices.historicalRetail);
       if (!current || current <= 0) continue;
+
+      // Only show games with a meaningful discount vs our known original price
       var discPct = Math.round((1 - current / game.originalPrice) * 100);
-      if (discPct < 15) continue;
+      if (discPct < 20) continue;
+      // Must be a real game price — filter out permanently cheap games
+      if (game.originalPrice < 19.99) continue;
       var score = calcScore(current, historical);
       var badge = getBadge(score.grade, discPct);
       deals.push({
@@ -610,7 +652,10 @@ async function loadDeals() {
 
     renderSection('historical-lows', deals.filter(function(d){return ['A+','A'].indexOf(d.score)>=0;}).slice(0,4));
     renderSection('top-discounts',   deals.filter(function(d){return ['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
-    renderSection('hidden-gems',     deals.filter(function(d){return parseFloat(d.currentPrice)<=10;}).slice(0,4));
+    // Hidden gems: games that cost $20+ originally, now under $10, with a real discount
+      renderSection('hidden-gems', deals.filter(function(d){
+        return parseFloat(d.currentPrice) <= 10 && parseFloat(d.originalPrice) >= 20;
+      }).slice(0,4));
 
     var lu = document.getElementById('last-updated');
     if (lu) lu.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -620,8 +665,68 @@ async function loadDeals() {
   }
 }
 
+
+// FREE GAMES — GamerPower API via Netlify proxy
+function formatExpiry(dateStr) {
+  if (!dateStr || dateStr === 'N/A') return 'While supplies last';
+  var d = new Date(dateStr);
+  var now = new Date();
+  var days = Math.ceil((d - now) / 86400000);
+  if (days <= 0) return 'Ending soon';
+  if (days === 1) return 'Ends tomorrow';
+  return 'Ends in ' + days + ' days';
+}
+
+var MAJOR_PLATFORMS = ['epic games store', 'steam', 'gog'];
+
+async function loadFreeGames() {
+  try {
+    var res = await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
+    if (!res.ok) throw new Error('GamerPower ' + res.status);
+    var games = await res.json();
+    if (!Array.isArray(games)) throw new Error('No free games data');
+
+    // Only show games from major platforms with decent worth
+    var filtered = games.filter(function(g) {
+      var worth = parseFloat(g.worth.replace('$','')) || 0;
+      var platforms = g.platforms.toLowerCase();
+      var isMajor = MAJOR_PLATFORMS.some(function(p) { return platforms.indexOf(p) >= 0; });
+      return isMajor && worth >= 9.99 && g.status === 'Active';
+    }).slice(0, 4);
+
+    if (!filtered.length) return; // hide section if nothing qualifies
+
+    var html = filtered.map(function(g) {
+      var expiry = formatExpiry(g.end_date);
+      return '<div class="free-card" onclick="window.open('' + g.open_giveaway_url + '','_blank')">'
+        + '<div class="free-img">'
+        + '<img src="' + g.image + '" alt="' + g.title + '" onerror="this.style.display='none'">'
+        + '<span class="free-badge">FREE</span>'
+        + '<span class="free-expires">' + expiry + '</span>'
+        + '</div>'
+        + '<div class="free-body">'
+        + '<div class="free-title">' + g.title.replace(/ \(.*?\) Giveaway$/, '').replace(/ Giveaway$/, '') + '</div>'
+        + '<div class="free-platform">' + g.platforms + '</div>'
+        + '<div class="free-worth">Free <span>' + g.worth + '</span></div>'
+        + '<div class="free-btn">Claim free →</div>'
+        + '</div></div>';
+    }).join('');
+
+    var el = document.getElementById('free-games');
+    if (el) el.innerHTML = html;
+
+  } catch(err) {
+    console.warn('Could not load free games:', err.message);
+    // Hide section gracefully if it fails
+    var sec = document.getElementById('free-games-sec');
+    if (sec) sec.style.display = 'none';
+  }
+}
+
 loadDeals();
+loadFreeGames();
 setInterval(loadDeals, 3600000);
+setInterval(loadFreeGames, 3600000);
 </script>
 </body>
 </html>

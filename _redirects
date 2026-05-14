@@ -1,0 +1,5 @@
+# GG.deals proxy — bypasses CORS
+/gg-api/* https://api.gg.deals/:splat 200
+
+# GamerPower proxy — bypasses CORS  
+/gamerpower-api/* https://www.gamerpower.com/api/:splat 200

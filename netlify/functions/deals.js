@@ -11,10 +11,9 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
   try {
-    // Fetch multiple pages to get enough quality deals
-    // CheapShark params: minimumSavings filters out tiny discounts server-side
+    // Fetch sorted by Deal Rating — CheapShark's own quality score
     const res = await fetch(
-      'https://www.cheapshark.com/api/1.0/deals?sortBy=Savings&desc=1&pageSize=60&onSale=1&minimumSavings=30',
+      'https://www.cheapshark.com/api/1.0/deals?sortBy=DealRating&desc=1&pageSize=60&onSale=1',
       { headers: { 'Accept': 'application/json' } }
     );
 
@@ -33,8 +32,9 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const normal = parseFloat(d.normalPrice);
         const current = parseFloat(d.salePrice);
-        // Filter out DLC, packs, artbooks — they have no Steam image and low prices
-        return savings >= 30 && normal >= 3 && current > 0;
+        const rating = parseFloat(d.dealRating);
+        // Filter: meaningful savings, real game price, decent deal rating
+        return savings >= 30 && normal >= 3 && current > 0 && rating >= 5;
       })
       .map(d => {
         const current = parseFloat(d.salePrice);
@@ -42,13 +42,18 @@ exports.handler = async (event) => {
         const savings = parseFloat(d.savings);
         const steamRating = parseFloat(d.steamRatingPercent) || 0;
         const metacritic = parseFloat(d.metacriticScore) || 0;
+        const dealRating = parseFloat(d.dealRating) || 0;
 
+        // Score based on savings % + deal rating combined
         let grade, label;
-        if (savings >= 80)      { grade = 'A+'; label = 'Exceptional deal'; }
-        else if (savings >= 65) { grade = 'A';  label = 'Near historical low'; }
-        else if (savings >= 50) { grade = 'B+'; label = 'Good deal'; }
-        else if (savings >= 35) { grade = 'B';  label = 'Decent deal'; }
-        else                    { grade = 'C+'; label = 'Mild discount'; }
+        if (savings >= 75 || (savings >= 60 && dealRating >= 9))
+          { grade = 'A+'; label = 'Exceptional deal'; }
+        else if (savings >= 60 || (savings >= 45 && dealRating >= 8))
+          { grade = 'A';  label = 'Near historical low'; }
+        else if (savings >= 45 || dealRating >= 7)
+          { grade = 'B+'; label = 'Good deal'; }
+        else
+          { grade = 'B';  label = 'Decent deal'; }
 
         let badge;
         if (grade === 'A+')     badge = { type: 'low',  text: 'Best deal' };
@@ -78,10 +83,11 @@ exports.handler = async (event) => {
             ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${d.steamAppID}/header.jpg`
             : null,
           steamRating: Math.round(steamRating),
+          dealRating: dealRating.toFixed(1),
         };
       });
 
-    // Sort by score then discount %
+    // Sort by grade then savings
     const scoreOrder = ['A+','A','B+','B','C+','C'];
     processed.sort((a,b) => {
       const scoreDiff = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
@@ -91,8 +97,6 @@ exports.handler = async (event) => {
     const historicalLows = processed.filter(d => ['A+','A'].includes(d.score)).slice(0,4);
     const topDeals = processed.filter(d => ['B+','B'].includes(d.score)).slice(0,4);
     const hiddenGems = processed.filter(d => parseFloat(d.currentPrice) <= 10 && d.steamId).slice(0,4);
-
-    // Deal of day = highest grade with a Steam image
     const dealOfDay = processed.find(d => d.image) || processed[0] || null;
 
     return {

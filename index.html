@@ -5,11 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name='impact-site-verification' value='d25eddd5-c55a-4b58-b6d9-8d8b64f0e545'>
 <title>VaultDeals — Find the best game deals</title>
-<!--
-  FONTS: loaded via preconnect + display=swap.
-  Note: Google Fonts may log visitor IPs as part of serving font files.
-  To eliminate this, download the woff2 files and self-host them.
--->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -48,7 +43,7 @@ nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); ba
 .logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
 .logo span { color: var(--amber); }
 .nav-links { display: flex; align-items: center; gap: 4px; }
-.nav-a { font-size: 13px; color: var(--text3); text-decoration: none; padding: 6px 12px; border-radius: var(--r); transition: all .15s; cursor: pointer; background: none; border: none; font-family: var(--fb); }
+.nav-a { font-size: 13px; color: var(--text3); padding: 6px 12px; border-radius: var(--r); transition: all .15s; cursor: pointer; background: none; border: none; font-family: var(--fb); }
 .nav-a:hover { color: var(--text2); background: var(--bg2); }
 .nav-btn { font-family: var(--fb); font-size: 13px; font-weight: 600; color: #141210; background: var(--amber); border: none; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
 .nav-btn:hover { background: var(--amber2); transform: translateY(-1px); }
@@ -72,9 +67,20 @@ nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); ba
 .search-ico { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 17px; pointer-events: none; }
 .search-go { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: var(--amber); color: #141210; border: none; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
 .search-go:hover { background: var(--amber2); }
+.search-go.loading { opacity: .7; cursor: not-allowed; }
 .trending { font-size: 12px; color: var(--text3); margin-bottom: 52px; }
-.trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; }
+.trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; cursor: pointer; }
 .trending a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* SEARCH RESULTS SECTION */
+#search-results { display: none; border-top: 1px solid var(--border); background: var(--bg); }
+.search-results-inner { max-width: 1160px; margin: 0 auto; padding: 32px 2rem 40px; }
+.search-results-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+.search-results-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.search-clear { font-size: 13px; color: var(--text3); background: none; border: none; cursor: pointer; font-family: var(--fb); padding: 4px 10px; border-radius: var(--r); transition: all .15s; }
+.search-clear:hover { color: var(--red); background: var(--red-dim); }
+.search-status { color: var(--text3); font-size: 14px; padding: 32px 0; text-align: center; }
+.search-no-price { color: var(--amber); font-size: 12px; font-weight: 600; margin-top: 5px; }
 
 /* STATS */
 .stats { display: flex; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px; }
@@ -164,7 +170,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 .foot-a { font-size: 12px; color: var(--text3); background: none; border: none; font-family: var(--fb); cursor: pointer; padding: 0; transition: color .15s; }
 .foot-a:hover { color: var(--text2); }
 
-/* SCROLL OFFSET — compensates for sticky nav height */
+/* SCROLL OFFSET */
 .scroll-target { scroll-margin-top: 78px; }
 
 /* ANIMATIONS */
@@ -222,8 +228,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 .modal-body p:last-child { margin-bottom: 0; }
 .modal-body ul { padding-left: 20px; margin-bottom: 12px; }
 .modal-body li { margin-bottom: 6px; }
-
-/* FAQ */
 .faq-item { border-bottom: 1px solid var(--border); }
 .faq-q { width: 100%; text-align: left; background: none; border: none; padding: 14px 0; font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .faq-q:hover { color: var(--amber); }
@@ -231,16 +235,12 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 .faq-a { display: none; padding: 0 0 14px; font-size: 14px; color: var(--text2); line-height: 1.8; }
 .faq-item.open .faq-a { display: block; }
 .faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--amber); }
-
-/* BUNDLES */
 .bundle-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
 .bundle-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; text-decoration: none; transition: border-color .15s, transform .15s; display: block; }
 .bundle-card:hover { border-color: var(--amber); transform: translateY(-2px); }
 .bundle-card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .bundle-card-desc { font-size: 11px; color: var(--text3); line-height: 1.6; }
 .bundle-card-link { font-size: 11px; color: var(--amber); margin-top: 8px; display: block; }
-
-/* WISHLIST */
 .wishlist-coming { text-align: center; padding: 12px 0; }
 .wishlist-icon { font-size: 48px; margin-bottom: 16px; }
 .wishlist-coming h3 { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
@@ -250,8 +250,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 .wishlist-input:focus { border-color: rgba(245,158,11,.4); }
 .wishlist-btn { background: var(--amber); color: #141210; border: none; padding: 10px 20px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 .wishlist-success { color: var(--green); font-size: 13px; margin-top: 12px; display: none; }
-
-/* CONTACT FORM */
 .contact-form { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
 .form-row { display: flex; flex-direction: column; gap: 6px; }
 .form-label { font-size: 12px; font-weight: 600; color: var(--text2); }
@@ -292,12 +290,23 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
     <div class="search-wrap f2">
       <span class="search-ico">🔍</span>
-      <input class="search-input" type="text" placeholder="Search any game — Elden Ring, Cyberpunk 2077…">
-      <button class="search-go">Search</button>
+      <input class="search-input" id="search-input" type="text" placeholder="Search any game — Elden Ring, Cyberpunk 2077…">
+      <button class="search-go" id="search-go" onclick="handleSearch()">Search</button>
     </div>
-    <p class="trending f3">Trending: <a href="#">Elden Ring</a> · <a href="#">Baldur's Gate 3</a> · <a href="#">Cyberpunk 2077</a> · <a href="#">RDR2</a></p>
+    <p class="trending f3" id="trending-bar">Trending: <a onclick="searchGame('Elden Ring')">Elden Ring</a> · <a onclick="searchGame('Baldur\'s Gate 3')">Baldur's Gate 3</a> · <a onclick="searchGame('Cyberpunk 2077')">Cyberpunk 2077</a> · <a onclick="searchGame('Red Dead Redemption 2')">RDR2</a></p>
   </div>
 </section>
+
+<!-- SEARCH RESULTS (hidden until search fires) -->
+<div id="search-results" class="scroll-target">
+  <div class="search-results-inner">
+    <div class="search-results-head">
+      <div class="search-results-title">🔍 Results for "<span id="search-query-label"></span>"</div>
+      <button class="search-clear" onclick="closeSearch()">Clear ✕</button>
+    </div>
+    <div class="grid4" id="search-results-grid"></div>
+  </div>
+</div>
 
 <!-- STATS -->
 <div class="stats f3">
@@ -403,11 +412,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   </div>
 </footer>
 
-<!-- ═══════════════════════════════════════════
-     MODALS
-═══════════════════════════════════════════ -->
-
-<!-- ABOUT -->
+<!-- MODALS -->
 <div class="modal-overlay" id="modal-about" onclick="handleOverlayClick(event,'modal-about')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
@@ -428,45 +433,22 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   </div>
 </div>
 
-<!-- FAQ -->
 <div class="modal-overlay" id="modal-faq" onclick="handleOverlayClick(event,'modal-faq')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-faq')">✕</button>
     <div class="modal-title">Frequently asked questions</div>
     <div class="modal-body">
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">How does the deal scoring work?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">We compare the current price to the game's all-time historical low. A+ = within 5% of all-time low. A = within 20%. B+ = up to 50% above. B = up to 2× the low. C+ = on sale but not exceptional.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">What does "Was free" mean?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">The game was previously available for free — for example via Epic Free Games. Since $0 is the historical low, no paid price scores well against it, so we show the badge instead of a misleading grade.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Where does your price data come from?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">Live prices are powered by GG.deals, which aggregates data from major authorized retailers. Free game giveaways come from GamerPower.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Are all the stores legitimate?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">Yes. We only track authorized retailers: Steam, GOG, Humble Bundle, Fanatical, Green Man Gaming, and similar. We never list grey market key sellers.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">How often do prices update?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">Hourly. If a price looks different from what a store shows, try a hard refresh (Ctrl+Shift+R).</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Do you make money from this?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">VaultDeals uses affiliate links. If you click through and make a purchase, we may earn a small commission at no extra cost to you. This keeps the site free. It never affects which games we feature or how we score deals.</div>
-      </div>
-      <div class="faq-item" style="border-bottom:none;">
-        <button class="faq-q" onclick="toggleFaq(this)">Can I request a game to be tracked?<span class="faq-chevron">▼</span></button>
-        <div class="faq-a">Not yet, but it's coming. Sign up for alerts and we'll let you know when custom tracking launches.</div>
-      </div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How does the deal scoring work?<span class="faq-chevron">▼</span></button><div class="faq-a">We compare the current price to the game's all-time historical low. A+ = within 5% of all-time low. A = within 20%. B+ = up to 50% above. B = up to 2× the low. C+ = on sale but not exceptional.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What does "Was free" mean?<span class="faq-chevron">▼</span></button><div class="faq-a">The game was previously available for free — for example via Epic Free Games. Since $0 is the historical low, no paid price scores well against it, so we show the badge instead of a misleading grade.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Where does your price data come from?<span class="faq-chevron">▼</span></button><div class="faq-a">Live prices are powered by GG.deals, which aggregates data from major authorized retailers. Free game giveaways come from GamerPower.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Are all the stores legitimate?<span class="faq-chevron">▼</span></button><div class="faq-a">Yes. We only track authorized retailers: Steam, GOG, Humble Bundle, Fanatical, Green Man Gaming, and similar. We never list grey market key sellers.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How often do prices update?<span class="faq-chevron">▼</span></button><div class="faq-a">Hourly. If a price looks different from what a store shows, try a hard refresh (Ctrl+Shift+R).</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you make money from this?<span class="faq-chevron">▼</span></button><div class="faq-a">VaultDeals uses affiliate links. If you click through and make a purchase, we may earn a small commission at no extra cost to you. This keeps the site free. It never affects which games we feature or how we score deals.</div></div>
+      <div class="faq-item" style="border-bottom:none;"><button class="faq-q" onclick="toggleFaq(this)">Can I request a game to be tracked?<span class="faq-chevron">▼</span></button><div class="faq-a">Not yet, but it's coming. Sign up for alerts and we'll let you know when custom tracking launches.</div></div>
     </div>
   </div>
 </div>
 
-<!-- PRIVACY -->
 <div class="modal-overlay" id="modal-privacy" onclick="handleOverlayClick(event,'modal-privacy')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-privacy')">✕</button>
@@ -477,18 +459,17 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <p>VaultDeals.io does not collect personal data simply from visiting the site. We do not use tracking pixels, behavioral analytics, or fingerprinting of any kind.</p>
       <p>If you sign up for price alerts, your email address is stored solely to send you notifications. You can unsubscribe at any time using the link in every email — this permanently removes your address from our system.</p>
       <h3>Cookies &amp; local storage</h3>
-      <p>We use a single browser localStorage entry to store session preferences. No advertising cookies or third-party tracking cookies are set by VaultDeals.</p>
+      <p>We use browser localStorage for session preferences only. No advertising cookies or third-party tracking cookies are set by VaultDeals.</p>
       <h3>Third-party services</h3>
-      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. If you prefer no third-party exposure, you can block fonts.googleapis.com in your browser — the site will fall back to system fonts gracefully.</p>
-      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level as standard practice — this is outside our control. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
-      <p>When you click through to a store, that store may set its own cookies. Price data is provided by <a href="https://gg.deals/privacy/" target="_blank" rel="noopener">GG.deals</a> and free game data by <a href="https://www.gamerpower.com/privacy-policy" target="_blank" rel="noopener">GamerPower</a>.</p>
+      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. You can block fonts.googleapis.com in your browser — the site will fall back to system fonts.</p>
+      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level — this is outside our control. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
+      <p>When you click through to a store, that store may set its own cookies. Price data is provided by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> and free game data by <a href="https://www.gamerpower.com" target="_blank" rel="noopener">GamerPower</a>.</p>
       <h3>Contact</h3>
-      <p>Questions about this policy? <button class="foot-btn" onclick="closeModal('modal-privacy');openModal('modal-contact')">Contact us →</button></p>
+      <p><button class="foot-btn" onclick="closeModal('modal-privacy');openModal('modal-contact')">Contact us →</button></p>
     </div>
   </div>
 </div>
 
-<!-- AFFILIATE DISCLOSURE -->
 <div class="modal-overlay" id="modal-disclosure" onclick="handleOverlayClick(event,'modal-disclosure')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-disclosure')">✕</button>
@@ -506,7 +487,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   </div>
 </div>
 
-<!-- BUNDLES -->
 <div class="modal-overlay" id="modal-bundles" onclick="handleOverlayClick(event,'modal-bundles')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-bundles')">✕</button>
@@ -514,28 +494,15 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <div class="modal-body">
       <p>Bundles are one of the best ways to get great games at deep discounts. These are the most trusted bundle platforms — all authorized, all legitimate.</p>
       <div class="bundle-grid">
-        <a href="https://www.fanatical.com/en/bundles" target="_blank" rel="noopener" class="bundle-card">
-          <div class="bundle-card-name">Fanatical</div>
-          <div class="bundle-card-desc">Weekly rotating bundles, often featuring AAA and indie titles at 90%+ off.</div>
-          <div class="bundle-card-link">Browse bundles →</div>
-        </a>
-        <a href="https://www.humblebundle.com" target="_blank" rel="noopener" class="bundle-card">
-          <div class="bundle-card-name">Humble Bundle</div>
-          <div class="bundle-card-desc">Pay what you want bundles. A portion of every purchase goes to charity.</div>
-          <div class="bundle-card-link">Browse bundles →</div>
-        </a>
-        <a href="https://www.indiegala.com/bundles" target="_blank" rel="noopener" class="bundle-card">
-          <div class="bundle-card-name">IndieGala</div>
-          <div class="bundle-card-desc">Indie-focused bundles with regular flash deals and deep discounts.</div>
-          <div class="bundle-card-link">Browse bundles →</div>
-        </a>
+        <a href="https://www.fanatical.com/en/bundles" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">Fanatical</div><div class="bundle-card-desc">Weekly rotating bundles, often featuring AAA and indie titles at 90%+ off.</div><div class="bundle-card-link">Browse bundles →</div></a>
+        <a href="https://www.humblebundle.com" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">Humble Bundle</div><div class="bundle-card-desc">Pay what you want bundles. A portion of every purchase goes to charity.</div><div class="bundle-card-link">Browse bundles →</div></a>
+        <a href="https://www.indiegala.com/bundles" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">IndieGala</div><div class="bundle-card-desc">Indie-focused bundles with regular flash deals and deep discounts.</div><div class="bundle-card-link">Browse bundles →</div></a>
       </div>
       <p style="margin-top:18px;font-size:12px;color:var(--text3);">Bundle tracking with expiry countdowns and deal scoring is coming to VaultDeals soon.</p>
     </div>
   </div>
 </div>
 
-<!-- WISHLIST -->
 <div class="modal-overlay" id="modal-wishlist" onclick="handleOverlayClick(event,'modal-wishlist')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-wishlist')">✕</button>
@@ -555,36 +522,16 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   </div>
 </div>
 
-<!-- CONTACT -->
 <div class="modal-overlay" id="modal-contact" onclick="handleOverlayClick(event,'modal-contact')">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal('modal-contact')">✕</button>
     <div class="modal-title">Contact us</div>
     <div class="modal-body">
       <p style="margin-bottom:18px;">Have a question, found a bug, or want to suggest a game to track? We read every message.</p>
-      <!--
-        FORMSPREE SETUP:
-        1. Go to https://formspree.io and create a free account
-        2. Click "New Form", give it a name (e.g. VaultDeals Contact)
-        3. Copy your 8-character form ID from the endpoint URL
-        4. Replace REPLACE_WITH_YOUR_FORM_ID below with that ID
-        Submissions arrive in your inbox as normal emails.
-      -->
-      <form class="contact-form" id="contact-form"
-            action="https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID"
-            method="POST">
-        <div class="form-row">
-          <label class="form-label" for="contact-name">Your name</label>
-          <input class="form-input" type="text" id="contact-name" name="name" placeholder="Alex" required>
-        </div>
-        <div class="form-row">
-          <label class="form-label" for="contact-email">Email address</label>
-          <input class="form-input" type="email" id="contact-email" name="email" placeholder="alex@example.com" required>
-        </div>
-        <div class="form-row">
-          <label class="form-label" for="contact-msg">Message</label>
-          <textarea class="form-textarea" id="contact-msg" name="message" placeholder="Your message…" required></textarea>
-        </div>
+      <form class="contact-form" id="contact-form" action="https://formspree.io/f/xnjwkppr" method="POST">
+        <div class="form-row"><label class="form-label" for="contact-name">Your name</label><input class="form-input" type="text" id="contact-name" name="name" placeholder="Alex" required></div>
+        <div class="form-row"><label class="form-label" for="contact-email">Email address</label><input class="form-input" type="email" id="contact-email" name="email" placeholder="alex@example.com" required></div>
+        <div class="form-row"><label class="form-label" for="contact-msg">Message</label><textarea class="form-textarea" id="contact-msg" name="message" placeholder="Your message…" required></textarea></div>
         <button type="submit" class="form-submit" id="contact-submit">Send message →</button>
         <div class="form-feedback" id="contact-feedback"></div>
       </form>
@@ -594,75 +541,45 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
 <script>
 // MODAL SYSTEM
-function openModal(id){
-  document.getElementById(id).classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-  document.body.style.overflow='';
-}
-function handleOverlayClick(e,id){
-  if(e.target===e.currentTarget)closeModal(id);
-}
+function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function handleOverlayClick(e,id){ if(e.target===e.currentTarget)closeModal(id); }
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    document.querySelectorAll('.modal-overlay.open').forEach(function(m){
-      m.classList.remove('open');
-    });
-    document.body.style.overflow='';
-  }
+  if(e.key==='Escape'){ document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); }); document.body.style.overflow=''; }
 });
 
 // SCROLL
-function scrollToSection(id){
-  var el=document.getElementById(id);
-  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-}
+function scrollToSection(id){ var el=document.getElementById(id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }
 
 // FAQ
-function toggleFaq(btn){
-  btn.closest('.faq-item').classList.toggle('open');
-}
+function toggleFaq(btn){ btn.closest('.faq-item').classList.toggle('open'); }
 
-// WISHLIST SIGNUP (placeholder — wire to real backend when wishlist launches)
+// WISHLIST
 function handleWishlistSignup(){
   var email=document.getElementById('wishlist-email').value.trim();
   if(!email||!email.includes('@'))return;
-  // TODO: POST to real email backend
   document.getElementById('wishlist-success').style.display='block';
   document.getElementById('wishlist-email').value='';
   document.querySelector('.wishlist-btn').disabled=true;
 }
 
-// CONTACT FORM (Formspree AJAX)
+// CONTACT FORM
 document.getElementById('contact-form').addEventListener('submit',async function(e){
   e.preventDefault();
   var btn=document.getElementById('contact-submit');
   var fb=document.getElementById('contact-feedback');
-  btn.disabled=true; btn.textContent='Sending…';
-  fb.className='form-feedback';
+  btn.disabled=true; btn.textContent='Sending…'; fb.className='form-feedback';
   try{
-    var res=await fetch(this.action,{
-      method:'POST',
-      body:new FormData(this),
-      headers:{Accept:'application/json'}
-    });
-    if(res.ok){
-      fb.textContent="✓ Message sent! We'll get back to you soon.";
-      fb.className='form-feedback ok';
-      this.reset();
-    }else{ throw new Error(); }
-  }catch(err){
-    fb.textContent='Something went wrong. Please try again.';
-    fb.className='form-feedback err';
-  }
+    var res=await fetch(this.action,{method:'POST',body:new FormData(this),headers:{Accept:'application/json'}});
+    if(res.ok){ fb.textContent="✓ Message sent! We'll get back to you soon."; fb.className='form-feedback ok'; this.reset(); }
+    else{ throw new Error(); }
+  }catch(err){ fb.textContent='Something went wrong. Please try again.'; fb.className='form-feedback err'; }
   btn.disabled=false; btn.textContent='Send message →';
 });
 
-// SEARCH
-document.querySelector('.search-input').addEventListener('keydown',function(e){
-  if(e.key==='Enter')document.querySelector('.search-go').click();
+// SEARCH INPUT
+document.getElementById('search-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter') handleSearch();
 });
 
 // DEAL SCORING
@@ -686,15 +603,143 @@ function getBadge(grade,pct,wasFree){
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
 var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
 
+// Cached from loadDeals to avoid re-fetching on every search
+var cachedApiKey=null;
+var cachedApiBase=null;
+
+// SEARCH
+async function handleSearch(){
+  var query=document.getElementById('search-input').value.trim();
+  if(!query)return;
+
+  var panel=document.getElementById('search-results');
+  var grid=document.getElementById('search-results-grid');
+  var label=document.getElementById('search-query-label');
+  var btn=document.getElementById('search-go');
+
+  label.textContent=query;
+  panel.style.display='block';
+  grid.innerHTML='<div class="search-status">Searching…</div>';
+  btn.classList.add('loading');
+  btn.textContent='Searching…';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+
+  try{
+    // Step 1: Steam store search → get appIds
+    var steamRes=await fetch('/steam-search/?term='+encodeURIComponent(query)+'&l=english&cc=US');
+    if(!steamRes.ok)throw new Error('Steam search failed');
+    var steamData=await steamRes.json();
+    var apps=(steamData.items||[]).filter(function(i){return i.type==='app';}).slice(0,8);
+
+    if(!apps.length){
+      grid.innerHTML='<div class="search-status">No games found for "'+query+'". Try a different title.</div>';
+      return;
+    }
+
+    // Step 2: GG.deals prices for those appIds
+    // Use cached key if available, otherwise fetch
+    if(!cachedApiKey){
+      var cfgRes=await fetch('/api/deals');
+      var cfg=await cfgRes.json();
+      cachedApiKey=cfg.apiKey;
+      cachedApiBase=cfg.apiBase;
+    }
+    var ids=apps.map(function(a){return String(a.id);}).join(',');
+    var priceRes=await fetch(cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us');
+    var priceText=await priceRes.text();
+    var priceData;
+    try{ priceData=JSON.parse(priceText); }catch(e){ priceData={success:false}; }
+    var prices=(priceData.success&&priceData.data)?priceData.data:{};
+
+    // Step 3: Render results
+    var html=apps.map(function(app){
+      var p=prices[String(app.id)];
+      var img='https://cdn.cloudflare.steamstatic.com/steam/apps/'+app.id+'/header.jpg';
+      var storeUrl=p?p.url:'https://gg.deals/search/?title='+encodeURIComponent(app.name);
+      var priceHtml='';
+      var scoreHtml='';
+      var badgeHtml='';
+      var gold='';
+
+      if(p&&p.prices&&p.prices.currentRetail){
+        var current=parseFloat(p.prices.currentRetail);
+        var historical=parseFloat(p.prices.historicalRetail);
+        var originalCents=app.price?app.price.initial:0;
+        var original=originalCents/100;
+        var wasFree=historical===0;
+        var score=calcScore(current,historical);
+        var discPct=original>0?Math.round((1-current/original)*100):0;
+        var badge=getBadge(score.grade,discPct,wasFree);
+        var sc=SCORE_CSS[score.grade]||'s-c';
+        var bc=BADGE_CSS[badge.type]||'b-sale';
+        if(score.grade==='A+'||score.grade==='A')gold='gold';
+        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span>'+(original>0&&discPct>0?'<span class="was">$'+original.toFixed(2)+'</span>':'')+'</div>';
+        scoreHtml='<span class="score '+sc+'">'+score.grade+'</span>';
+        badgeHtml='<span class="badge '+bc+'">'+badge.text+'</span>';
+      }else{
+        priceHtml='<div class="search-no-price">Check on GG.deals →</div>';
+      }
+
+      var metaStr=app.metascore?'Metacritic: '+app.metascore:'PC Game';
+
+      return '<div class="card '+gold+'" data-url="'+storeUrl+'">'
+        +'<div class="card-img" style="position:relative;">'
+        +'<div class="badges">'+badgeHtml+'</div>'
+        +'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+img+'" alt="'+app.name+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.style.display=\'none\'"></div>'
+        +'</div>'
+        +'<div class="card-body">'
+        +'<div class="card-row"><div class="card-name">'+app.name+'</div>'+scoreHtml+'</div>'
+        +'<div class="card-genre">'+metaStr+'</div>'
+        +priceHtml
+        +'<div class="store">via GG.deals</div>'
+        +'</div></div>';
+    }).join('');
+
+    grid.innerHTML=html;
+    grid.querySelectorAll('[data-url]').forEach(function(el){
+      el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+    });
+
+  }catch(err){
+    grid.innerHTML='<div class="search-status">Something went wrong. Please try again.</div>';
+    console.warn('Search error:',err.message);
+  }finally{
+    btn.classList.remove('loading');
+    btn.textContent='Search';
+  }
+}
+
+function closeSearch(){
+  document.getElementById('search-results').style.display='none';
+  document.getElementById('search-input').value='';
+}
+
+function searchGame(title){
+  document.getElementById('search-input').value=title;
+  handleSearch();
+}
+
+// UPDATE TRENDING from live deals data
+function updateTrending(deals){
+  if(!deals||!deals.length)return;
+  var top=deals.slice(0,5);
+  var bar=document.getElementById('trending-bar');
+  if(!bar)return;
+  var links=top.map(function(d){
+    var safe=d.title.replace(/'/g,"\\'");
+    return '<a onclick="searchGame(\''+safe+'\')">'+d.title+'</a>';
+  }).join(' · ');
+  bar.innerHTML='Trending deals: '+links;
+}
+
+// BUILD CARD / FEATURED
 function buildCard(d){
   var sc=SCORE_CSS[d.score]||'s-c';
   var bc=BADGE_CSS[d.badge.type]||'b-sale';
   var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
   var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
   return '<div class="card '+gold+'" data-url="'+d.storeUrl+'">'
-    +'<div class="card-img" style="position:relative;">'
-    +'<div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'
-    +img+'</div>'
+    +'<div class="card-img" style="position:relative;"><div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'+img+'</div>'
     +'<div class="card-body">'
     +'<div class="card-row"><div class="card-name">'+d.title+'</div><span class="score '+sc+'">'+d.score+'</span></div>'
     +'<div class="card-genre">'+d.genre+'</div>'
@@ -706,18 +751,10 @@ function buildFeatured(d){
   var img=d.image?'<img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">':'';
   return '<div class="featured" data-url="'+d.storeUrl+'">'
     +'<div class="feat-img">'+img+'</div>'
-    +'<div><div class="feat-name">'+d.title+'</div>'
-    +'<div class="feat-sub">'+d.genre+'</div>'
-    +'<div class="feat-tags">'
-    +'<span class="badge b-low">'+d.badge.text+'</span>'
-    +'<span class="badge b-hot">Score '+d.score+'</span>'
-    +'<span class="badge b-sale">-'+d.discountPercent+'% off</span>'
-    +'</div></div>'
-    +'<div class="feat-right">'
-    +'<span class="feat-price">$'+d.currentPrice+'</span>'
-    +'<span class="feat-was">Was $'+d.originalPrice+'</span>'
-    +'<button class="buy-btn">See best price &rarr;</button>'
-    +'</div></div>';
+    +'<div><div class="feat-name">'+d.title+'</div><div class="feat-sub">'+d.genre+'</div>'
+    +'<div class="feat-tags"><span class="badge b-low">'+d.badge.text+'</span><span class="badge b-hot">Score '+d.score+'</span><span class="badge b-sale">-'+d.discountPercent+'% off</span></div></div>'
+    +'<div class="feat-right"><span class="feat-price">$'+d.currentPrice+'</span><span class="feat-was">Was $'+d.originalPrice+'</span><button class="buy-btn">See best price &rarr;</button></div>'
+    +'</div>';
 }
 function renderSection(id,deals){
   var el=document.getElementById(id);
@@ -752,25 +789,15 @@ async function loadFreeGames(){
       var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
       return '<div class="free-card" data-url="'+g.open_giveaway_url+'">'
         +'<div class="free-img"><img src="'+g.image+'" alt="'+title+'">'
-        +'<span class="free-badge">FREE</span>'
-        +'<span class="free-expires">'+expiry+'</span></div>'
-        +'<div class="free-body">'
-        +'<div class="free-title">'+title+'</div>'
-        +'<div class="free-platform">'+g.platforms+'</div>'
-        +'<div class="free-worth">Free <span>'+g.worth+'</span></div>'
-        +'<div class="free-btn">Claim free &rarr;</div>'
+        +'<span class="free-badge">FREE</span><span class="free-expires">'+expiry+'</span></div>'
+        +'<div class="free-body"><div class="free-title">'+title+'</div><div class="free-platform">'+g.platforms+'</div>'
+        +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
         +'</div></div>';
     }).join('');
     var el=document.getElementById('free-games');
-    if(el){
-      el.innerHTML=html;
-      el.querySelectorAll('[data-url]').forEach(function(c){
-        c.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
-      });
-    }
+    if(el){ el.innerHTML=html; el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');}; }); }
   }catch(err){
-    var sec=document.getElementById('free-games-sec');
-    if(sec)sec.style.display='none';
+    var sec=document.getElementById('free-games-sec'); if(sec)sec.style.display='none';
     console.warn('Free games error:',err.message);
   }
 }
@@ -780,14 +807,16 @@ async function loadDeals(){
   try{
     var cfgRes=await fetch('/api/deals');
     var cfg=await cfgRes.json();
-    var apiKey=cfg.apiKey,games=cfg.games,apiBase=cfg.apiBase;
-    if(!apiKey)throw new Error('No API key');
+    cachedApiKey=cfg.apiKey;
+    cachedApiBase=cfg.apiBase;
+    var games=cfg.games;
+    if(!cachedApiKey)throw new Error('No API key');
 
     var allData={};
     for(var b=0;b<games.length;b+=10){
       var batch=games.slice(b,b+10);
       var ids=batch.map(function(g){return g.steamId;}).join(',');
-      var url=apiBase+'?key='+apiKey+'&ids='+ids+'&region=us';
+      var url=cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us';
       console.log('Fetching batch:',url);
       var batchRes=await fetch(url);
       var batchText=await batchRes.text();
@@ -835,7 +864,6 @@ async function loadDeals(){
       if(feat)feat.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     }
 
-    // Historical lows — fill to 4 with B+/B fallback
     var historicalLows=deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;});
     if(historicalLows.length<4){
       var used=historicalLows.map(function(d){return d.steamId;});
@@ -849,6 +877,9 @@ async function loadDeals(){
     document.querySelectorAll('[data-url]').forEach(function(el){
       el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     });
+
+    // Update trending with live deals
+    updateTrending(deals);
 
   }catch(err){
     console.warn('Could not load live deals:',err.message);

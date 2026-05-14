@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name='impact-site-verification' value='d25eddd5-c55a-4b58-b6d9-8d8b64f0e545'>
 <title>VaultDeals — Find the best game deals</title>
+<!--
+  FONTS: loaded via preconnect + display=swap.
+  Note: Google Fonts may log visitor IPs as part of serving font files.
+  To eliminate this, download the woff2 files and self-host them.
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -28,6 +33,8 @@
   --red-dim:   #2d0f0f;
   --blue:      #60a5fa;
   --blue-dim:  #0f1f3a;
+  --purple:    #c084fc;
+  --purple-dim:#1a0a2e;
   --fh: 'Plus Jakarta Sans', sans-serif;
   --fb: 'DM Sans', sans-serif;
   --r: 8px; --r2: 14px;
@@ -35,25 +42,18 @@
 html { scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
-/* ── NAV ── */
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(20,18,16,.94);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem; height: 58px;
-  display: flex; align-items: center; justify-content: space-between;
-}
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 58px; display: flex; align-items: center; justify-content: space-between; }
 .logo { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -.5px; text-decoration: none; display: flex; align-items: center; gap: 9px; }
 .logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
 .logo span { color: var(--amber); }
 .nav-links { display: flex; align-items: center; gap: 4px; }
-.nav-a { font-size: 13px; color: var(--text3); text-decoration: none; padding: 6px 12px; border-radius: var(--r); transition: all .15s; }
+.nav-a { font-size: 13px; color: var(--text3); text-decoration: none; padding: 6px 12px; border-radius: var(--r); transition: all .15s; cursor: pointer; background: none; border: none; font-family: var(--fb); }
 .nav-a:hover { color: var(--text2); background: var(--bg2); }
-.nav-btn { font-family: var(--fb); font-size: 13px; font-weight: 600; color: #141210; background: var(--amber); border: none; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.nav-btn { font-family: var(--fb); font-size: 13px; font-weight: 600; color: #141210; background: var(--amber); border: none; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
 .nav-btn:hover { background: var(--amber2); transform: translateY(-1px); }
 
-/* ── HERO ── */
+/* HERO */
 .hero { position: relative; padding: 80px 2rem 52px; text-align: center; overflow: hidden; }
 .hero-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(245,158,11,.09) 0%, transparent 65%); pointer-events: none; z-index: 0; }
 .hero-inner { position: relative; z-index: 1; }
@@ -62,9 +62,9 @@ nav {
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
 .hero-h1 { font-family: var(--fh); font-size: clamp(32px, 5.5vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -2px; color: var(--text); margin-bottom: 18px; }
 .hero-h1 em { color: var(--amber); font-style: normal; }
-.hero-sub { font-size: 16px; font-weight: 400; color: var(--text3); max-width: 460px; margin: 0 auto 38px; line-height: 1.8; }
+.hero-sub { font-size: 16px; color: var(--text3); max-width: 460px; margin: 0 auto 38px; line-height: 1.8; }
 
-/* ── SEARCH ── */
+/* SEARCH */
 .search-wrap { max-width: 564px; margin: 0 auto 14px; position: relative; }
 .search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: 100px; padding: 15px 140px 15px 50px; font-family: var(--fb); font-size: 15px; color: var(--text); outline: none; transition: all .2s; }
 .search-input::placeholder { color: var(--text3); }
@@ -76,14 +76,14 @@ nav {
 .trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; }
 .trending a:hover { color: var(--amber); border-bottom-color: var(--amber); }
 
-/* ── STATS ── */
+/* STATS */
 .stats { display: flex; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px; }
 .stat { padding: 22px 40px; text-align: center; border-right: 1px solid var(--border); }
 .stat:last-child { border-right: none; }
 .stat-n { font-family: var(--fh); font-size: 26px; font-weight: 800; color: var(--amber); display: block; letter-spacing: -.5px; }
 .stat-l { font-size: 12px; color: var(--text3); margin-top: 2px; }
 
-/* ── LAYOUT ── */
+/* LAYOUT */
 .container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
 .sec { margin-bottom: 60px; }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
@@ -91,28 +91,23 @@ nav {
 .sec-more { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .15s; }
 .sec-more:hover { color: var(--amber); }
 
-/* ── CARDS ── */
+/* CARDS */
 .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-.grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
-
 .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; transition: border-color .2s, transform .18s; cursor: pointer; }
 .card:hover { border-color: var(--border2); transform: translateY(-3px); }
 .card.gold { border-color: rgba(245,158,11,.28); }
 .card.gold:hover { border-color: rgba(245,158,11,.5); }
-
 .card-img { height: 120px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; }
 .card-img::after { content:''; position:absolute; bottom:0; left:0; right:0; height:36px; background:linear-gradient(transparent,var(--bg2)); }
 .badges { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 1; }
-
 .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: .02em; }
-.b-low  { background: var(--amber-dim); color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
-.b-sale { background: var(--green-dim); color: var(--green);  border: 1px solid rgba(74,222,128,.18); }
-.b-hot  { background: var(--red-dim);   color: var(--red);    border: 1px solid rgba(248,113,113,.18); }
-.b-new  { background: var(--blue-dim);  color: var(--blue);   border: 1px solid rgba(96,165,250,.18); }
-.b-free { background: #1a0a2e;          color: #c084fc;       border: 1px solid rgba(192,132,252,.2); }
-
+.b-low    { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
+.b-sale   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(74,222,128,.18); }
+.b-hot    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,113,113,.18); }
+.b-new    { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(96,165,250,.18); }
+.b-free   { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(192,132,252,.2); }
 .card-body { padding: 12px 14px 15px; }
-.card-row  { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+.card-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
 .card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .score { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 20px; border-radius: 5px; font-family: var(--fh); font-size: 10px; font-weight: 800; flex-shrink: 0; }
 .s-a { background: var(--green-dim); color: var(--green); }
@@ -121,32 +116,30 @@ nav {
 .card-genre { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
 .price-row { display: flex; align-items: center; justify-content: space-between; }
 .price { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--green); letter-spacing: -.3px; }
-.was   { font-size: 11px; color: var(--text3); text-decoration: line-through; }
+.was { font-size: 11px; color: var(--text3); text-decoration: line-through; }
 .store { font-size: 11px; color: var(--amber); margin-top: 5px; }
 
-/* ── FEATURED ── */
+/* FEATURED */
 .featured { background: var(--bg2); border: 1px solid rgba(245,158,11,.25); border-radius: var(--r2); padding: 22px 24px; display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; cursor: pointer; transition: border-color .2s; margin-bottom: 12px; }
 .featured:hover { border-color: rgba(245,158,11,.45); }
 .feat-img { width: 80px; height: 80px; background: var(--bg3); border-radius: var(--r); display: flex; align-items: center; justify-content: center; font-size: 34px; flex-shrink: 0; }
 .feat-name { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -.3px; }
-.feat-sub  { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
+.feat-sub { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
 .feat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 .feat-right { text-align: right; flex-shrink: 0; }
 .feat-price { font-family: var(--fh); font-size: 32px; font-weight: 800; color: var(--green); display: block; letter-spacing: -1px; }
-.feat-was   { font-size: 13px; color: var(--text3); text-decoration: line-through; display: block; margin-bottom: 10px; }
+.feat-was { font-size: 13px; color: var(--text3); text-decoration: line-through; display: block; margin-bottom: 10px; }
 .buy-btn { display: inline-block; background: var(--amber); color: #141210; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; transition: background .15s; }
 .buy-btn:hover { background: var(--amber2); }
 
-/* ── COUNTDOWN ── */
-.cd-strip { background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); border-radius: var(--r2); padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-.cd-label { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--amber); }
-.cd-timer { display: flex; align-items: center; gap: 6px; }
-.cd-unit { text-align: center; }
-.cd-n { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--text); background: var(--bg2); border-radius: 7px; padding: 5px 10px; display: block; min-width: 44px; }
-.cd-sep { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--amber); }
-.cd-lbl { font-size: 10px; color: var(--text3); margin-top: 3px; }
+/* SALES STRIP */
+.sales-strip { background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); border-radius: var(--r2); padding: 14px 22px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.sales-label { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+.sales-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.sales-link { font-size: 12px; font-weight: 600; color: var(--text2); background: var(--bg2); border: 1px solid var(--border2); padding: 5px 14px; border-radius: 100px; text-decoration: none; transition: all .15s; }
+.sales-link:hover { color: var(--amber); border-color: rgba(245,158,11,.4); background: var(--amber-dim); }
 
-/* ── ALERT BANNER ── */
+/* ALERT BANNER */
 .alert-banner { border: 1px dashed var(--border2); border-radius: var(--r2); padding: 28px 32px; text-align: center; }
 .ab-title { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -.3px; }
 .ab-sub { font-size: 14px; color: var(--text3); margin-bottom: 20px; line-height: 1.7; }
@@ -157,34 +150,36 @@ nav {
 .ab-btn { background: var(--amber); color: #141210; border: none; padding: 11px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
 .ab-btn:hover { background: var(--amber2); }
 
-/* ── FOOTER ── */
+/* FOOTER */
 footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20px; }
 .foot { max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
 .foot-logo { font-family: var(--fh); font-size: 15px; font-weight: 800; color: var(--text2); display: flex; align-items: center; gap: 8px; }
 .foot-logo-icon { width: 20px; height: 20px; background: var(--amber); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
 .foot-note { font-size: 12px; color: var(--text3); max-width: 460px; line-height: 1.7; }
 .foot-note a { color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
-.foot-links { display: flex; gap: 18px; }
-.foot-a { font-size: 12px; color: var(--text3); text-decoration: none; transition: color .15s; }
+.foot-note a:hover { color: var(--text2); }
+.foot-btn { background: none; border: none; font-family: var(--fb); font-size: 12px; color: var(--text3); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+.foot-btn:hover { color: var(--text2); }
+.foot-links { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.foot-a { font-size: 12px; color: var(--text3); background: none; border: none; font-family: var(--fb); cursor: pointer; padding: 0; transition: color .15s; }
 .foot-a:hover { color: var(--text2); }
 
-/* ── ANIMATIONS ── */
+/* ANIMATIONS */
 @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
 .f1 { animation: fadeUp .45s .05s both ease; }
 .f2 { animation: fadeUp .45s .15s both ease; }
 .f3 { animation: fadeUp .45s .25s both ease; }
 .f4 { animation: fadeUp .45s .35s both ease; }
 
-/* ── RESPONSIVE ── */
+/* RESPONSIVE */
 @media (max-width: 960px) {
   .grid4 { grid-template-columns: repeat(2,1fr); }
   .featured { grid-template-columns: 72px 1fr; }
-  .feat-right { grid-column: 1/-1; display: flex; align-items: center; gap: 16px; }
+  .feat-right { grid-column: 1/-1; display: flex; align-items: center; gap: 16px; text-align: left; }
   .feat-price { font-size: 24px; }
-  .feat-right { text-align: left; }
 }
 @media (max-width: 600px) {
-  .grid4, .grid3 { grid-template-columns: 1fr 1fr; }
+  .grid4 { grid-template-columns: 1fr 1fr; }
   .stats .stat { padding: 16px 20px; }
   nav .nav-links .nav-a { display: none; }
   .hero-h1 { letter-spacing: -1.2px; }
@@ -193,22 +188,79 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 }
 
 /* FREE GAMES */
-.free-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.free-card{background:linear-gradient(135deg,#0d2a18 0%,#1c1a17 100%);border:1px solid rgba(74,222,128,.25);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .18s;}
-.free-card:hover{border-color:rgba(74,222,128,.5);transform:translateY(-3px);}
-.free-img{height:120px;background:var(--bg3);overflow:hidden;position:relative;}
-.free-img img{width:100%;height:100%;object-fit:cover;}
-.free-badge{position:absolute;top:8px;left:8px;background:var(--green);color:#0d2a18;font-size:11px;font-weight:800;padding:4px 10px;border-radius:4px;}
-.free-expires{position:absolute;top:8px;right:8px;background:rgba(13,42,24,.85);color:var(--green);font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid rgba(74,222,128,.3);}
-.free-body{padding:12px 14px 14px;}
-.free-title{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.free-platform{font-size:11px;color:var(--text3);margin-bottom:8px;}
-.free-worth{font-size:12px;color:var(--green);font-weight:600;}
-.free-worth span{color:var(--text3);text-decoration:line-through;margin-left:4px;font-weight:400;font-size:11px;}
-.free-btn{display:block;width:100%;margin-top:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.3);padding:8px;border-radius:var(--r);font-family:var(--fb);font-size:12px;font-weight:600;text-align:center;transition:background .15s;}
-.free-card:hover .free-btn{background:rgba(74,222,128,.2);}
-@media(max-width:960px){.free-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:600px){.free-grid{grid-template-columns:1fr 1fr;}}
+.free-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.free-card { background: linear-gradient(135deg,#0d2a18 0%,#1c1a17 100%); border: 1px solid rgba(74,222,128,.25); border-radius: var(--r2); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .18s; }
+.free-card:hover { border-color: rgba(74,222,128,.5); transform: translateY(-3px); }
+.free-img { height: 120px; background: var(--bg3); overflow: hidden; position: relative; }
+.free-img img { width: 100%; height: 100%; object-fit: cover; }
+.free-badge { position: absolute; top: 8px; left: 8px; background: var(--green); color: #0d2a18; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px; }
+.free-expires { position: absolute; top: 8px; right: 8px; background: rgba(13,42,24,.85); color: var(--green); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(74,222,128,.3); }
+.free-body { padding: 12px 14px 14px; }
+.free-title { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.free-platform { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.free-worth { font-size: 12px; color: var(--green); font-weight: 600; }
+.free-worth span { color: var(--text3); text-decoration: line-through; margin-left: 4px; font-weight: 400; font-size: 11px; }
+.free-btn { display: block; width: 100%; margin-top: 10px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,.3); padding: 8px; border-radius: var(--r); font-family: var(--fb); font-size: 12px; font-weight: 600; text-align: center; transition: background .15s; }
+.free-card:hover .free-btn { background: rgba(74,222,128,.2); }
+@media(max-width:960px){ .free-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:600px){ .free-grid { grid-template-columns: 1fr 1fr; } }
+
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: 100%; max-height: 82vh; overflow-y: auto; padding: 36px; position: relative; animation: fadeUp .25s ease both; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg3); border: 1px solid var(--border); color: var(--text3); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color .15s; }
+.modal-close:hover { color: var(--text); }
+.modal-title { font-family: var(--fh); font-size: 21px; font-weight: 800; color: var(--text); margin-bottom: 22px; letter-spacing: -.3px; padding-right: 32px; }
+.modal-body { color: var(--text2); line-height: 1.85; font-size: 14px; }
+.modal-body h3 { font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); margin: 22px 0 6px; }
+.modal-body h3:first-child { margin-top: 0; }
+.modal-body p { margin-bottom: 12px; }
+.modal-body p:last-child { margin-bottom: 0; }
+.modal-body ul { padding-left: 20px; margin-bottom: 12px; }
+.modal-body li { margin-bottom: 6px; }
+
+/* FAQ */
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-q { width: 100%; text-align: left; background: none; border: none; padding: 14px 0; font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.faq-q:hover { color: var(--amber); }
+.faq-chevron { color: var(--text3); font-size: 11px; flex-shrink: 0; transition: transform .2s; }
+.faq-a { display: none; padding: 0 0 14px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--amber); }
+
+/* BUNDLES */
+.bundle-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
+.bundle-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; text-decoration: none; transition: border-color .15s, transform .15s; display: block; }
+.bundle-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+.bundle-card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.bundle-card-desc { font-size: 11px; color: var(--text3); line-height: 1.6; }
+.bundle-card-link { font-size: 11px; color: var(--amber); margin-top: 8px; display: block; }
+
+/* WISHLIST */
+.wishlist-coming { text-align: center; padding: 12px 0; }
+.wishlist-icon { font-size: 48px; margin-bottom: 16px; }
+.wishlist-coming h3 { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.wishlist-coming p { font-size: 14px; color: var(--text3); margin-bottom: 16px; line-height: 1.7; }
+.wishlist-form { display: flex; gap: 8px; max-width: 380px; margin: 0 auto; }
+.wishlist-input { flex: 1; background: var(--bg3); border: 1px solid var(--border2); border-radius: 100px; padding: 10px 18px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; }
+.wishlist-input:focus { border-color: rgba(245,158,11,.4); }
+.wishlist-btn { background: var(--amber); color: #141210; border: none; padding: 10px 20px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.wishlist-success { color: var(--green); font-size: 13px; margin-top: 12px; display: none; }
+
+/* CONTACT FORM */
+.contact-form { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.form-row { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+.form-input, .form-textarea { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 14px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; width: 100%; }
+.form-input:focus, .form-textarea:focus { border-color: rgba(245,158,11,.4); }
+.form-textarea { min-height: 110px; resize: vertical; }
+.form-submit { background: var(--amber); color: #141210; border: none; padding: 12px 24px; border-radius: 100px; font-family: var(--fb); font-size: 14px; font-weight: 700; cursor: pointer; align-self: flex-start; transition: background .15s; }
+.form-submit:hover { background: var(--amber2); }
+.form-submit:disabled { opacity: .6; cursor: not-allowed; }
+.form-feedback { font-size: 13px; margin-top: 4px; display: none; }
+.form-feedback.ok  { color: var(--green); display: block; }
+.form-feedback.err { color: var(--red);   display: block; }
 </style>
 </head>
 <body>
@@ -217,14 +269,14 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <nav>
   <a href="#" class="logo">
     <div class="logo-icon">🔒</div>
-    Vault<em>Deals</em>.io
+    Vault<span>Deals</span>.io
   </a>
   <div class="nav-links">
-    <a href="#" class="nav-a">Deals</a>
-    <a href="#" class="nav-a">Historical lows</a>
-    <a href="#" class="nav-a">Bundles</a>
-    <a href="#" class="nav-a">Wishlist</a>
-    <a href="#" class="nav-btn">🔔 Alert me</a>
+    <button class="nav-a" onclick="scrollToSection('top-discounts')">Deals</button>
+    <button class="nav-a" onclick="scrollToSection('historical-lows')">Historical lows</button>
+    <button class="nav-a" onclick="openModal('modal-bundles')">Bundles</button>
+    <button class="nav-a" onclick="openModal('modal-wishlist')">Wishlist</button>
+    <button class="nav-btn" onclick="scrollToSection('alert-section')">🔔 Alert me</button>
   </div>
 </nav>
 
@@ -254,18 +306,17 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
 <div class="container">
 
-  <!-- COUNTDOWN -->
+  <!-- SALES STRIP -->
   <div class="sec f4">
-    <div class="cd-strip">
-      <div class="cd-label">⚡ Fanatical Flash Sale ending in</div>
-      <div class="cd-timer">
-        <div class="cd-unit"><span class="cd-n" id="cdh">04</span><div class="cd-lbl">hrs</div></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-n" id="cdm">37</span><div class="cd-lbl">min</div></div>
-        <span class="cd-sep">:</span>
-        <div class="cd-unit"><span class="cd-n" id="cds">12</span><div class="cd-lbl">sec</div></div>
+    <div class="sales-strip">
+      <div class="sales-label">🛍️ Browse current sales</div>
+      <div class="sales-links">
+        <a href="https://www.fanatical.com/en/on-sale" target="_blank" rel="noopener" class="sales-link">Fanatical</a>
+        <a href="https://store.steampowered.com/specials" target="_blank" rel="noopener" class="sales-link">Steam</a>
+        <a href="https://www.humblebundle.com/store/search?sort=discount&filter=onsale" target="_blank" rel="noopener" class="sales-link">Humble Bundle</a>
+        <a href="https://www.greenmangaming.com/sale/" target="_blank" rel="noopener" class="sales-link">Green Man Gaming</a>
+        <a href="https://www.gog.com/games?discounted=true" target="_blank" rel="noopener" class="sales-link">GOG</a>
       </div>
-      <button class="buy-btn">View flash deals →</button>
     </div>
   </div>
 
@@ -275,7 +326,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🏆 Deal of the day</div>
       <a href="#" class="sec-more">All top deals →</a>
     </div>
-    <!-- ✅ FIX 1: replaced hardcoded featured card with live target -->
     <div id="deal-of-day"></div>
   </div>
 
@@ -285,18 +335,16 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🔥 At or near historical low</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <!-- ✅ FIX 2: added id="historical-lows" -->
     <div class="grid4" id="historical-lows"></div>
   </div>
 
   <!-- TOP DISCOUNTS -->
-  <div class="sec">
+  <div class="sec" id="top-discounts">
     <div class="sec-head">
       <div class="sec-title">💸 Today's top discounts</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <!-- ✅ FIX 3: added id="top-discounts" -->
-    <div class="grid4" id="top-discounts"></div>
+    <div class="grid4" id="top-discounts-grid"></div>
   </div>
 
   <!-- HIDDEN GEMS -->
@@ -305,21 +353,20 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💎 Hidden gems under $10</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <!-- ✅ FIX 4: added id="hidden-gems" -->
     <div class="grid4" id="hidden-gems"></div>
   </div>
 
   <!-- FREE GAMES -->
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
-      <div class="sec-title">&#127873; Free right now</div>
-      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower &#8594;</a>
+      <div class="sec-title">🎁 Free right now</div>
+      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower →</a>
     </div>
     <div class="free-grid" id="free-games"></div>
   </div>
 
   <!-- ALERT SIGNUP -->
-  <div class="sec">
+  <div class="sec" id="alert-section">
     <div class="alert-banner">
       <div class="ab-title">🔔 Get alerted when your game drops in price</div>
       <p class="ab-sub">Add games to your wishlist and we email you the moment the price falls below what you want to pay.<br>No spam. One click to unsubscribe.</p>
@@ -337,31 +384,278 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   <div class="foot">
     <div class="foot-logo">
       <div class="foot-logo-icon">🔒</div>
-      VaultDeals.gg
+      VaultDeals.io
     </div>
-    <p class="foot-note">Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot; This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
+    <p class="foot-note">
+      Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot;
+      This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores.
+      <button class="foot-btn" onclick="openModal('modal-privacy')">Privacy</button> ·
+      <button class="foot-btn" onclick="openModal('modal-disclosure')">Affiliate disclosure</button>
+    </p>
     <div class="foot-links">
-      <a href="#" class="foot-a">About</a>
-      <a href="#" class="foot-a">FAQ</a>
-      <a href="#" class="foot-a">Contact</a>
+      <button class="foot-a" onclick="openModal('modal-about')">About</button>
+      <button class="foot-a" onclick="openModal('modal-faq')">FAQ</button>
+      <button class="foot-a" onclick="openModal('modal-contact')">Contact</button>
     </div>
   </div>
 </footer>
 
+<!-- ═══════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════ -->
+
+<!-- ABOUT -->
+<div class="modal-overlay" id="modal-about" onclick="handleOverlayClick(event,'modal-about')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
+    <div class="modal-title">About VaultDeals</div>
+    <div class="modal-body">
+      <p>VaultDeals.io tracks prices across every major authorized PC game retailer so you always know whether right now is actually a good time to buy. We score every deal against its historical low — A+ means you're at or within 5% of the all-time lowest price ever recorded.</p>
+      <p>We built this because buying a game at full price and watching it drop 60% two weeks later is genuinely frustrating. VaultDeals exists so that doesn't happen to you anymore.</p>
+      <h3>What we do</h3>
+      <ul>
+        <li>Track live prices across 12+ authorized stores</li>
+        <li>Score deals A+ through C+ based on historical pricing data</li>
+        <li>Surface games at or near their all-time lows</li>
+        <li>Show free game giveaways from Epic, Steam, and GOG</li>
+        <li>Never list grey market or unauthorized key sellers</li>
+      </ul>
+      <p>VaultDeals is independent. We're not affiliated with any of the stores we track.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="modal-overlay" id="modal-faq" onclick="handleOverlayClick(event,'modal-faq')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-faq')">✕</button>
+    <div class="modal-title">Frequently asked questions</div>
+    <div class="modal-body">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How does the deal scoring work?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">We compare the current price to the game's all-time historical low. A+ = within 5% of all-time low. A = within 20%. B+ = up to 50% above. B = up to 2× the low. C+ = on sale but not exceptional.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What does "Was free" mean?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">The game was previously available for free — for example via Epic Free Games. Since $0 is the historical low, no paid price scores well against it, so we show the badge instead of a misleading grade.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Where does your price data come from?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">Live prices are powered by GG.deals, which aggregates data from major authorized retailers. Free game giveaways come from GamerPower.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Are all the stores legitimate?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">Yes. We only track authorized retailers: Steam, GOG, Humble Bundle, Fanatical, Green Man Gaming, and similar. We never list grey market key sellers.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How often do prices update?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">Hourly. If a price looks different from what a store shows, try a hard refresh (Ctrl+Shift+R).</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do you make money from this?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">VaultDeals uses affiliate links. If you click through and make a purchase, we may earn a small commission at no extra cost to you. This keeps the site free. It never affects which games we feature or how we score deals.</div>
+      </div>
+      <div class="faq-item" style="border-bottom:none;">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I request a game to be tracked?<span class="faq-chevron">▼</span></button>
+        <div class="faq-a">Not yet, but it's coming. Sign up for alerts and we'll let you know when custom tracking launches.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY -->
+<div class="modal-overlay" id="modal-privacy" onclick="handleOverlayClick(event,'modal-privacy')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-privacy')">✕</button>
+    <div class="modal-title">Privacy Policy</div>
+    <div class="modal-body">
+      <p style="color:var(--text3);font-size:12px;margin-bottom:18px;">Last updated: May 2026</p>
+      <h3>What we collect</h3>
+      <p>VaultDeals.io does not collect personal data simply from visiting the site. We do not use tracking pixels, behavioral analytics, or fingerprinting of any kind.</p>
+      <p>If you sign up for price alerts, your email address is stored solely to send you notifications. You can unsubscribe at any time using the link in every email — this permanently removes your address from our system.</p>
+      <h3>Cookies &amp; local storage</h3>
+      <p>We use a single browser localStorage entry to store session preferences. No advertising cookies or third-party tracking cookies are set by VaultDeals.</p>
+      <h3>Third-party services</h3>
+      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. If you prefer no third-party exposure, you can block fonts.googleapis.com in your browser — the site will fall back to system fonts gracefully.</p>
+      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level as standard practice — this is outside our control. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
+      <p>When you click through to a store, that store may set its own cookies. Price data is provided by <a href="https://gg.deals/privacy/" target="_blank" rel="noopener">GG.deals</a> and free game data by <a href="https://www.gamerpower.com/privacy-policy" target="_blank" rel="noopener">GamerPower</a>.</p>
+      <h3>Contact</h3>
+      <p>Questions about this policy? <button class="foot-btn" onclick="closeModal('modal-privacy');openModal('modal-contact')">Contact us →</button></p>
+    </div>
+  </div>
+</div>
+
+<!-- AFFILIATE DISCLOSURE -->
+<div class="modal-overlay" id="modal-disclosure" onclick="handleOverlayClick(event,'modal-disclosure')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-disclosure')">✕</button>
+    <div class="modal-title">Affiliate Disclosure</div>
+    <div class="modal-body">
+      <p>VaultDeals.io participates in affiliate programs with authorized game retailers. When you click a link on our site and make a purchase, we may earn a small commission — at no additional cost to you.</p>
+      <p>Affiliate relationships do not influence which games we feature, what prices we display, or how deals are scored. All deal scores are calculated from real pricing data regardless of any affiliate relationship.</p>
+      <h3>Stores we may earn commissions from</h3>
+      <p>Amazon, Green Man Gaming, GOG, Fanatical, Humble Bundle, and others. Not every link on this site is an affiliate link.</p>
+      <h3>Third-party affiliate tracking</h3>
+      <p>GG.deals URLs may include their own affiliate tracking tags. We are not responsible for their affiliate arrangements.</p>
+      <h3>FTC compliance</h3>
+      <p>This disclosure is provided in accordance with FTC guidelines on endorsements and testimonials.</p>
+    </div>
+  </div>
+</div>
+
+<!-- BUNDLES -->
+<div class="modal-overlay" id="modal-bundles" onclick="handleOverlayClick(event,'modal-bundles')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-bundles')">✕</button>
+    <div class="modal-title">Game bundles</div>
+    <div class="modal-body">
+      <p>Bundles are one of the best ways to get great games at deep discounts. These are the most trusted bundle platforms — all authorized, all legitimate.</p>
+      <div class="bundle-grid">
+        <a href="https://www.fanatical.com/en/bundles" target="_blank" rel="noopener" class="bundle-card">
+          <div class="bundle-card-name">Fanatical</div>
+          <div class="bundle-card-desc">Weekly rotating bundles, often featuring AAA and indie titles at 90%+ off.</div>
+          <div class="bundle-card-link">Browse bundles →</div>
+        </a>
+        <a href="https://www.humblebundle.com" target="_blank" rel="noopener" class="bundle-card">
+          <div class="bundle-card-name">Humble Bundle</div>
+          <div class="bundle-card-desc">Pay what you want bundles. A portion of every purchase goes to charity.</div>
+          <div class="bundle-card-link">Browse bundles →</div>
+        </a>
+        <a href="https://www.indiegala.com/bundles" target="_blank" rel="noopener" class="bundle-card">
+          <div class="bundle-card-name">IndieGala</div>
+          <div class="bundle-card-desc">Indie-focused bundles with regular flash deals and deep discounts.</div>
+          <div class="bundle-card-link">Browse bundles →</div>
+        </a>
+      </div>
+      <p style="margin-top:18px;font-size:12px;color:var(--text3);">Bundle tracking with expiry countdowns and deal scoring is coming to VaultDeals soon.</p>
+    </div>
+  </div>
+</div>
+
+<!-- WISHLIST -->
+<div class="modal-overlay" id="modal-wishlist" onclick="handleOverlayClick(event,'modal-wishlist')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-wishlist')">✕</button>
+    <div class="modal-body">
+      <div class="wishlist-coming">
+        <div class="wishlist-icon">💛</div>
+        <h3>Wishlist is coming soon</h3>
+        <p>Save games to your wishlist and get notified the moment they hit a price you're happy with. We'll email you — no account required.</p>
+        <p style="color:var(--text3);font-size:13px;">Leave your email and we'll let you know the moment it launches.</p>
+        <div class="wishlist-form">
+          <input class="wishlist-input" type="email" placeholder="your@email.com" id="wishlist-email">
+          <button class="wishlist-btn" onclick="handleWishlistSignup()">Notify me</button>
+        </div>
+        <div class="wishlist-success" id="wishlist-success">✓ We'll let you know when it's ready!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="modal-overlay" id="modal-contact" onclick="handleOverlayClick(event,'modal-contact')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-contact')">✕</button>
+    <div class="modal-title">Contact us</div>
+    <div class="modal-body">
+      <p style="margin-bottom:18px;">Have a question, found a bug, or want to suggest a game to track? We read every message.</p>
+      <!--
+        FORMSPREE SETUP:
+        1. Go to https://formspree.io and create a free account
+        2. Click "New Form", give it a name (e.g. VaultDeals Contact)
+        3. Copy your 8-character form ID from the endpoint URL
+        4. Replace REPLACE_WITH_YOUR_FORM_ID below with that ID
+        Submissions arrive in your inbox as normal emails.
+      -->
+      <form class="contact-form" id="contact-form"
+            action="https://formspree.io/f/xnjwkppr"
+            method="POST">
+        <div class="form-row">
+          <label class="form-label" for="contact-name">Your name</label>
+          <input class="form-input" type="text" id="contact-name" name="name" placeholder="Alex" required>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="contact-email">Email address</label>
+          <input class="form-input" type="email" id="contact-email" name="email" placeholder="alex@example.com" required>
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="contact-msg">Message</label>
+          <textarea class="form-textarea" id="contact-msg" name="message" placeholder="Your message…" required></textarea>
+        </div>
+        <button type="submit" class="form-submit" id="contact-submit">Send message →</button>
+        <div class="form-feedback" id="contact-feedback"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script>
-// COUNTDOWN
-(function(){
-  var key='dv_cd_target';
-  var target=localStorage.getItem(key);
-  if(!target){var t=new Date(Date.now()+(4*3600+37*60+12)*1000);target=t.toISOString();localStorage.setItem(key,target);}
-  function tick(){
-    var diff=Math.max(0,new Date(target)-Date.now());
-    document.getElementById('cdh').textContent=String(Math.floor(diff/3600000)).padStart(2,'0');
-    document.getElementById('cdm').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
-    document.getElementById('cds').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
+// MODAL SYSTEM
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleOverlayClick(e,id){
+  if(e.target===e.currentTarget)closeModal(id);
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(function(m){
+      m.classList.remove('open');
+    });
+    document.body.style.overflow='';
   }
-  tick();setInterval(tick,1000);
-})();
+});
+
+// SCROLL
+function scrollToSection(id){
+  var el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// FAQ
+function toggleFaq(btn){
+  btn.closest('.faq-item').classList.toggle('open');
+}
+
+// WISHLIST SIGNUP (placeholder — wire to real backend when wishlist launches)
+function handleWishlistSignup(){
+  var email=document.getElementById('wishlist-email').value.trim();
+  if(!email||!email.includes('@'))return;
+  // TODO: POST to real email backend
+  document.getElementById('wishlist-success').style.display='block';
+  document.getElementById('wishlist-email').value='';
+  document.querySelector('.wishlist-btn').disabled=true;
+}
+
+// CONTACT FORM (Formspree AJAX)
+document.getElementById('contact-form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var btn=document.getElementById('contact-submit');
+  var fb=document.getElementById('contact-feedback');
+  btn.disabled=true; btn.textContent='Sending…';
+  fb.className='form-feedback';
+  try{
+    var res=await fetch(this.action,{
+      method:'POST',
+      body:new FormData(this),
+      headers:{Accept:'application/json'}
+    });
+    if(res.ok){
+      fb.textContent="✓ Message sent! We'll get back to you soon.";
+      fb.className='form-feedback ok';
+      this.reset();
+    }else{ throw new Error(); }
+  }catch(err){
+    fb.textContent='Something went wrong. Please try again.';
+    fb.className='form-feedback err';
+  }
+  btn.disabled=false; btn.textContent='Send message →';
+});
 
 // SEARCH
 document.querySelector('.search-input').addEventListener('keydown',function(e){
@@ -389,13 +683,12 @@ function getBadge(grade,pct,wasFree){
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
 var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
 
-// BUILD CARD
 function buildCard(d){
   var sc=SCORE_CSS[d.score]||'s-c';
   var bc=BADGE_CSS[d.badge.type]||'b-sale';
   var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
   var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
-  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'" style="cursor:pointer">'
+  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'">'
     +'<div class="card-img" style="position:relative;">'
     +'<div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'
     +img+'</div>'
@@ -406,13 +699,11 @@ function buildCard(d){
     +'<div class="store">via GG.deals</div>'
     +'</div></div>';
 }
-
 function buildFeatured(d){
   var img=d.image?'<img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">':'';
-  return '<div class="featured" data-url="'+d.storeUrl+'" style="cursor:pointer">'
+  return '<div class="featured" data-url="'+d.storeUrl+'">'
     +'<div class="feat-img">'+img+'</div>'
-    +'<div>'
-    +'<div class="feat-name">'+d.title+'</div>'
+    +'<div><div class="feat-name">'+d.title+'</div>'
     +'<div class="feat-sub">'+d.genre+'</div>'
     +'<div class="feat-tags">'
     +'<span class="badge b-low">'+d.badge.text+'</span>'
@@ -425,7 +716,6 @@ function buildFeatured(d){
     +'<button class="buy-btn">See best price &rarr;</button>'
     +'</div></div>';
 }
-
 function renderSection(id,deals){
   var el=document.getElementById(id);
   if(!el||!deals.length)return;
@@ -442,7 +732,6 @@ function formatExpiry(dateStr){
   return'Ends in '+days+' days';
 }
 var MAJOR=['epic games store','steam','gog'];
-
 async function loadFreeGames(){
   try{
     var res=await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
@@ -452,26 +741,22 @@ async function loadFreeGames(){
     var filtered=games.filter(function(g){
       var worth=parseFloat(g.worth.replace('$',''))||0;
       var plat=g.platforms.toLowerCase();
-      var major=MAJOR.some(function(p){return plat.indexOf(p)>=0;});
-      return major&&worth>=9.99&&g.status==='Active';
+      return MAJOR.some(function(p){return plat.indexOf(p)>=0;})&&worth>=9.99&&g.status==='Active';
     }).slice(0,4);
     if(!filtered.length)return;
     var html=filtered.map(function(g){
       var expiry=formatExpiry(g.end_date);
       var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
-      var card='<div class="free-card" data-url="'+g.open_giveaway_url+'">';
-      card+='<div class="free-img">';
-      card+='<img src="'+g.image+'" alt="'+title+'">';
-      card+='<span class="free-badge">FREE</span>';
-      card+='<span class="free-expires">'+expiry+'</span>';
-      card+='</div>';
-      card+='<div class="free-body">';
-      card+='<div class="free-title">'+title+'</div>';
-      card+='<div class="free-platform">'+g.platforms+'</div>';
-      card+='<div class="free-worth">Free <span>'+g.worth+'</span></div>';
-      card+='<div class="free-btn">Claim free &rarr;</div>';
-      card+='</div></div>';
-      return card;
+      return '<div class="free-card" data-url="'+g.open_giveaway_url+'">'
+        +'<div class="free-img"><img src="'+g.image+'" alt="'+title+'">'
+        +'<span class="free-badge">FREE</span>'
+        +'<span class="free-expires">'+expiry+'</span></div>'
+        +'<div class="free-body">'
+        +'<div class="free-title">'+title+'</div>'
+        +'<div class="free-platform">'+g.platforms+'</div>'
+        +'<div class="free-worth">Free <span>'+g.worth+'</span></div>'
+        +'<div class="free-btn">Claim free &rarr;</div>'
+        +'</div></div>';
     }).join('');
     var el=document.getElementById('free-games');
     if(el){
@@ -492,26 +777,20 @@ async function loadDeals(){
   try{
     var cfgRes=await fetch('/api/deals');
     var cfg=await cfgRes.json();
-    var apiKey=cfg.apiKey;
-    var games=cfg.games;
-    var apiBase=cfg.apiBase;
+    var apiKey=cfg.apiKey,games=cfg.games,apiBase=cfg.apiBase;
     if(!apiKey)throw new Error('No API key');
 
-    // Split into batches of 10 to avoid URL length limits
-    var batchSize=10;
     var allData={};
-    for(var b=0;b<games.length;b+=batchSize){
-      var batch=games.slice(b,b+batchSize);
-      var batchIds=batch.map(function(g){return g.steamId;}).join(',');
-      var url=apiBase+'?key='+apiKey+'&ids='+batchIds+'&region=us';
+    for(var b=0;b<games.length;b+=10){
+      var batch=games.slice(b,b+10);
+      var ids=batch.map(function(g){return g.steamId;}).join(',');
+      var url=apiBase+'?key='+apiKey+'&ids='+ids+'&region=us';
       console.log('Fetching batch:',url);
       var batchRes=await fetch(url);
       var batchText=await batchRes.text();
       var batchJson;
       try{batchJson=JSON.parse(batchText);}catch(e){console.warn('Batch parse error:',batchText.slice(0,200));continue;}
-      if(batchJson.success&&batchJson.data){
-        Object.assign(allData,batchJson.data);
-      }
+      if(batchJson.success&&batchJson.data)Object.assign(allData,batchJson.data);
     }
     if(!Object.keys(allData).length)throw new Error('No GG.deals data');
 
@@ -520,41 +799,28 @@ async function loadDeals(){
       var game=games[i];
       var info=allData[game.steamId];
       if(!info||!info.prices)continue;
-
-      // Title validation — skip wrong games
       var ggTitle=(info.title||'').toLowerCase();
-      var ourTitle=game.title.toLowerCase();
-      var words=ourTitle.split(' ').filter(function(w){return w.length>3;});
-      var match=words.some(function(w){return ggTitle.indexOf(w)>=0;});
-      if(!match)continue;
-
+      var words=game.title.toLowerCase().split(' ').filter(function(w){return w.length>3;});
+      if(!words.some(function(w){return ggTitle.indexOf(w)>=0;}))continue;
       var current=parseFloat(info.prices.currentRetail);
       var historical=parseFloat(info.prices.historicalRetail);
       if(!current||current<=0)continue;
       var wasFree=historical===0;
       var discPct=Math.round((1-current/game.originalPrice)*100);
-      if(discPct<20)continue;
-      if(game.originalPrice<19.99)continue;
-
+      if(discPct<20||game.originalPrice<19.99)continue;
       var score=calcScore(current,historical);
       var badge=getBadge(score.grade,discPct,wasFree);
       deals.push({
-        steamId:game.steamId,
-        title:info.title||game.title,
-        genre:game.genre,
-        currentPrice:current.toFixed(2),
-        originalPrice:game.originalPrice.toFixed(2),
-        discountPercent:discPct,
-        score:score.grade,
-        scoreLabel:score.label,
-        badge:badge,
+        steamId:game.steamId,title:info.title||game.title,genre:game.genre,
+        currentPrice:current.toFixed(2),originalPrice:game.originalPrice.toFixed(2),
+        discountPercent:discPct,score:score.grade,scoreLabel:score.label,badge:badge,
         storeUrl:info.url||'https://gg.deals/',
         image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg'
       });
     }
 
-    var order=['A+','A','B+','B','C+','C'];
     deals.sort(function(a,b){
+      var order=['A+','A','B+','B','C+','C'];
       var d=order.indexOf(a.score)-order.indexOf(b.score);
       return d!==0?d:b.discountPercent-a.discountPercent;
     });
@@ -566,6 +832,7 @@ async function loadDeals(){
       if(feat)feat.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     }
 
+    // Historical lows — fill to 4 with B+/B fallback
     var historicalLows=deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;});
     if(historicalLows.length<4){
       var used=historicalLows.map(function(d){return d.steamId;});
@@ -573,16 +840,12 @@ async function loadDeals(){
       historicalLows=historicalLows.concat(fillers).slice(0,4);
     }
     renderSection('historical-lows',historicalLows);
-    renderSection('top-discounts',deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
+    renderSection('top-discounts-grid',deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
     renderSection('hidden-gems',deals.filter(function(d){return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20;}).slice(0,4));
 
-    // Click handlers
     document.querySelectorAll('[data-url]').forEach(function(el){
       el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
     });
-
-    var lu=document.getElementById('last-updated');
-    if(lu)lu.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
   }catch(err){
     console.warn('Could not load live deals:',err.message);

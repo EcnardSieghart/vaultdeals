@@ -1,14 +1,15 @@
-// Cloudflare Pages Function — GG.deals proxy
-// Handles /gg-api/* and forwards to api.gg.deals/*
+// Cloudflare Pages Function — GamerPower proxy
+// Handles ONLY /gamerpower-api/* requests
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
-  const targetUrl = 'https://api.gg.deals' + url.pathname.replace('/gg-api', '') + url.search;
+  const path = url.pathname.replace('/gamerpower-api', '');
+  const targetUrl = 'https://www.gamerpower.com/api' + path + url.search;
 
   const response = await fetch(targetUrl, {
     headers: {
       'Accept': 'application/json',
-      'User-Agent': 'VaultDeals/1.0',
+      'User-Agent': 'Mozilla/5.0 VaultDeals/1.0',
     }
   });
 

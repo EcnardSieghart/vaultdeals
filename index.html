@@ -640,10 +640,22 @@ async function loadDeals(){
     var apiBase=cfg.apiBase;
     if(!apiKey)throw new Error('No API key');
 
-    var ids=games.map(function(g){return g.steamId;}).join(',');
-    var ggRes=await fetch(apiBase+'?key='+apiKey+'&ids='+ids+'&region=us');
-    var ggData=await ggRes.json();
-    if(!ggData.success||!ggData.data)throw new Error('No GG.deals data');
+    // Split into batches of 10 to avoid URL length limits
+    var batchSize=10;
+    var allData={};
+    for(var b=0;b<games.length;b+=batchSize){
+      var batch=games.slice(b,b+batchSize);
+      var batchIds=batch.map(function(g){return g.steamId;}).join(',');
+      var batchRes=await fetch(apiBase+'?key='+apiKey+'&ids='+batchIds+'&region=us');
+      var batchText=await batchRes.text();
+      var batchJson;
+      try{batchJson=JSON.parse(batchText);}catch(e){console.warn('Batch parse error:',batchText.slice(0,100));continue;}
+      if(batchJson.success&&batchJson.data){
+        Object.assign(allData,batchJson.data);
+      }
+    }
+    var ggData={success:true,data:allData};
+    if(!Object.keys(allData).length)throw new Error('No GG.deals data');
 
     var deals=[];
     for(var i=0;i<games.length;i++){

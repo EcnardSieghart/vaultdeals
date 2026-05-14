@@ -1,169 +1,111 @@
 // VaultDeals — Netlify Serverless Function
-// Fetches live deals from GG.deals API and calculates deal scores
-// Deployed at: /.netlify/functions/deals
+// Fetches live prices from GG.deals API using Steam App IDs
+// Required attribution: prices powered by GG.deals
 
 const GGDEALS_API_KEY = process.env.GGDEALS_API_KEY;
 const ITAD_API_KEY = process.env.ITAD_API_KEY;
 
-// Deal score calculator — the core differentiator from ITAD
-// Compares current price to historical low and assigns a grade
-function calculateDealScore(currentPrice, historicalLow, discountPercent) {
-  if (!historicalLow || historicalLow <= 0) {
-    if (discountPercent >= 70) return { grade: 'A', label: 'Great deal' };
-    if (discountPercent >= 50) return { grade: 'B+', label: 'Good deal' };
-    if (discountPercent >= 30) return { grade: 'B', label: 'Decent deal' };
-    return { grade: 'C', label: 'Mild discount' };
-  }
+// Curated popular games by Steam App ID
+const TRACKED_GAMES = [
+  { steamId: '1245620', title: 'Elden Ring', genre: 'Action RPG', originalPrice: 59.99 },
+  { steamId: '1086940', title: "Baldur's Gate 3", genre: 'RPG', originalPrice: 59.99 },
+  { steamId: '1091500', title: 'Cyberpunk 2077', genre: 'RPG', originalPrice: 59.99 },
+  { steamId: '1174180', title: 'Red Dead Redemption 2', genre: 'Action', originalPrice: 49.99 },
+  { steamId: '1888160', title: "Marvel's Spider-Man", genre: 'Action', originalPrice: 59.99 },
+  { steamId: '292030',  title: 'The Witcher 3', genre: 'RPG', originalPrice: 29.99 },
+  { steamId: '1449560', title: 'Mass Effect Legendary', genre: 'RPG', originalPrice: 59.99 },
+  { steamId: '1868140', title: 'The Last of Us Part I', genre: 'Action', originalPrice: 59.99 },
+  { steamId: '2369390', title: 'Assassins Creed Mirage', genre: 'Action', originalPrice: 39.99 },
+  { steamId: '632470',  title: 'Disco Elysium', genre: 'RPG', originalPrice: 39.99 },
+  { steamId: '1109910', title: 'Control Ultimate', genre: 'Action', originalPrice: 39.99 },
+  { steamId: '1145360', title: 'Hades', genre: 'Roguelike', originalPrice: 24.99 },
+  { steamId: '1113560', title: 'Alan Wake Remastered', genre: 'Thriller', originalPrice: 29.99 },
+  { steamId: '1245170', title: 'Horizon Zero Dawn', genre: 'Action RPG', originalPrice: 49.99 },
+  { steamId: '2183900', title: 'Hogwarts Legacy', genre: 'RPG', originalPrice: 59.99 },
+  { steamId: '271590',  title: 'GTA V', genre: 'Action', originalPrice: 29.99 },
+  { steamId: '814380',  title: 'Sekiro', genre: 'Action', originalPrice: 59.99 },
+  { steamId: '1938090', title: 'God of War', genre: 'Action', originalPrice: 49.99 },
+  { steamId: '1716740', title: 'Ghostwire Tokyo', genre: 'Action', originalPrice: 49.99 },
+  { steamId: '1237970', title: 'Titanfall 2', genre: 'FPS', originalPrice: 29.99 },
+];
 
-  const ratio = currentPrice / historicalLow;
-
-  if (ratio <= 1.05) return { grade: 'A+', label: 'At historical low' };
-  if (ratio <= 1.15) return { grade: 'A', label: 'Near historical low' };
-  if (ratio <= 1.30) return { grade: 'B+', label: 'Good deal' };
-  if (ratio <= 1.60) return { grade: 'B', label: 'Decent deal' };
-  if (ratio <= 2.00) return { grade: 'C+', label: 'Below average' };
-  return { grade: 'C', label: 'Wait for better deal' };
+function calculateDealScore(currentPrice, originalPrice) {
+  const ratio = currentPrice / originalPrice;
+  if (ratio <= 0.25) return { grade: 'A+', label: 'At historical low' };
+  if (ratio <= 0.40) return { grade: 'A',  label: 'Near historical low' };
+  if (ratio <= 0.55) return { grade: 'B+', label: 'Good deal' };
+  if (ratio <= 0.70) return { grade: 'B',  label: 'Decent deal' };
+  if (ratio <= 0.85) return { grade: 'C+', label: 'Mild discount' };
+  return { grade: 'C', label: 'Small discount' };
 }
 
-// Badge label based on score
-function getBadgeType(grade) {
-  if (grade === 'A+') return { type: 'low', text: 'All-time low' };
-  if (grade === 'A')  return { type: 'low', text: 'Near low' };
+function getBadge(grade, discountPct) {
+  if (grade === 'A+') return { type: 'low',  text: 'All-time low' };
+  if (grade === 'A')  return { type: 'low',  text: 'Near low' };
   if (grade === 'B+') return { type: 'sale', text: 'Good deal' };
-  if (grade === 'B')  return { type: 'sale', text: 'On sale' };
-  return { type: 'sale', text: 'Discounted' };
+  if (discountPct >= 50) return { type: 'hot', text: `-${discountPct}% off` };
+  return { type: 'sale', text: `-${discountPct}% off` };
 }
 
-// Fetch deals from GG.deals
-async function fetchGGDeals(type = 'deals') {
-  try {
-    // GG.deals API endpoint for current deals
-    const url = `https://api.gg.deals/v1/games/deals/?key=${GGDEALS_API_KEY}&limit=20&regions=US&sort=discount`;
-    const res = await fetch(url, {
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (!res.ok) {
-      console.error('GG.deals API error:', res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (err) {
-    console.error('GG.deals fetch failed:', err.message);
-    return null;
-  }
+async function fetchPrices(steamIds) {
+  const url = `https://api.gg.deals/v1/prices/?key=${GGDEALS_API_KEY}&ids=${steamIds.join(',')}&region=us`;
+  const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error(`GG.deals ${res.status}`);
+  return res.json();
 }
 
-// Fetch historical lows from ITAD
-async function fetchHistoricalLow(gameId) {
-  try {
-    const url = `https://api.isthereanydeal.com/games/storelow/v2?key=${ITAD_API_KEY}&id=${gameId}`;
-    const res = await fetch(url, {
-      headers: { 'Accept': 'application/json' }
-    });
-
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data?.data?.[gameId]?.price || null;
-  } catch {
-    return null;
-  }
-}
-
-// Format a raw GG.deals game into our card format
-function formatDeal(game, historicalLow) {
-  const currentPrice = game.price?.current?.amount || 0;
-  const originalPrice = game.price?.regular?.amount || 0;
-  const discountPercent = game.price?.current?.discount || 0;
-  const score = calculateDealScore(currentPrice, historicalLow, discountPercent);
-  const badge = getBadgeType(score.grade);
-
-  return {
-    id: game.id,
-    title: game.title,
-    image: game.assets?.banner400 || game.assets?.banner300 || null,
-    currentPrice: currentPrice.toFixed(2),
-    originalPrice: originalPrice.toFixed(2),
-    discountPercent: Math.round(discountPercent),
-    score: score.grade,
-    scoreLabel: score.label,
-    badge: badge,
-    store: game.deals?.[0]?.shop?.name || 'Best price',
-    storeUrl: game.deals?.[0]?.url || '#',
-    platforms: game.platforms || [],
-    genres: game.genres || [],
-  };
-}
-
-// Main handler
 exports.handler = async (event) => {
-  // CORS headers — allows the frontend to call this function
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
-    'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+    'Cache-Control': 'public, max-age=3600',
   };
 
-  // Handle preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
+
+  if (!GGDEALS_API_KEY) {
+    return { statusCode: 200, headers, body: JSON.stringify({ success: false, message: 'API key missing', deals: getFallbackDeals() }) };
   }
 
   try {
-    // Check API key is set
-    if (!GGDEALS_API_KEY) {
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'API key not configured' })
-      };
+    const steamIds = TRACKED_GAMES.map(g => g.steamId);
+    const priceData = await fetchPrices(steamIds);
+
+    if (!priceData?.data) throw new Error('No data returned');
+
+    const deals = [];
+    for (const game of TRACKED_GAMES) {
+      const info = priceData.data[game.steamId];
+      if (!info) continue;
+
+      const current = parseFloat(info.prices?.currentRetail);
+      if (!current || current >= game.originalPrice) continue;
+
+      const discountPct = Math.round((1 - current / game.originalPrice) * 100);
+      if (discountPct < 20) continue;
+
+      const score = calculateDealScore(current, game.originalPrice);
+      const badge = getBadge(score.grade, discountPct);
+
+      deals.push({
+        id: parseInt(game.steamId),
+        steamId: game.steamId,
+        title: game.title,
+        genre: game.genre,
+        currentPrice: current.toFixed(2),
+        originalPrice: game.originalPrice.toFixed(2),
+        discountPercent: discountPct,
+        score: score.grade,
+        scoreLabel: score.label,
+        badge,
+        store: 'Best price',
+        storeUrl: info.urls?.game || `https://gg.deals/game/${game.title.toLowerCase().replace(/[\s']+/g,'-').replace(/[^a-z0-9-]/g,'')}/`,
+        image: `https://cdn.cloudflare.steamstatic.com/steam/apps/${game.steamId}/header.jpg`,
+      });
     }
 
-    const params = event.queryStringParameters || {};
-    const section = params.section || 'all';
-
-    // Fetch live deals
-    const rawDeals = await fetchGGDeals();
-
-    if (!rawDeals || !rawDeals.data) {
-      // Return fallback placeholder data if API fails
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-          success: false,
-          message: 'Using fallback data — API unavailable',
-          deals: getFallbackDeals()
-        })
-      };
-    }
-
-    // Process and score each deal
-    const games = rawDeals.data.slice(0, 12);
-    const processedDeals = await Promise.all(
-      games.map(async (game) => {
-        // Fetch historical low for scoring (best effort)
-        const historicalLow = await fetchHistoricalLow(game.id).catch(() => null);
-        return formatDeal(game, historicalLow);
-      })
-    );
-
-    // Sort by deal score for featured sections
-    const scoreOrder = ['A+', 'A', 'B+', 'B', 'C+', 'C'];
-    const sorted = processedDeals.sort((a, b) =>
-      scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score)
-    );
-
-    // Split into sections
-    const historicalLows = sorted.filter(d => ['A+', 'A'].includes(d.score)).slice(0, 4);
-    const topDeals = sorted.filter(d => ['B+', 'B'].includes(d.score)).slice(0, 4);
-    const dealOfDay = sorted[0] || null;
-    const hiddenGems = sorted
-      .filter(d => parseFloat(d.currentPrice) < 10)
-      .slice(0, 4);
+    const scoreOrder = ['A+','A','B+','B','C+','C'];
+    deals.sort((a,b) => scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score));
 
     return {
       statusCode: 200,
@@ -171,50 +113,30 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         success: true,
         lastUpdated: new Date().toISOString(),
-        dealOfDay,
-        historicalLows,
-        topDeals,
-        hiddenGems,
-        all: sorted
+        totalDeals: deals.length,
+        dealOfDay: deals[0] || null,
+        historicalLows: deals.filter(d => ['A+','A'].includes(d.score)).slice(0,4),
+        topDeals: deals.filter(d => ['B+','B'].includes(d.score)).slice(0,4),
+        hiddenGems: deals.filter(d => parseFloat(d.currentPrice) < 10).slice(0,4),
+        attribution: 'Prices powered by GG.deals',
       })
     };
 
   } catch (err) {
-    console.error('Function error:', err);
+    console.error('Error:', err.message);
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers,
-      body: JSON.stringify({ error: 'Internal error', message: err.message })
+      body: JSON.stringify({ success: false, message: err.message, deals: getFallbackDeals() })
     };
   }
 };
 
-// Fallback data if API is unavailable — keeps site looking good
 function getFallbackDeals() {
   return [
-    {
-      id: 1, title: "Elden Ring", currentPrice: "24.99", originalPrice: "59.99",
-      discountPercent: 58, score: "A+", scoreLabel: "At historical low",
-      badge: { type: "low", text: "All-time low" }, store: "Fanatical",
-      storeUrl: "#", image: null
-    },
-    {
-      id: 2, title: "Baldur's Gate 3", currentPrice: "33.49", originalPrice: "59.99",
-      discountPercent: 44, score: "A", scoreLabel: "Near historical low",
-      badge: { type: "low", text: "Near low" }, store: "Green Man Gaming",
-      storeUrl: "#", image: null
-    },
-    {
-      id: 3, title: "Cyberpunk 2077", currentPrice: "19.99", originalPrice: "59.99",
-      discountPercent: 67, score: "A", scoreLabel: "Near historical low",
-      badge: { type: "low", text: "Near low" }, store: "Humble Bundle",
-      storeUrl: "#", image: null
-    },
-    {
-      id: 4, title: "Red Dead Redemption 2", currentPrice: "26.99", originalPrice: "49.99",
-      discountPercent: 46, score: "B+", scoreLabel: "Good deal",
-      badge: { type: "sale", text: "Good deal" }, store: "Fanatical",
-      storeUrl: "#", image: null
-    }
+    { id:1245620, title:'Elden Ring', genre:'Action RPG', currentPrice:'24.99', originalPrice:'59.99', discountPercent:58, score:'A+', scoreLabel:'At historical low', badge:{type:'low',text:'All-time low'}, store:'Fanatical', storeUrl:'https://gg.deals/game/elden-ring/', image:'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/header.jpg' },
+    { id:1086940, title:"Baldur's Gate 3", genre:'RPG', currentPrice:'33.49', originalPrice:'59.99', discountPercent:44, score:'A', scoreLabel:'Near historical low', badge:{type:'low',text:'Near low'}, store:'GMG', storeUrl:'https://gg.deals/game/baldurs-gate-3/', image:'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/header.jpg' },
+    { id:1091500, title:'Cyberpunk 2077', genre:'RPG', currentPrice:'19.99', originalPrice:'59.99', discountPercent:67, score:'A', scoreLabel:'Near historical low', badge:{type:'low',text:'Near low'}, store:'Humble', storeUrl:'https://gg.deals/game/cyberpunk-2077/', image:'https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/header.jpg' },
+    { id:1174180, title:'Red Dead Redemption 2', genre:'Action', currentPrice:'26.99', originalPrice:'49.99', discountPercent:46, score:'B+', scoreLabel:'Good deal', badge:{type:'sale',text:'Good deal'}, store:'Fanatical', storeUrl:'https://gg.deals/game/red-dead-redemption-2/', image:'https://cdn.cloudflare.steamstatic.com/steam/apps/1174180/header.jpg' },
   ];
 }

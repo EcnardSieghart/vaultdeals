@@ -213,7 +213,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <section class="hero f1">
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores</div>
+    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores · <span id="last-updated"></span></div>
     <h1 class="hero-h1">Stop overpaying.<br><em>Find the deal, then buy.</em></h1>
     <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
     <div class="search-wrap f2">
@@ -256,7 +256,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🏆 Deal of the day</div>
       <a href="#" class="sec-more">All top deals →</a>
     </div>
-    <div class="featured">
+    <div id="deal-of-day"><div class="featured">
       <div class="feat-img">🎮</div>
       <div>
         <div class="feat-name">Elden Ring</div>
@@ -281,7 +281,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🔥 At or near historical low</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
+    <div id="historical-lows" class="grid4">
 
       <div class="card gold">
         <div class="card-img">
@@ -340,7 +340,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💸 Today's top discounts</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
+    <div id="top-discounts" class="grid4">
 
       <div class="card">
         <div class="card-img"><div class="badges"><span class="badge b-sale">−70%</span></div>🏔️</div>
@@ -391,7 +391,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💎 Hidden gems under $10</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div class="grid4">
+    <div id="hidden-gems" class="grid4">
 
       <div class="card gold">
         <div class="card-img"><div class="badges"><span class="badge b-low">All-time low</span></div>🌿</div>
@@ -467,7 +467,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 </footer>
 
 <script>
-// Countdown
+// ── COUNTDOWN ──────────────────────────────────────────────
 (function() {
   const key = 'dv_cd_target';
   let target = localStorage.getItem(key);
@@ -489,10 +489,124 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   setInterval(tick, 1000);
 })();
 
-// Search enter key
+// ── SEARCH ─────────────────────────────────────────────────
 document.querySelector('.search-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.querySelector('.search-go').click();
 });
+
+// ── LIVE DEALS ─────────────────────────────────────────────
+const SCORE_COLOR = {
+  'A+': 's-a', 'A': 's-a', 'B+': 's-b', 'B': 's-b', 'C+': 's-c', 'C': 's-c'
+};
+const BADGE_CLASS = {
+  'low': 'b-low', 'sale': 'b-sale', 'hot': 'b-hot', 'new': 'b-new'
+};
+const GAME_EMOJI = ['🎮','⚔️','🚗','🤠','🕷️','🏔️','🚀','🧟','🌍','🌿','🔦','🎻','🌊','🔫','🐉','🧙','🏆','💀'];
+
+function randomEmoji(id) {
+  return GAME_EMOJI[id % GAME_EMOJI.length];
+}
+
+function buildCard(deal) {
+  const scoreClass = SCORE_COLOR[deal.score] || 's-c';
+  const badgeClass = BADGE_CLASS[deal.badge?.type] || 'b-sale';
+  const emoji = randomEmoji(deal.id || 0);
+  const imgHtml = deal.image
+    ? `<img src="${deal.image}" alt="${deal.title}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">`
+    : emoji;
+
+  return `
+    <div class="card ${['A+','A'].includes(deal.score) ? 'gold' : ''}" onclick="window.open('${deal.storeUrl}','_blank')">
+      <div class="card-img" style="position:relative;">
+        <div class="badges"><span class="badge ${badgeClass}">${deal.badge?.text || 'On sale'}</span></div>
+        ${deal.image ? `<div style="position:absolute;inset:0;overflow:hidden;">${imgHtml}</div>` : imgHtml}
+      </div>
+      <div class="card-body">
+        <div class="card-row">
+          <div class="card-name">${deal.title}</div>
+          <span class="score ${scoreClass}">${deal.score}</span>
+        </div>
+        <div class="card-genre">${deal.genres?.slice(0,2).join(' · ') || 'Game'}</div>
+        <div class="price-row">
+          <span class="price">$${deal.currentPrice}</span>
+          <span class="was">$${deal.originalPrice}</span>
+        </div>
+        <div class="store">via ${deal.store}</div>
+      </div>
+    </div>`;
+}
+
+function buildFeatured(deal) {
+  return `
+    <div class="featured" onclick="window.open('${deal.storeUrl}','_blank')">
+      <div class="feat-img">${deal.image ? `<img src="${deal.image}" alt="${deal.title}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">` : randomEmoji(deal.id||0)}</div>
+      <div>
+        <div class="feat-name">${deal.title}</div>
+        <div class="feat-sub">${deal.genres?.join(' · ') || 'Game'}</div>
+        <div class="feat-tags">
+          <span class="badge b-low">${deal.badge?.text || 'Deal'}</span>
+          <span class="badge b-hot">Deal score ${deal.score}</span>
+          <span class="badge b-sale">−${deal.discountPercent}% off</span>
+        </div>
+      </div>
+      <div class="feat-right">
+        <span class="feat-price">$${deal.currentPrice}</span>
+        <span class="feat-was">Was $${deal.originalPrice}</span>
+        <button class="buy-btn">Buy now →</button>
+      </div>
+    </div>`;
+}
+
+function renderSection(sectionId, deals) {
+  const el = document.getElementById(sectionId);
+  if (!el || !deals?.length) return;
+  el.innerHTML = deals.map(buildCard).join('');
+}
+
+async function loadDeals() {
+  try {
+    const res = await fetch('/api/deals');
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+
+    if (!data.success) {
+      console.warn('Using fallback data');
+      return;
+    }
+
+    // Deal of the day
+    if (data.dealOfDay) {
+      const dotd = document.getElementById('deal-of-day');
+      if (dotd) dotd.innerHTML = buildFeatured(data.dealOfDay);
+    }
+
+    // Historical lows section
+    renderSection('historical-lows', data.historicalLows);
+
+    // Top discounts section
+    renderSection('top-discounts', data.topDeals);
+
+    // Hidden gems section
+    renderSection('hidden-gems', data.hiddenGems);
+
+    // Update last updated time
+    const lu = document.getElementById('last-updated');
+    if (lu && data.lastUpdated) {
+      const d = new Date(data.lastUpdated);
+      lu.textContent = `Updated ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}`;
+    }
+
+  } catch (err) {
+    console.warn('Could not load live deals — showing placeholder data:', err.message);
+    // Placeholder data stays visible — site still looks good
+  }
+}
+
+// Load deals on page load
+loadDeals();
+
+// Refresh every hour automatically
+setInterval(loadDeals, 3600000);
 </script>
 </body>
 </html>

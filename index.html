@@ -674,14 +674,11 @@ searchInput.addEventListener('keydown',function(e){
 
 async function fetchSuggestions(q){
   try{
-    var res=await fetch('/steam-search/?term='+encodeURIComponent(q)+'&l=english&cc=US');
+    var res=await fetch('/cheapshark-api/games?title='+encodeURIComponent(q)+'&limit=6');
     if(!res.ok) return;
     var data=await res.json();
-    // Suggestions: show all app types, scored games first — adult shovelware sinks naturally
-    currentSuggestions=(data.items||[])
-      .filter(function(i){ return i.type==='app'; })
-      .sort(function(a,b){ return (parseInt(b.metascore)||0)-(parseInt(a.metascore)||0); })
-      .slice(0,6);
+    if(!Array.isArray(data)) return;
+    currentSuggestions=data.slice(0,6);
     renderSuggestions();
   }catch(e){ /* silent fail */ }
 }
@@ -691,12 +688,12 @@ function renderSuggestions(){
   if(!currentSuggestions.length){ closeSuggestions(); return; }
   activeSuggIdx=-1;
   box.innerHTML=currentSuggestions.map(function(item,idx){
-    var scoreHtml=item.metascore?'<span class="suggestion-score">'+item.metascore+'</span>':'';
-    var safeName=item.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return '<div class="suggestion-item" data-idx="'+idx+'" onclick="selectSuggestion(\''+safeName+'\')">'
-      +'<img class="suggestion-thumb" src="'+item.tiny_image+'" alt="" onerror="this.style.display=\'none\'">'
-      +'<span class="suggestion-name">'+item.name+'</span>'
-      +scoreHtml
+    var priceHtml=item.cheapest?'<span class="suggestion-score">from $'+item.cheapest+'</span>':'';
+    var safeName=item.external.replace(/\/g,'\\').replace(/'/g,"\'");
+    return '<div class="suggestion-item" data-idx="'+idx+'" onclick="selectSuggestion('"+safeName+"')">'
+      +'<img class="suggestion-thumb" src="'+item.thumb+'" alt="" onerror="this.style.display=\'none\'">'
+      +'<span class="suggestion-name">'+item.external+'</span>'
+      +priceHtml
       +'</div>';
   }).join('');
   box.classList.add('open');
@@ -706,7 +703,7 @@ function highlightSuggestion(){
   var items=document.querySelectorAll('.suggestion-item');
   items.forEach(function(el,i){ el.classList.toggle('active', i===activeSuggIdx); });
   if(activeSuggIdx>=0 && currentSuggestions[activeSuggIdx]){
-    searchInput.value=currentSuggestions[activeSuggIdx].name;
+    searchInput.value=currentSuggestions[activeSuggIdx].external;
   }
 }
 
@@ -739,74 +736,76 @@ async function handleSearch(){
 
   label.textContent=query;
   panel.style.display='block';
-  grid.innerHTML='<div class="search-status">Searching…</div>';
-  btn.classList.add('loading'); btn.textContent='Searching…';
+  grid.innerHTML='<div class="search-status">Searching\u2026</div>';
+  btn.classList.add('loading'); btn.textContent='Searching\u2026';
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 
   try{
-    var steamRes=await fetch('/steam-search/?term='+encodeURIComponent(query)+'&l=english&cc=US');
-    if(!steamRes.ok) throw new Error('Steam search failed');
-    var steamData=await steamRes.json();
+    // CheapShark: only indexes legit stores, adult content naturally absent
+    var csRes=await fetch('/cheapshark-api/games?title='+encodeURIComponent(query)+'&limit=8');
+    if(!csRes.ok) throw new Error('CheapShark search failed');
+    var csData=await csRes.json();
 
-    // Final results: require Metacritic score — filters adult shovelware and unscored junk
-    var apps=(steamData.items||[])
-      .filter(function(i){ return i.type==='app' && i.metascore!==''; })
-      .sort(function(a,b){ return (parseInt(b.metascore)||0)-(parseInt(a.metascore)||0); })
-      .slice(0,8);
-
-    if(!apps.length){
-      grid.innerHTML='<div class="search-status">No reviewed games found for "'+query+'". Try a different title.</div>';
+    if(!Array.isArray(csData)||!csData.length){
+      grid.innerHTML='<div class="search-status">No games found for "'+query+'". Try a different title.</div>';
       return;
     }
 
+    // Fetch GG.deals pricing for games that have a Steam ID
     if(!cachedApiKey){
       var cfgRes=await fetch('/api/deals');
       var cfg=await cfgRes.json();
       cachedApiKey=cfg.apiKey;
       cachedApiBase=cfg.apiBase;
     }
+    var steamGames=csData.filter(function(g){ return g.steamAppID; });
+    var prices={};
+    if(steamGames.length&&cachedApiKey){
+      var ids=steamGames.map(function(g){ return g.steamAppID; }).join(',');
+      var priceRes=await fetch(cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us');
+      var priceText=await priceRes.text();
+      try{
+        var priceData=JSON.parse(priceText);
+        if(priceData.success&&priceData.data) prices=priceData.data;
+      }catch(e){}
+    }
 
-    var ids=apps.map(function(a){ return String(a.id); }).join(',');
-    var priceRes=await fetch(cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us');
-    var priceText=await priceRes.text();
-    var priceData;
-    try{ priceData=JSON.parse(priceText); }catch(e){ priceData={success:false}; }
-    var prices=(priceData.success&&priceData.data)?priceData.data:{};
-
-    var html=apps.map(function(app){
-      var p=prices[String(app.id)];
-      var img='https://cdn.cloudflare.steamstatic.com/steam/apps/'+app.id+'/header.jpg';
-      var storeUrl=p?p.url:'https://gg.deals/search/?title='+encodeURIComponent(app.name);
+    var html=csData.map(function(game){
+      // Prefer Steam header art; fall back to CheapShark thumb for non-Steam games
+      var img=game.steamAppID
+        ?'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamAppID+'/header.jpg'
+        :game.thumb;
+      // Prefer GG.deals link; fall back to CheapShark redirect
+      var storeUrl='https://www.cheapshark.com/redirect?dealID='+game.cheapestDealID;
       var priceHtml='',scoreHtml='',badgeHtml='',gold='';
 
+      var p=game.steamAppID?prices[game.steamAppID]:null;
       if(p&&p.prices&&p.prices.currentRetail){
         var current=parseFloat(p.prices.currentRetail);
         var historical=parseFloat(p.prices.historicalRetail);
-        var originalCents=app.price?app.price.initial:0;
-        var original=originalCents/100;
         var wasFree=historical===0;
         var score=calcScore(current,historical);
-        var discPct=original>0?Math.round((1-current/original)*100):0;
-        var badge=getBadge(score.grade,discPct,wasFree);
+        var badge=getBadge(score.grade,0,wasFree);
         var sc=SCORE_CSS[score.grade]||'s-c';
         var bc=BADGE_CSS[badge.type]||'b-sale';
         if(score.grade==='A+'||score.grade==='A') gold='gold';
-        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span>'
-          +(original>0&&discPct>0?'<span class="was">$'+original.toFixed(2)+'</span>':'')+'</div>';
+        if(p.url) storeUrl=p.url;
+        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span></div>';
         scoreHtml='<span class="score '+sc+'">'+score.grade+'</span>';
         badgeHtml='<span class="badge '+bc+'">'+badge.text+'</span>';
       }else{
-        priceHtml='<div class="search-no-price">Check on GG.deals →</div>';
+        // No GG.deals data — show CheapShark cheapest
+        priceHtml='<div class="price-row"><span class="price">$'+game.cheapest+'</span></div>';
       }
 
       return '<div class="card '+gold+'" data-url="'+storeUrl+'">'
         +'<div class="card-img" style="position:relative;">'
         +'<div class="badges">'+badgeHtml+'</div>'
-        +'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+img+'" alt="'+app.name+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.style.display=\'none\'"></div>'
-        +'</div>'
+        +'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+img+'" alt="'+game.external+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.style.display=\'none\'">'
+        +'</div></div>'
         +'<div class="card-body">'
-        +'<div class="card-row"><div class="card-name">'+app.name+'</div>'+scoreHtml+'</div>'
-        +'<div class="card-genre">'+(app.metascore?'Metacritic: '+app.metascore:'PC Game')+'</div>'
+        +'<div class="card-row"><div class="card-name">'+game.external+'</div>'+scoreHtml+'</div>'
+        +'<div class="card-genre">PC Game</div>'
         +priceHtml
         +'<div class="store">via GG.deals</div>'
         +'</div></div>';

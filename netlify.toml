@@ -9,17 +9,22 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Proxy /api/deals to our Netlify function
+# Netlify function proxy
 [[redirects]]
   from = "/api/deals"
   to = "/.netlify/functions/deals"
   status = 200
 
-# Proxy /gg-api/* transparently to api.gg.deals/*
-# This bypasses CORS because request appears to come from vaultdeals.io
+# GG.deals proxy — bypasses CORS
 [[redirects]]
   from = "/gg-api/*"
   to = "https://api.gg.deals/:splat"
   status = 200
   force = true
-  headers = {X-From = "vaultdeals.io"}
+
+# GamerPower proxy — bypasses CORS
+[[redirects]]
+  from = "/gamerpower-api/*"
+  to = "https://www.gamerpower.com/api/:splat"
+  status = 200
+  force = true

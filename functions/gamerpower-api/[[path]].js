@@ -1,10 +1,8 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
-  const path = url.pathname.replace(/^\/gg-api/, '');
-  const target = 'https://api.gg.deals' + path + url.search;
-  
-  console.log('GG proxy target:', target);
-  
+  const path = url.pathname.replace(/^\/gamerpower-api/, '');
+  const target = 'https://www.gamerpower.com/api' + path + url.search;
+
   const res = await fetch(target, {
     headers: { 'Accept': 'application/json', 'User-Agent': 'VaultDeals/1.0' }
   });
@@ -15,7 +13,6 @@ export async function onRequest(context) {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Cache-Control': 'public, max-age=3600',
-      'X-Proxy-Target': target
     }
   });
 }

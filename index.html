@@ -191,23 +191,23 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   .ab-form { flex-direction: column; }
 }
 
-/* FREE GAMES SECTION */
-.free-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
-.free-card { background: linear-gradient(135deg, #0d2a18 0%, #1c1a17 100%); border: 1px solid rgba(74,222,128,.25); border-radius: var(--r2); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .18s; }
-.free-card:hover { border-color: rgba(74,222,128,.5); transform: translateY(-3px); }
-.free-img { height: 120px; background: var(--bg3); overflow: hidden; position: relative; }
-.free-img img { width: 100%; height: 100%; object-fit: cover; }
-.free-badge { position: absolute; top: 8px; left: 8px; background: var(--green); color: #0d2a18; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px; letter-spacing: .02em; }
-.free-expires { position: absolute; top: 8px; right: 8px; background: rgba(13,42,24,.85); color: var(--green); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(74,222,128,.3); }
-.free-body { padding: 12px 14px 14px; }
-.free-title { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.free-platform { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
-.free-worth { font-size: 12px; color: var(--green); font-weight: 600; }
-.free-worth span { color: var(--text3); text-decoration: line-through; margin-left: 4px; font-weight: 400; font-size: 11px; }
-.free-btn { display: block; width: 100%; margin-top: 10px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,.3); padding: 8px; border-radius: var(--r); font-family: var(--fb); font-size: 12px; font-weight: 600; text-align: center; cursor: pointer; transition: background .15s; }
-.free-btn:hover { background: rgba(74,222,128,.2); }
-@media(max-width:960px){ .free-grid { grid-template-columns: repeat(2,1fr); } }
-@media(max-width:600px){ .free-grid { grid-template-columns: 1fr 1fr; } }
+/* FREE GAMES */
+.free-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.free-card{background:linear-gradient(135deg,#0d2a18 0%,#1c1a17 100%);border:1px solid rgba(74,222,128,.25);border-radius:var(--r2);overflow:hidden;cursor:pointer;transition:border-color .2s,transform .18s;}
+.free-card:hover{border-color:rgba(74,222,128,.5);transform:translateY(-3px);}
+.free-img{height:120px;background:var(--bg3);overflow:hidden;position:relative;}
+.free-img img{width:100%;height:100%;object-fit:cover;}
+.free-badge{position:absolute;top:8px;left:8px;background:var(--green);color:#0d2a18;font-size:11px;font-weight:800;padding:4px 10px;border-radius:4px;}
+.free-expires{position:absolute;top:8px;right:8px;background:rgba(13,42,24,.85);color:var(--green);font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1px solid rgba(74,222,128,.3);}
+.free-body{padding:12px 14px 14px;}
+.free-title{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.free-platform{font-size:11px;color:var(--text3);margin-bottom:8px;}
+.free-worth{font-size:12px;color:var(--green);font-weight:600;}
+.free-worth span{color:var(--text3);text-decoration:line-through;margin-left:4px;font-weight:400;font-size:11px;}
+.free-btn{display:block;width:100%;margin-top:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.3);padding:8px;border-radius:var(--r);font-family:var(--fb);font-size:12px;font-weight:600;text-align:center;transition:background .15s;}
+.free-card:hover .free-btn{background:rgba(74,222,128,.2);}
+@media(max-width:960px){.free-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.free-grid{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
@@ -231,7 +231,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <section class="hero f1">
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores · <span id="last-updated"></span></div>
+    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores</div>
     <h1 class="hero-h1">Stop overpaying.<br><em>Find the deal, then buy.</em></h1>
     <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
     <div class="search-wrap f2">
@@ -274,7 +274,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🏆 Deal of the day</div>
       <a href="#" class="sec-more">All top deals →</a>
     </div>
-    <div id="deal-of-day"><div class="featured">
+    <div class="featured">
       <div class="feat-img">🎮</div>
       <div>
         <div class="feat-name">Elden Ring</div>
@@ -299,7 +299,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🔥 At or near historical low</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div id="historical-lows" class="grid4">
+    <div class="grid4">
 
       <div class="card gold">
         <div class="card-img">
@@ -358,7 +358,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💸 Today's top discounts</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div id="top-discounts" class="grid4">
+    <div class="grid4">
 
       <div class="card">
         <div class="card-img"><div class="badges"><span class="badge b-sale">−70%</span></div>🏔️</div>
@@ -409,7 +409,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">💎 Hidden gems under $10</div>
       <a href="#" class="sec-more">View all →</a>
     </div>
-    <div id="hidden-gems" class="grid4">
+    <div class="grid4">
 
       <div class="card gold">
         <div class="card-img"><div class="badges"><span class="badge b-low">All-time low</span></div>🌿</div>
@@ -454,18 +454,16 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     </div>
   </div>
 
+  <!-- ALERT SIGNUP -->
   <!-- FREE GAMES -->
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
-      <div class="sec-title">🎁 Free right now</div>
-      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower →</a>
+      <div class="sec-title">&#127873; Free right now</div>
+      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower &#8594;</a>
     </div>
-    <div class="free-grid" id="free-games">
-      <!-- populated by JS -->
-    </div>
+    <div class="free-grid" id="free-games"></div>
   </div>
 
-  <!-- ALERT SIGNUP -->
   <div class="sec">
     <div class="alert-banner">
       <div class="ab-title">🔔 Get alerted when your game drops in price</div>
@@ -484,9 +482,9 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   <div class="foot">
     <div class="foot-logo">
       <div class="foot-logo-icon">🔒</div>
-      VaultDeals.io
+      VaultDeals.gg
     </div>
-    <p class="foot-note">Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> · This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
+    <p class="foot-note">Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot; This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores. No grey market, ever. <a href="#">Privacy</a> · <a href="#">Affiliate disclosure</a></p>
     <div class="foot-links">
       <a href="#" class="foot-a">About</a>
       <a href="#" class="foot-a">FAQ</a>
@@ -497,58 +495,50 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
 <script>
 // COUNTDOWN
-(function() {
-  var key = 'dv_cd_target';
-  var target = localStorage.getItem(key);
-  if (!target) {
-    var t = new Date(Date.now() + (4*3600 + 37*60 + 12) * 1000);
-    target = t.toISOString();
-    localStorage.setItem(key, target);
+(function(){
+  var key='dv_cd_target';
+  var target=localStorage.getItem(key);
+  if(!target){var t=new Date(Date.now()+(4*3600+37*60+12)*1000);target=t.toISOString();localStorage.setItem(key,target);}
+  function tick(){
+    var diff=Math.max(0,new Date(target)-Date.now());
+    document.getElementById('cdh').textContent=String(Math.floor(diff/3600000)).padStart(2,'0');
+    document.getElementById('cdm').textContent=String(Math.floor(diff%3600000/60000)).padStart(2,'0');
+    document.getElementById('cds').textContent=String(Math.floor(diff%60000/1000)).padStart(2,'0');
   }
-  function tick() {
-    var diff = Math.max(0, new Date(target) - Date.now());
-    document.getElementById('cdh').textContent = String(Math.floor(diff/3600000)).padStart(2,'0');
-    document.getElementById('cdm').textContent = String(Math.floor(diff%3600000/60000)).padStart(2,'0');
-    document.getElementById('cds').textContent = String(Math.floor(diff%60000/1000)).padStart(2,'0');
-  }
-  tick();
-  setInterval(tick, 1000);
+  tick();setInterval(tick,1000);
 })();
 
 // SEARCH
-document.querySelector('.search-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') document.querySelector('.search-go').click();
+document.querySelector('.search-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter')document.querySelector('.search-go').click();
 });
 
-// DEAL SCORE
-function calcScore(current, historical) {
-  if (!historical || historical <= 0) return {grade:'C+', label:'On sale'};
-  var r = current / historical;
-  if (r <= 1.05) return {grade:'A+', label:'At historical low'};
-  if (r <= 1.20) return {grade:'A',  label:'Near historical low'};
-  if (r <= 1.50) return {grade:'B+', label:'Good deal'};
-  if (r <= 2.00) return {grade:'B',  label:'Decent deal'};
-  return {grade:'C+', label:'On sale'};
+// DEAL SCORING
+function calcScore(current,historical){
+  if(!historical||historical<=0)return{grade:'C+',label:'On sale'};
+  var r=current/historical;
+  if(r<=1.05)return{grade:'A+',label:'At historical low'};
+  if(r<=1.20)return{grade:'A',label:'Near historical low'};
+  if(r<=1.50)return{grade:'B+',label:'Good deal'};
+  if(r<=2.00)return{grade:'B',label:'Decent deal'};
+  return{grade:'C+',label:'On sale'};
 }
-
-function getBadge(grade, pct) {
-  if (grade === 'A+') return {type:'low',  text:'All-time low'};
-  if (grade === 'A')  return {type:'low',  text:'Near low'};
-  if (pct >= 50)      return {type:'hot',  text:'-'+pct+'% off'};
-  return {type:'sale', text:'-'+pct+'% off'};
+function getBadge(grade,pct){
+  if(grade==='A+')return{type:'low',text:'All-time low'};
+  if(grade==='A')return{type:'low',text:'Near low'};
+  if(pct>=50)return{type:'hot',text:'-'+pct+'% off'};
+  return{type:'sale',text:'-'+pct+'% off'};
 }
+var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
+var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new'};
 
-var SCORE_CSS = {'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
-var BADGE_CSS = {'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new'};
-
-function buildCard(d) {
-  var sc = SCORE_CSS[d.score] || 's-c';
-  var bc = BADGE_CSS[d.badge.type] || 'b-sale';
-  var gold = ['A+','A'].indexOf(d.score) >= 0 ? 'gold' : '';
-  var img = d.image
-    ? '<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="'+d.title+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"></div>'
-    : '\uD83C\uDFAE';
-  return '<div class="card '+gold+'" onclick="window.open(\''+d.storeUrl+'\',\'_blank\')" style="cursor:pointer">'
+// BUILD CARD — uses data-url to avoid quote nesting
+function buildCard(d){
+  var sc=SCORE_CSS[d.score]||'s-c';
+  var bc=BADGE_CSS[d.badge.type]||'b-sale';
+  var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
+  var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
+  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'" style="cursor:pointer">'
     +'<div class="card-img" style="position:relative;">'
     +'<div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'
     +img+'</div>'
@@ -560,11 +550,9 @@ function buildCard(d) {
     +'</div></div>';
 }
 
-function buildFeatured(d) {
-  var img = d.image
-    ? '<img src="'+d.image+'" alt="'+d.title+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\'">'
-    : '\uD83C\uDFAE';
-  return '<div class="featured" onclick="window.open(\''+d.storeUrl+'\',\'_blank\')" style="cursor:pointer">'
+function buildFeatured(d){
+  var img=d.image?'<img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">':'';
+  return '<div class="featured" data-url="'+d.storeUrl+'" style="cursor:pointer">'
     +'<div class="feat-img">'+img+'</div>'
     +'<div>'
     +'<div class="feat-name">'+d.title+'</div>'
@@ -577,156 +565,164 @@ function buildFeatured(d) {
     +'<div class="feat-right">'
     +'<span class="feat-price">$'+d.currentPrice+'</span>'
     +'<span class="feat-was">Was $'+d.originalPrice+'</span>'
-    +'<button class="buy-btn">See best price \u2192</button>'
+    +'<button class="buy-btn">See best price &rarr;</button>'
     +'</div></div>';
 }
 
-function renderSection(id, deals) {
-  var el = document.getElementById(id);
-  if (!el || !deals.length) return;
-  el.innerHTML = deals.map(buildCard).join('');
+function renderSection(id,deals){
+  var el=document.getElementById(id);
+  if(!el||!deals.length)return;
+  el.innerHTML=deals.map(buildCard).join('');
 }
 
-async function loadDeals() {
-  try {
-    var cfgRes = await fetch('/api/deals');
-    var cfg = await cfgRes.json();
-    var apiKey = cfg.apiKey;
-    var games = cfg.games;
-    var apiBase = '/gg-api/v1/prices/by-steam-app-id/';
-    if (!apiKey) throw new Error('No API key');
+// FREE GAMES
+function formatExpiry(dateStr){
+  if(!dateStr||dateStr==='N/A')return'While supplies last';
+  var d=new Date(dateStr);
+  var days=Math.ceil((d-new Date())/86400000);
+  if(days<=0)return'Ending soon';
+  if(days===1)return'Ends tomorrow';
+  return'Ends in '+days+' days';
+}
+var MAJOR=['epic games store','steam','gog'];
 
-    var ids = games.map(function(g){return g.steamId;}).join(',');
-    var ggRes = await fetch(apiBase + '?key=' + apiKey + '&ids=' + ids + '&region=us');
-    var ggData = await ggRes.json();
-    if (!ggData.success || !ggData.data) throw new Error('No data from GG.deals');
-
-    var deals = [];
-    for (var i = 0; i < games.length; i++) {
-      var game = games[i];
-      var info = ggData.data[game.steamId];
-      if (!info || !info.prices) continue;
-
-      // Title validation — skip if GG.deals returned a completely different game
-      var ggTitle = (info.title || '').toLowerCase();
-      var ourTitle = game.title.toLowerCase();
-      // Check if at least one word from our title appears in GG.deals title
-      var titleWords = ourTitle.split(' ').filter(function(w) { return w.length > 3; });
-      var titleMatch = titleWords.some(function(w) { return ggTitle.indexOf(w) >= 0; });
-      if (!titleMatch) continue;
-
-      var current = parseFloat(info.prices.currentRetail);
-      var historical = parseFloat(info.prices.historicalRetail);
-      if (!current || current <= 0) continue;
-
-      // Only show games with a meaningful discount vs our known original price
-      var discPct = Math.round((1 - current / game.originalPrice) * 100);
-      if (discPct < 20) continue;
-      // Must be a real game price — filter out permanently cheap games
-      if (game.originalPrice < 19.99) continue;
-      var score = calcScore(current, historical);
-      var badge = getBadge(score.grade, discPct);
-      deals.push({
-        steamId: game.steamId,
-        title: info.title || game.title,
-        genre: game.genre,
-        currentPrice: current.toFixed(2),
-        originalPrice: game.originalPrice.toFixed(2),
-        discountPercent: discPct,
-        score: score.grade,
-        scoreLabel: score.label,
-        badge: badge,
-        storeUrl: info.url || 'https://gg.deals/',
-        image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/' + game.steamId + '/header.jpg'
+async function loadFreeGames(){
+  try{
+    var res=await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
+    if(!res.ok)throw new Error('GamerPower '+res.status);
+    var games=await res.json();
+    if(!Array.isArray(games))throw new Error('bad data');
+    var filtered=games.filter(function(g){
+      var worth=parseFloat(g.worth.replace('$',''))||0;
+      var plat=g.platforms.toLowerCase();
+      var major=MAJOR.some(function(p){return plat.indexOf(p)>=0;});
+      return major&&worth>=9.99&&g.status==='Active';
+    }).slice(0,4);
+    if(!filtered.length)return;
+    var html=filtered.map(function(g){
+      var expiry=formatExpiry(g.end_date);
+      var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
+      var card='<div class="free-card" data-url="'+g.open_giveaway_url+'">';
+      card+='<div class="free-img">';
+      card+='<img src="'+g.image+'" alt="'+title+'">';
+      card+='<span class="free-badge">FREE</span>';
+      card+='<span class="free-expires">'+expiry+'</span>';
+      card+='</div>';
+      card+='<div class="free-body">';
+      card+='<div class="free-title">'+title+'</div>';
+      card+='<div class="free-platform">'+g.platforms+'</div>';
+      card+='<div class="free-worth">Free <span>'+g.worth+'</span></div>';
+      card+='<div class="free-btn">Claim free &rarr;</div>';
+      card+='</div></div>';
+      return card;
+    }).join('');
+    var el=document.getElementById('free-games');
+    if(el){
+      el.innerHTML=html;
+      el.querySelectorAll('[data-url]').forEach(function(c){
+        c.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
       });
     }
-
-    deals.sort(function(a,b){
-      var order = ['A+','A','B+','B','C+','C'];
-      var d = order.indexOf(a.score) - order.indexOf(b.score);
-      return d !== 0 ? d : b.discountPercent - a.discountPercent;
-    });
-
-    var dotd = document.getElementById('deal-of-day');
-    if (dotd && deals[0]) dotd.innerHTML = buildFeatured(deals[0]);
-
-    renderSection('historical-lows', deals.filter(function(d){return ['A+','A'].indexOf(d.score)>=0;}).slice(0,4));
-    renderSection('top-discounts',   deals.filter(function(d){return ['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
-    // Hidden gems: games that cost $20+ originally, now under $10, with a real discount
-      renderSection('hidden-gems', deals.filter(function(d){
-        return parseFloat(d.currentPrice) <= 10 && parseFloat(d.originalPrice) >= 20;
-      }).slice(0,4));
-
-    var lu = document.getElementById('last-updated');
-    if (lu) lu.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-
-  } catch(err) {
-    console.warn('Could not load live deals:', err.message);
+  }catch(err){
+    var sec=document.getElementById('free-games-sec');
+    if(sec)sec.style.display='none';
+    console.warn('Free games error:',err.message);
   }
 }
 
+// MAIN DEALS
+async function loadDeals(){
+  try{
+    var cfgRes=await fetch('/api/deals');
+    var cfg=await cfgRes.json();
+    var apiKey=cfg.apiKey;
+    var games=cfg.games;
+    var apiBase=cfg.apiBase;
+    if(!apiKey)throw new Error('No API key');
 
-// FREE GAMES — GamerPower API via Netlify proxy
-function formatExpiry(dateStr) {
-  if (!dateStr || dateStr === 'N/A') return 'While supplies last';
-  var d = new Date(dateStr);
-  var now = new Date();
-  var days = Math.ceil((d - now) / 86400000);
-  if (days <= 0) return 'Ending soon';
-  if (days === 1) return 'Ends tomorrow';
-  return 'Ends in ' + days + ' days';
-}
+    var ids=games.map(function(g){return g.steamId;}).join(',');
+    var ggRes=await fetch(apiBase+'?key='+apiKey+'&ids='+ids+'&region=us');
+    var ggData=await ggRes.json();
+    if(!ggData.success||!ggData.data)throw new Error('No GG.deals data');
 
-var MAJOR_PLATFORMS = ['epic games store', 'steam', 'gog'];
+    var deals=[];
+    for(var i=0;i<games.length;i++){
+      var game=games[i];
+      var info=ggData.data[game.steamId];
+      if(!info||!info.prices)continue;
 
-async function loadFreeGames() {
-  try {
-    var res = await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
-    if (!res.ok) throw new Error('GamerPower ' + res.status);
-    var games = await res.json();
-    if (!Array.isArray(games)) throw new Error('No free games data');
+      // Title validation — skip wrong games
+      var ggTitle=(info.title||'').toLowerCase();
+      var ourTitle=game.title.toLowerCase();
+      var words=ourTitle.split(' ').filter(function(w){return w.length>3;});
+      var match=words.some(function(w){return ggTitle.indexOf(w)>=0;});
+      if(!match)continue;
 
-    // Only show games from major platforms with decent worth
-    var filtered = games.filter(function(g) {
-      var worth = parseFloat(g.worth.replace('$','')) || 0;
-      var platforms = g.platforms.toLowerCase();
-      var isMajor = MAJOR_PLATFORMS.some(function(p) { return platforms.indexOf(p) >= 0; });
-      return isMajor && worth >= 9.99 && g.status === 'Active';
-    }).slice(0, 4);
+      // Title validation - skip if GG.deals returned wrong game
+      var ggT=(info.title||'').toLowerCase();
+      var ourT=game.title.toLowerCase();
+      var wds=ourT.split(' ').filter(function(w){return w.length>3;});
+      var ok=wds.some(function(w){return ggT.indexOf(w)>=0;});
+      if(!ok)continue;
 
-    if (!filtered.length) return; // hide section if nothing qualifies
+      var current=parseFloat(info.prices.currentRetail);
+      var historical=parseFloat(info.prices.historicalRetail);
+      if(!current||current<=0)continue;
+      var discPct=Math.round((1-current/game.originalPrice)*100);
+      if(discPct<20)continue;
+      if(game.originalPrice<19.99)continue;
 
-    var html = filtered.map(function(g) {
-      var expiry = formatExpiry(g.end_date);
-      return '<div class="free-card" onclick="window.open('' + g.open_giveaway_url + '','_blank')">'
-        + '<div class="free-img">'
-        + '<img src="' + g.image + '" alt="' + g.title + '" onerror="this.style.display='none'">'
-        + '<span class="free-badge">FREE</span>'
-        + '<span class="free-expires">' + expiry + '</span>'
-        + '</div>'
-        + '<div class="free-body">'
-        + '<div class="free-title">' + g.title.replace(/ \(.*?\) Giveaway$/, '').replace(/ Giveaway$/, '') + '</div>'
-        + '<div class="free-platform">' + g.platforms + '</div>'
-        + '<div class="free-worth">Free <span>' + g.worth + '</span></div>'
-        + '<div class="free-btn">Claim free →</div>'
-        + '</div></div>';
-    }).join('');
+      var score=calcScore(current,historical);
+      var badge=getBadge(score.grade,discPct);
+      deals.push({
+        steamId:game.steamId,
+        title:info.title||game.title,
+        genre:game.genre,
+        currentPrice:current.toFixed(2),
+        originalPrice:game.originalPrice.toFixed(2),
+        discountPercent:discPct,
+        score:score.grade,
+        scoreLabel:score.label,
+        badge:badge,
+        storeUrl:info.url||'https://gg.deals/',
+        image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg'
+      });
+    }
 
-    var el = document.getElementById('free-games');
-    if (el) el.innerHTML = html;
+    var order=['A+','A','B+','B','C+','C'];
+    deals.sort(function(a,b){
+      var d=order.indexOf(a.score)-order.indexOf(b.score);
+      return d!==0?d:b.discountPercent-a.discountPercent;
+    });
 
-  } catch(err) {
-    console.warn('Could not load free games:', err.message);
-    // Hide section gracefully if it fails
-    var sec = document.getElementById('free-games-sec');
-    if (sec) sec.style.display = 'none';
+    var dotd=document.getElementById('deal-of-day');
+    if(dotd&&deals[0]){
+      dotd.innerHTML=buildFeatured(deals[0]);
+      var feat=dotd.querySelector('[data-url]');
+      if(feat)feat.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+    }
+
+    renderSection('historical-lows',deals.filter(function(d){return['A+','A'].indexOf(d.score)>=0;}).slice(0,4));
+    renderSection('top-discounts',deals.filter(function(d){return['B+','B'].indexOf(d.score)>=0;}).slice(0,4));
+    renderSection('hidden-gems',deals.filter(function(d){return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20;}).slice(0,4));
+
+    // Click handlers
+    document.querySelectorAll('[data-url]').forEach(function(el){
+      el.onclick=function(){window.open(this.getAttribute('data-url'),'_blank');};
+    });
+
+    var lu=document.getElementById('last-updated');
+    if(lu)lu.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  }catch(err){
+    console.warn('Could not load live deals:',err.message);
   }
 }
 
 loadDeals();
 loadFreeGames();
-setInterval(loadDeals, 3600000);
-setInterval(loadFreeGames, 3600000);
+setInterval(loadDeals,3600000);
+setInterval(loadFreeGames,3600000);
 </script>
 </body>
 </html>

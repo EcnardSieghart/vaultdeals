@@ -310,16 +310,23 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   .free-title { font-size: 12px; }
   .free-body { padding: 10px 10px 12px; }
 
-  /* Modals — full width with safe margins */
-  .modal-overlay { padding: 12px; }
+  /* Modals — full width with safe margins, no overflow */
+  .modal-overlay { padding: 8px; align-items: flex-end; }
   .modal-box {
-    padding: 24px 18px 20px;
-    max-height: 88vh;
+    padding: 22px 16px 20px;
+    max-height: 90vh;
     width: 100%;
+    max-width: calc(100vw - 16px) !important;
+    border-radius: var(--r2) var(--r2) 0 0;
   }
-  .modal-title { font-size: 17px; padding-right: 36px; }
+  .modal-title { font-size: 17px; padding-right: 36px; margin-bottom: 16px; }
   .modal-body { font-size: 13px; }
+  .modal-body h3 { font-size: 13px; }
   .bundle-grid { grid-template-columns: 1fr; gap: 8px; }
+  /* View all grid — 2 cols on mobile */
+  #view-all-grid { grid-template-columns: 1fr 1fr !important; }
+  /* Free cards inside modal */
+  .modal-body .free-card { min-width: 0; }
 
   /* Footer */
   footer { padding: 24px 1rem; }
@@ -353,11 +360,11 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 /* MODALS */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: 100%; max-height: 82vh; overflow-y: auto; padding: 36px; position: relative; animation: fadeUp .25s ease both; }
+.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: 100%; max-height: 82vh; overflow-y: auto; overflow-x: hidden; padding: 36px; position: relative; animation: fadeUp .25s ease both; word-wrap: break-word; overflow-wrap: break-word; }
 .modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg3); border: 1px solid var(--border); color: var(--text3); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color .15s; }
 .modal-close:hover { color: var(--text); }
 .modal-title { font-family: var(--fh); font-size: 21px; font-weight: 800; color: var(--text); margin-bottom: 22px; letter-spacing: -.3px; padding-right: 32px; }
-.modal-body { color: var(--text2); line-height: 1.85; font-size: 14px; }
+.modal-body { color: var(--text2); line-height: 1.85; font-size: 14px; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word; }
 .modal-body h3 { font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); margin: 22px 0 6px; }
 .modal-body h3:first-child { margin-top: 0; }
 .modal-body p { margin-bottom: 12px; }
@@ -678,11 +685,11 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
 <!-- VIEW ALL MODAL — shared, populated dynamically per section -->
 <div class="modal-overlay" id="modal-view-all" onclick="handleOverlayClick(event,'modal-view-all')">
-  <div class="modal-box" style="max-width:900px;">
+  <div class="modal-box" style="max-width:min(900px, 96vw);">
     <button class="modal-close" onclick="closeModal('modal-view-all')">&#10005;</button>
     <div class="modal-title" id="view-all-title"></div>
     <div class="modal-body">
-      <div class="grid4" id="view-all-grid" style="margin-top:4px;"></div>
+      <div class="grid4" id="view-all-grid" style="margin-top:4px;min-width:0;"></div>
     </div>
   </div>
 </div>

@@ -878,14 +878,19 @@ function rerenderSections(){
   var sorted = sortDeals(allDeals);
   var shownIds = [];
 
-  // Historical lows — A+/A first, fill to 4 with B+/B
-  var allHistoricalLows = sorted.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
+  // Historical lows — ALWAYS sorted by score then discount, never by price
+  // This section shows best deals by score regardless of global sort setting
+  var scoreOrder = ['A+','A','B+','B','C+','C'];
+  var byScore = allDeals.slice().sort(function(a,b){
+    var d = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
+    return d !== 0 ? d : b.discountPercent - a.discountPercent;
+  });
+  var allHistoricalLows = byScore.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
   if(allHistoricalLows.length < 4){
     var used = allHistoricalLows.map(function(d){ return d.steamId; });
-    var fillers = sorted.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && used.indexOf(d.steamId)<0; });
+    var fillers = byScore.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && used.indexOf(d.steamId)<0; });
     allHistoricalLows = allHistoricalLows.concat(fillers);
   }
-  // Store FULL deduplicated list for modal (no cross-section dupes)
   fullLists['historical-lows'] = allHistoricalLows;
   var historicalLows = allHistoricalLows.slice(0,4);
   historicalLows.forEach(function(d){ shownIds.push(d.steamId); });

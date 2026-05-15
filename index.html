@@ -876,34 +876,29 @@ function sortDeals(deals){
 function rerenderSections(){
   if(!allDeals.length) return;
   var sorted = sortDeals(allDeals);
-
-  // Rebuild shownIds with new sort
   var shownIds = [];
 
-  // Historical lows — A+/A first regardless of sort, fill to 4
+  // Historical lows — A+/A first, fill to 4 with B+/B
   var allHistoricalLows = sorted.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
   if(allHistoricalLows.length < 4){
     var used = allHistoricalLows.map(function(d){ return d.steamId; });
     var fillers = sorted.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && used.indexOf(d.steamId)<0; });
     allHistoricalLows = allHistoricalLows.concat(fillers);
   }
+  // Store FULL deduplicated list for modal (no cross-section dupes)
   fullLists['historical-lows'] = allHistoricalLows;
   var historicalLows = allHistoricalLows.slice(0,4);
   historicalLows.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('historical-lows', historicalLows);
 
-  // Top discounts
+  // Top discounts — exclude already shown
   var allTopDiscounts = sorted.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
-  if(currentSort === 'price'){
-    allTopDiscounts = allDeals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; })
-      .slice().sort(function(a,b){ return parseFloat(a.currentPrice)-parseFloat(b.currentPrice); });
-  }
   fullLists['top-discounts'] = allTopDiscounts;
   var topDiscounts = allTopDiscounts.slice(0,4);
   topDiscounts.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('top-discounts-grid', topDiscounts);
 
-  // Indie picks
+  // Indie picks — exclude already shown
   var allIndiePicks = sorted.filter(function(d){ return d.isIndie && d.discountPercent>=20 && shownIds.indexOf(d.steamId)<0; });
   if(allIndiePicks.length < 4){
     var indieUsed = allIndiePicks.map(function(d){ return d.steamId; });
@@ -915,7 +910,7 @@ function rerenderSections(){
   indiePicks.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('indie-picks', indiePicks);
 
-  // Budget picks
+  // Budget picks — exclude already shown
   var allBudgetPicks = sorted.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; });
   fullLists['budget-picks'] = allBudgetPicks;
   renderSection('budget-picks', allBudgetPicks.slice(0,4));
@@ -1406,43 +1401,9 @@ async function loadDeals(){
       if(feat) feat.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
     }
 
-    // Historical lows — A+/A first, fill to 4 with B+/B, always cap at 4 for default view
-    var allHistoricalLows=deals.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
-    if(allHistoricalLows.length<4){
-      var used=allHistoricalLows.map(function(d){ return d.steamId; });
-      var fillers=deals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0&&used.indexOf(d.steamId)<0; });
-      allHistoricalLows=allHistoricalLows.concat(fillers);
-    }
-    var shownIds=[];
-    var historicalLows=allHistoricalLows.slice(0,4);
-    historicalLows.forEach(function(d){ shownIds.push(d.steamId); });
-    fullLists['historical-lows']=allHistoricalLows;
-    renderSection('historical-lows',historicalLows);
-    // Top discounts — deduplicate against historical lows
-    var allTopDiscounts=deals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0&&shownIds.indexOf(d.steamId)<0; });
-    allTopDiscounts.sort(function(a,b){ return b.discountPercent-a.discountPercent; });
-    var topDiscounts=allTopDiscounts.slice(0,4);
-    topDiscounts.forEach(function(d){ shownIds.push(d.steamId); });
-    fullLists['top-discounts']=allTopDiscounts;
-    renderSection('top-discounts-grid',topDiscounts);
+    // Render all sections with consistent dedup logic
+    rerenderSections();
 
-    // Indie picks — 20% discount first, fill to 4 with 10%+ fallback, deduplicate against above sections
-    var allIndiePicks=deals.filter(function(d){ return d.isIndie&&d.discountPercent>=20&&shownIds.indexOf(d.steamId)<0; });
-    if(allIndiePicks.length<4){
-      var indieUsed=allIndiePicks.map(function(d){ return d.steamId; });
-      var indieFill=deals.filter(function(d){ return d.isIndie&&d.discountPercent>=10&&indieUsed.indexOf(d.steamId)<0&&shownIds.indexOf(d.steamId)<0; });
-      allIndiePicks=allIndiePicks.concat(indieFill);
-    }
-    var indiePicks=allIndiePicks.slice(0,4);
-    indiePicks.forEach(function(d){ shownIds.push(d.steamId); });
-    fullLists['indie-picks']=allIndiePicks;
-    renderSection('indie-picks',indiePicks);
-
-    // Under $10 right now — deduplicate against all above sections
-    var allBudgetPicks=deals.filter(function(d){ return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=5&&shownIds.indexOf(d.steamId)<0; });
-    var budgetPicks=allBudgetPicks.slice(0,4);
-    fullLists['budget-picks']=allBudgetPicks;
-    renderSection('budget-picks',budgetPicks);
 
     document.querySelectorAll('[data-url]').forEach(function(el){
       el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };

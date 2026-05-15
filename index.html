@@ -476,7 +476,24 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <!-- NAV -->
 <nav>
   <a href="#" class="logo">
-    <div class="logo-icon">🔒</div>
+    <svg width="28" height="28" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+  <rect width="512" height="512" rx="96" fill="#1c1a17"/>
+  <circle cx="256" cy="256" r="148" fill="#242018" stroke="#f59e0b" stroke-width="10"/>
+  <circle cx="256" cy="256" r="112" fill="#1c1a17" stroke="#3d3830" stroke-width="5"/>
+  <line x1="256" y1="144" x2="256" y2="368" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="144" y1="256" x2="368" y2="256" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="177" y1="177" x2="335" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="335" y1="177" x2="177" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="36" fill="#f59e0b"/>
+  <circle cx="256" cy="256" r="20" fill="#1c1a17"/>
+  <circle cx="256" cy="256" r="8" fill="#f59e0b"/>
+  <circle cx="256" cy="144" r="10" fill="#f59e0b"/>
+  <circle cx="256" cy="368" r="10" fill="#f59e0b"/>
+  <circle cx="144" cy="256" r="10" fill="#f59e0b"/>
+  <circle cx="368" cy="256" r="10" fill="#f59e0b"/>
+  <rect x="330" y="344" width="100" height="36" rx="18" fill="#f59e0b"/>
+  <text x="380" y="368" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="#141210" text-anchor="middle">−60%</text>
+</svg>
     Vault<span>Deals</span>.io
   </a>
   <div class="nav-links">
@@ -618,7 +635,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 <!-- FOOTER -->
 <footer>
   <div class="foot">
-    <div class="foot-logo"><div class="foot-logo-icon">🔒</div>VaultDeals.io</div>
+    <div class="foot-logo"><svg width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="512" height="512" rx="96" fill="#1c1a17"/><circle cx="256" cy="256" r="148" fill="#242018" stroke="#f59e0b" stroke-width="10"/><circle cx="256" cy="256" r="112" fill="#1c1a17" stroke="#3d3830" stroke-width="5"/><line x1="256" y1="144" x2="256" y2="368" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="144" y1="256" x2="368" y2="256" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="177" y1="177" x2="335" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="335" y1="177" x2="177" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><circle cx="256" cy="256" r="36" fill="#f59e0b"/><circle cx="256" cy="256" r="20" fill="#1c1a17"/><circle cx="256" cy="256" r="8" fill="#f59e0b"/><circle cx="256" cy="144" r="10" fill="#f59e0b"/><circle cx="256" cy="368" r="10" fill="#f59e0b"/><circle cx="144" cy="256" r="10" fill="#f59e0b"/><circle cx="368" cy="256" r="10" fill="#f59e0b"/></svg>VaultDeals.io</div>
     <p class="foot-note">
       Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot;
       This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores.
@@ -1217,11 +1234,17 @@ function updateTrending(deals){
   if(!deals||!deals.length) return;
   var bar=document.getElementById('trending-bar');
   if(!bar) return;
+  // Use data-title to avoid apostrophe/quote escaping issues in onclick
   var links=deals.slice(0,5).map(function(d){
-    var safe=d.title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return '<a onclick="searchGame(\''+safe+'\')">'+d.title+'</a>';
+    return '<a class="trending-link" data-title="'+d.title.replace(/"/g,'&quot;')+'">'+d.title+'</a>';
   }).join(' · ');
   bar.innerHTML='Trending deals: '+links;
+  // Attach click handlers safely via JS, no inline onclick
+  bar.querySelectorAll('.trending-link').forEach(function(el){
+    el.addEventListener('click', function(){
+      searchGame(this.getAttribute('data-title'));
+    });
+  });
 }
 
 // BUILD CARD / FEATURED

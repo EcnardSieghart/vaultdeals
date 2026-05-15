@@ -1178,6 +1178,8 @@ async function handleSearch(){
       if(p&&p.prices&&p.prices.currentRetail){
         var current=parseFloat(p.prices.currentRetail);
         var historical=parseFloat(p.prices.historicalRetail);
+        var original=parseFloat(game.normalPrice)||current;
+        var discPct=original>0?Math.round((1-current/original)*100):0;
         var wasFree=historical===0;
         var score=calcScore(current,historical,original);
         var badge=getBadge(score.grade,discPct,wasFree);

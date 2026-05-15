@@ -948,10 +948,12 @@ document.getElementById('contact-form').addEventListener('submit',async function
 });
 
 // DEAL SCORING
-function calcScore(current,historical){
-  if(historical===0)return{grade:'C+',label:'Was free before'};
-  if(!historical||historical<=0)return{grade:'C+',label:'On sale'};
-  var r=current/historical;
+function calcScore(current,historical,originalPrice){
+  // If historical was free, score against original retail price instead
+  // The free period is historical context, not a useful price benchmark
+  var benchmark = (historical===0 && originalPrice>0) ? originalPrice : historical;
+  if(!benchmark||benchmark<=0)return{grade:'C+',label:'On sale'};
+  var r=current/benchmark;
   if(r<=1.05)return{grade:'A+',label:'At historical low'};
   if(r<=1.20)return{grade:'A',label:'Near historical low'};
   if(r<=1.50)return{grade:'B+',label:'Good deal'};
@@ -959,11 +961,11 @@ function calcScore(current,historical){
   return{grade:'C+',label:'On sale'};
 }
 function getBadge(grade,pct,wasFree){
-  if(wasFree)return{type:'free',text:'Was free'};
-  if(grade==='A+')return{type:'low',text:'All-time low'};
-  if(grade==='A')return{type:'low',text:'Near low'};
-  if(pct>=50)return{type:'hot',text:'-'+pct+'% off'};
-  return{type:'sale',text:'-'+pct+'% off'};
+  // Score badge is primary — wasFree is now shown as a secondary badge in the card
+  if(grade==='A+')return{type:'low',text:'All-time low',wasFree:wasFree};
+  if(grade==='A')return{type:'low',text:'Near low',wasFree:wasFree};
+  if(pct>=50)return{type:'hot',text:'-'+pct+'% off',wasFree:wasFree};
+  return{type:'sale',text:'-'+pct+'% off',wasFree:wasFree};
 }
 var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
 var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
@@ -1142,7 +1144,7 @@ async function handleSearch(){
         var current=parseFloat(p.prices.currentRetail);
         var historical=parseFloat(p.prices.historicalRetail);
         var wasFree=historical===0;
-        var score=calcScore(current,historical);
+        var score=calcScore(current,historical,original);
         var badge=getBadge(score.grade,0,wasFree);
         var sc=SCORE_CSS[score.grade]||'s-c';
         var bc=BADGE_CSS[badge.type]||'b-sale';
@@ -1210,13 +1212,17 @@ function buildCard(d){
   var bc=BADGE_CSS[d.badge.type]||'b-sale';
   var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
   var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
+  // Secondary "Was free" badge shown below primary badge
+  var wasFreeTag=d.badge.wasFree?'<span class="badge b-free" style="font-size:9px;">Was free</span>':'';
+  // Always show discount % in the store line for clarity
+  var discLabel=d.discountPercent>0?' · -'+d.discountPercent+'% off retail':'';
   return '<div class="card '+gold+'" data-url="'+d.storeUrl+'">'
-    +'<div class="card-img" style="position:relative;"><div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span></div>'+img+'</div>'
+    +'<div class="card-img" style="position:relative;"><div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span>'+wasFreeTag+'</div>'+img+'</div>'
     +'<div class="card-body">'
     +'<div class="card-row"><div class="card-name">'+d.title+'</div><span class="score '+sc+'">'+d.score+'</span></div>'
     +'<div class="card-genre">'+d.genre+'</div>'
     +'<div class="price-row"><span class="price">$'+d.currentPrice+'</span><span class="was">$'+d.originalPrice+'</span></div>'
-    +'<div class="store">via GG.deals</div>'
+    +'<div class="store">via GG.deals'+discLabel+'</div>'
     +'</div></div>';
 }
 function buildFeatured(d){
@@ -1373,7 +1379,7 @@ async function loadDeals(){
       // AAA: require 20% discount. Indie: include at 10%+ so fallback fill works
       var minDisc=game.isIndie?10:20;
       if(discPct<minDisc||game.originalPrice<4.99) continue;
-      var score=calcScore(current,historical);
+      var score=calcScore(current,historical,game.originalPrice);
       var badge=getBadge(score.grade,discPct,wasFree);
       deals.push({
         steamId:game.steamId, title:info.title||game.title, genre:game.genre,

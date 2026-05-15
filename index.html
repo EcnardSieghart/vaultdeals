@@ -392,11 +392,17 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
     <div class="grid4" id="top-discounts-grid"></div>
   </div>
 
+  <!-- INDIE PICKS -->
   <div class="sec">
-    <div class="sec-head"><div class="sec-title">💎 Hidden gems under $10</div><a href="#" class="sec-more">View all →</a></div>
-    <div class="grid4" id="hidden-gems"></div>
+    <div class="sec-head"><div class="sec-title">🎮 Indie picks</div><a href="#" class="sec-more">View all →</a></div>
+    <div class="grid4" id="indie-picks"></div>
   </div>
 
+  <!-- UNDER $10 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">💰 Under $10 right now</div><a href="#" class="sec-more">View all →</a></div>
+    <div class="grid4" id="budget-picks"></div>
+  </div>
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
       <div class="sec-title">🎁 Free right now</div>
@@ -957,7 +963,9 @@ async function loadDeals(){
       if(!current||current<=0) continue;
       var wasFree=historical===0;
       var discPct=Math.round((1-current/game.originalPrice)*100);
-      if(discPct<20||game.originalPrice<19.99) continue;
+      // AAA: require 20% discount. Indie: include at 10%+ so fallback fill works
+      var minDisc=game.isIndie?10:20;
+      if(discPct<minDisc||game.originalPrice<4.99) continue;
       var score=calcScore(current,historical);
       var badge=getBadge(score.grade,discPct,wasFree);
       deals.push({
@@ -965,7 +973,8 @@ async function loadDeals(){
         currentPrice:current.toFixed(2), originalPrice:game.originalPrice.toFixed(2),
         discountPercent:discPct, score:score.grade, scoreLabel:score.label, badge:badge,
         storeUrl:info.url||'https://gg.deals/',
-        image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg'
+        image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg',
+        isIndie:!!game.isIndie
       });
     }
 
@@ -990,7 +999,21 @@ async function loadDeals(){
     }
     renderSection('historical-lows',historicalLows);
     renderSection('top-discounts-grid',deals.filter(function(d){ return['B+','B'].indexOf(d.score)>=0; }).slice(0,4));
-    renderSection('hidden-gems',deals.filter(function(d){ return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=20; }).slice(0,4));
+
+    // Indie picks — 20% discount first, fill to 4 with 10%+ fallback
+    var indiePrimary=deals.filter(function(d){ return d.isIndie&&d.discountPercent>=20; });
+    if(indiePrimary.length<4){
+      var indieUsed=indiePrimary.map(function(d){ return d.steamId; });
+      var indieFill=deals.filter(function(d){ return d.isIndie&&d.discountPercent>=10&&indieUsed.indexOf(d.steamId)<0; });
+      indiePrimary=indiePrimary.concat(indieFill).slice(0,4);
+    } else {
+      indiePrimary=indiePrimary.slice(0,4);
+    }
+    renderSection('indie-picks',indiePrimary);
+
+    // Under $10 right now — any game currently under $10 with original price over $5
+    var budgetDeals=deals.filter(function(d){ return parseFloat(d.currentPrice)<=10&&parseFloat(d.originalPrice)>=5; }).slice(0,4);
+    renderSection('budget-picks',budgetDeals);
 
     document.querySelectorAll('[data-url]').forEach(function(el){
       el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };

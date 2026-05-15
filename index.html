@@ -708,11 +708,11 @@ searchInput.addEventListener('keydown',function(e){
 
 async function fetchSuggestions(q){
   try{
-    var res=await fetch('/cheapshark-api/games?title='+encodeURIComponent(q)+'&limit=6');
+    var res=await fetch('/cheapshark-api/games?title='+encodeURIComponent(q)+'&limit=8');
     if(!res.ok) return;
     var data=await res.json();
     if(!Array.isArray(data)) return;
-    currentSuggestions=data.slice(0,6);
+    currentSuggestions=data.slice(0,5);
     renderSuggestions();
   }catch(e){ /* silent fail */ }
 }
@@ -731,6 +731,9 @@ function renderSuggestions(){
       +"</div>";
   }).join("");
   box.classList.add('open');
+  // Hide trending bar while suggestions are visible
+  var tb=document.getElementById('trending-bar');
+  if(tb) tb.style.visibility='hidden';
   // Wire click handlers via data-name to avoid all inline onclick quoting issues
   box.querySelectorAll('.suggestion-item').forEach(function(el){
     el.addEventListener('click',function(){ selectSuggestion(this.getAttribute('data-name')); });
@@ -754,6 +757,8 @@ function selectSuggestion(name){
 function closeSuggestions(){
   document.getElementById('search-suggestions').classList.remove('open');
   activeSuggIdx=-1;
+  var tb=document.getElementById('trending-bar');
+  if(tb) tb.style.visibility='visible';
 }
 
 // Close suggestions when clicking outside search bar

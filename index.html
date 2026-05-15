@@ -605,7 +605,7 @@ function openFreeViewAll(){
   document.getElementById('view-all-title').textContent='Free right now';
   var grid=document.getElementById('view-all-grid');
   // Show up to 8 free cards + GamerPower link at bottom
-  grid.innerHTML=cards.slice(0,8).join('')
+  grid.innerHTML=cards.slice(0,16).join('')
     +'<div style="grid-column:1/-1;text-align:center;padding-top:20px;border-top:1px solid var(--border);margin-top:8px;">'
     +'<a href="https://www.gamerpower.com" target="_blank" rel="noopener" '
     +'style="color:var(--green);font-size:14px;font-weight:600;text-decoration:none;">More free games on GamerPower &#8594;</a>'
@@ -977,7 +977,7 @@ async function loadFreeGames(ggFreeGames){
     var filtered=games.filter(function(g){
       var worth=parseFloat(g.worth.replace('$',''))||0;
       var plat=g.platforms.toLowerCase();
-      return MAJOR.some(function(p){ return plat.indexOf(p)>=0; })&&worth>=9.99&&g.status==='Active';
+      return MAJOR.some(function(p){ return plat.indexOf(p)>=0; })&&worth>=1.99&&g.status==='Active';
     });
 
     // Build cards from GamerPower
@@ -1003,7 +1003,7 @@ async function loadFreeGames(ggFreeGames){
     });
 
     // Merge: GG tracked games first (more reliable), then GamerPower, cap at 4
-    var allCards=ggCards.concat(gpCards).slice(0,4);
+    var allCards=ggCards.concat(gpCards); // store full list — main section slices to 4, modal shows up to 16
     if(!allCards.length){
       var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
       return;
@@ -1011,8 +1011,8 @@ async function loadFreeGames(ggFreeGames){
     var el=document.getElementById('free-games');
     if(el){
       // Store full list for View all modal, display only first 4
-      fullLists['free-games']=allCards;
-      el.innerHTML=allCards.slice(0,4).join('');
+      fullLists['free-games']=allCards; // full list stored for modal
+      el.innerHTML=allCards.slice(0,4).join(''); // main section shows 4
       el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
     }
   }catch(err){
@@ -1027,7 +1027,11 @@ async function loadFreeGames(ggFreeGames){
           +'</div></div>';
       });
       var el=document.getElementById('free-games');
-      if(el){ el.innerHTML=ggCards.join(''); el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; }); }
+      if(el){
+        fullLists['free-games']=ggCards;
+        el.innerHTML=ggCards.slice(0,4).join('');
+        el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
+      }
     } else {
       var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
     }

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultDeals — Game ID Verifier</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #141210; color: #fafaf9; font-family: system-ui, sans-serif; font-size: 14px; padding: 32px; }
+h1 { font-size: 20px; font-weight: 800; color: #f59e0b; margin-bottom: 6px; }
+p { color: #78716c; margin-bottom: 24px; font-size: 13px; }
+.progress { background: #1c1a17; border: 1px solid #2e2a24; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.progress-bar-wrap { flex: 1; background: #242018; border-radius: 100px; height: 8px; overflow: hidden; }
+.progress-bar { height: 100%; background: #f59e0b; border-radius: 100px; transition: width .3s; width: 0%; }
+.progress-label { font-size: 12px; color: #78716c; white-space: nowrap; min-width: 80px; text-align: right; }
+.summary { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.sum-card { background: #1c1a17; border: 1px solid #2e2a24; border-radius: 8px; padding: 12px 20px; text-align: center; }
+.sum-n { font-size: 24px; font-weight: 800; display: block; }
+.sum-l { font-size: 11px; color: #78716c; margin-top: 2px; }
+.ok-n { color: #4ade80; }
+.warn-n { color: #f59e0b; }
+.err-n { color: #f87171; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font-size: 11px; color: #78716c; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid #2e2a24; text-transform: uppercase; letter-spacing: .05em; }
+tr:nth-child(even) td { background: #1a1815; }
+td { padding: 10px 12px; border-bottom: 1px solid #2e2a24; vertical-align: middle; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
+.s-ok   { background: #0d2a18; color: #4ade80; }
+.s-warn { background: #2d1d02; color: #f59e0b; }
+.s-err  { background: #2d0f0f; color: #f87171; }
+.s-skip { background: #1c1a17; color: #78716c; }
+.game-name { font-weight: 600; color: #fafaf9; }
+.gg-name { color: #c4bdb4; }
+.steam-id { font-size: 11px; color: #78716c; font-family: monospace; }
+.price { color: #4ade80; font-weight: 600; }
+.tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 4px; }
+.t-indie { background: #1a0a2e; color: #c084fc; border: 1px solid rgba(192,132,252,.2); }
+.t-aaa   { background: #2d1d02; color: #f59e0b; border: 1px solid rgba(245,158,11,.2); }
+.filter-wrap { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-btn { background: #1c1a17; border: 1px solid #2e2a24; color: #c4bdb4; padding: 6px 14px; border-radius: 100px; font-size: 12px; cursor: pointer; transition: all .15s; }
+.filter-btn.active { background: #2d1d02; border-color: rgba(245,158,11,.4); color: #f59e0b; }
+#start-btn { background: #f59e0b; color: #141210; border: none; padding: 12px 28px; border-radius: 100px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 24px; }
+#start-btn:disabled { opacity: .5; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<h1>🔍 VaultDeals — Game ID Verifier</h1>
+<p>Fetches GG.deals data for every tracked game and shows whether the Steam ID matches the expected title. Run this on the dev URL before merging to main.</p>
+
+<button id="start-btn" onclick="runVerification()">Run verification</button>
+
+<div class="progress" id="progress-wrap" style="display:none">
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div class="progress-label" id="progress-label">0 / 0</div>
+</div>
+
+<div class="summary" id="summary" style="display:none">
+  <div class="sum-card"><span class="sum-n ok-n" id="s-ok">0</span><span class="sum-l">Matched</span></div>
+  <div class="sum-card"><span class="sum-n warn-n" id="s-warn">0</span><span class="sum-l">Partial match</span></div>
+  <div class="sum-card"><span class="sum-n err-n" id="s-err">0</span><span class="sum-l">Wrong game</span></div>
+  <div class="sum-card"><span class="sum-n" style="color:#78716c" id="s-skip">0</span><span class="sum-l">No data</span></div>
+</div>
+
+<div class="filter-wrap" id="filter-wrap" style="display:none">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('ok',this)">Matched</button>
+  <button class="filter-btn" onclick="setFilter('warn',this)">Partial</button>
+  <button class="filter-btn" onclick="setFilter('err',this)">Wrong</button>
+  <button class="filter-btn" onclick="setFilter('skip',this)">No data</button>
+  <button class="filter-btn" onclick="setFilter('indie',this)">Indie only</button>
+  <button class="filter-btn" onclick="setFilter('aaa',this)">AAA only</button>
+</div>
+
+<table id="results-table" style="display:none">
+  <thead>
+    <tr>
+      <th>Your title</th>
+      <th>Steam ID</th>
+      <th>GG.deals returned</th>
+      <th>Current price</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="results-body"></tbody>
+</table>
+
+<script>
+var GAMES = [
+  // AAA
+  { steamId: '1245620', title: 'Elden Ring',                   originalPrice: 59.99 },
+  { steamId: '1086940', title: "Baldur's Gate 3",              originalPrice: 59.99 },
+  { steamId: '1091500', title: 'Cyberpunk 2077',               originalPrice: 59.99 },
+  { steamId: '1174180', title: 'Red Dead Redemption 2',        originalPrice: 49.99 },
+  { steamId: '1817070', title: "Marvel's Spider-Man",          originalPrice: 59.99 },
+  { steamId: '292030',  title: 'The Witcher 3',                originalPrice: 39.99 },
+  { steamId: '1888930', title: 'The Last of Us Part I',        originalPrice: 59.99 },
+  { steamId: '289070',  title: 'Civilization VI',              originalPrice: 59.99 },
+  { steamId: '1109910', title: 'Control',                      originalPrice: 39.99 },
+  { steamId: '1113560', title: 'Alan Wake Remastered',         originalPrice: 29.99 },
+  { steamId: '1245170', title: 'Horizon Zero Dawn',            originalPrice: 49.99 },
+  { steamId: '2183900', title: 'Hogwarts Legacy',              originalPrice: 59.99 },
+  { steamId: '271590',  title: 'GTA V',                        originalPrice: 29.99 },
+  { steamId: '814380',  title: 'Sekiro',                       originalPrice: 59.99 },
+  { steamId: '1938090', title: 'God of War',                   originalPrice: 49.99 },
+  { steamId: '1817190', title: 'Spider-Man Miles Morales',     originalPrice: 49.99 },
+  { steamId: '1237970', title: 'Titanfall 2',                  originalPrice: 29.99 },
+  { steamId: '976730',  title: 'Halo Master Chief Collection', originalPrice: 39.99 },
+  { steamId: '1627720', title: 'God of War Ragnarok',          originalPrice: 59.99 },
+  { steamId: '1840404', title: 'Dave the Diver',               originalPrice: 19.99 },
+  { steamId: '2358720', title: 'Lies of P',                    originalPrice: 49.99 },
+  { steamId: '1446780', title: 'Monster Hunter Rise',          originalPrice: 29.99 },
+  { steamId: '1665460', title: 'Monster Hunter World',         originalPrice: 29.99 },
+  { steamId: '2050650', title: 'Resident Evil 4',              originalPrice: 59.99 },
+  { steamId: '952060',  title: 'Resident Evil 2',              originalPrice: 39.99 },
+  { steamId: '418370',  title: 'Resident Evil 7',              originalPrice: 29.99 },
+  { steamId: '1966720', title: 'Starfield',                    originalPrice: 69.99 },
+  { steamId: '1151640', title: 'Fallout 4',                    originalPrice: 29.99 },
+  { steamId: '489830',  title: 'Skyrim Special Edition',       originalPrice: 39.99 },
+  { steamId: '1716740', title: 'Ghostwire Tokyo',              originalPrice: 59.99 },
+  { steamId: '1659420', title: 'Dying Light 2',                originalPrice: 59.99 },
+  { steamId: '534380',  title: 'Dying Light',                  originalPrice: 29.99 },
+  { steamId: '1174270', title: 'Assassins Creed Valhalla',     originalPrice: 59.99 },
+  { steamId: '812140',  title: 'Assassins Creed Odyssey',      originalPrice: 49.99 },
+  { steamId: '2368850', title: 'Assassins Creed Mirage',       originalPrice: 49.99 },
+  { steamId: '1182480', title: 'Forza Horizon 5',              originalPrice: 59.99 },
+  { steamId: '1328670', title: 'Mass Effect Legendary',        originalPrice: 59.99 },
+  // INDIE
+  { steamId: '367520',  title: 'Hollow Knight',                originalPrice: 14.99, isIndie: true },
+  { steamId: '504230',  title: 'Celeste',                      originalPrice: 19.99, isIndie: true },
+  { steamId: '413150',  title: 'Stardew Valley',               originalPrice: 14.99, isIndie: true },
+  { steamId: '1366540', title: 'Vampire Survivors',            originalPrice: 4.99,  isIndie: true },
+  { steamId: '753640',  title: 'Outer Wilds',                  originalPrice: 24.99, isIndie: true },
+  { steamId: '632470',  title: 'Disco Elysium',                originalPrice: 39.99, isIndie: true },
+  { steamId: '105600',  title: 'Terraria',                     originalPrice: 9.99,  isIndie: true },
+  { steamId: '646570',  title: 'Slay the Spire',               originalPrice: 24.99, isIndie: true },
+  { steamId: '1062090', title: 'Valheim',                      originalPrice: 19.99, isIndie: true },
+  { steamId: '1150690', title: 'Untitled Goose Game',          originalPrice: 19.99, isIndie: true },
+  { steamId: '770720',  title: 'Subnautica',                   originalPrice: 29.99, isIndie: true },
+  { steamId: '590380',  title: 'Into the Breach',              originalPrice: 14.99, isIndie: true },
+  { steamId: '1145360', title: 'Hades',                        originalPrice: 24.99, isIndie: true },
+  { steamId: '1401590', title: 'Hades II',                     originalPrice: 29.99, isIndie: true },
+  { steamId: '1268350', title: 'Cuphead',                      originalPrice: 19.99, isIndie: true },
+  { steamId: '200260',  title: 'Bastion',                      originalPrice: 14.99, isIndie: true },
+  { steamId: '257510',  title: 'Transistor',                   originalPrice: 19.99, isIndie: true },
+  { steamId: '463270',  title: 'Pyre',                         originalPrice: 19.99, isIndie: true },
+  { steamId: '653530',  title: 'Return of the Obra Dinn',      originalPrice: 19.99, isIndie: true },
+  { steamId: '1465360', title: 'Unpacking',                    originalPrice: 19.99, isIndie: true },
+  { steamId: '1533390', title: 'Inscryption',                  originalPrice: 19.99, isIndie: true },
+  { steamId: '1812820', title: 'Tunic',                        originalPrice: 29.99, isIndie: true },
+  { steamId: '1341820', title: 'Chicory A Colorful Tale',      originalPrice: 19.99, isIndie: true },
+  { steamId: '858300',  title: 'Spiritfarer',                  originalPrice: 29.99, isIndie: true },
+  { steamId: '2379780', title: 'Dredge',                       originalPrice: 24.99, isIndie: true },
+  { steamId: '1259090', title: 'Skul The Hero Slayer',         originalPrice: 19.99, isIndie: true },
+  { steamId: '1097150', title: 'A Short Hike',                 originalPrice: 7.99,  isIndie: true },
+  { steamId: '1466640', title: 'Loop Hero',                    originalPrice: 14.99, isIndie: true },
+  { steamId: '1144200', title: 'Spelunky 2',                   originalPrice: 19.99, isIndie: true },
+  { steamId: '239030',  title: 'Papers Please',                originalPrice: 9.99,  isIndie: true },
+  { steamId: '1343400', title: 'Wildermyth',                   originalPrice: 24.99, isIndie: true },
+  { steamId: '1158310', title: 'Teardown',                     originalPrice: 19.99, isIndie: true },
+  { steamId: '1547830', title: 'Neon White',                   originalPrice: 19.99, isIndie: true },
+  { steamId: '1252460', title: 'Ender Lilies',                 originalPrice: 19.99, isIndie: true },
+  { steamId: '1222690', title: 'The Forgotten City',           originalPrice: 24.99, isIndie: true },
+  { steamId: '1196590', title: 'Terra Nil',                    originalPrice: 19.99, isIndie: true },
+  { steamId: '2080690', title: 'Venba',                        originalPrice: 14.99, isIndie: true },
+  { steamId: '1418630', title: 'Before Your Eyes',             originalPrice: 9.99,  isIndie: true },
+  { steamId: '1538270', title: 'Citizen Sleeper',              originalPrice: 19.99, isIndie: true },
+  { steamId: '1557740', title: 'Norco',                        originalPrice: 14.99, isIndie: true },
+  { steamId: '1228964', title: 'Monster Train',                originalPrice: 24.99, isIndie: true },
+  { steamId: '774361',  title: 'Shovel Knight Treasure Trove', originalPrice: 24.99, isIndie: true },
+  { steamId: '477160',  title: 'Human Fall Flat',              originalPrice: 14.99, isIndie: true },
+  { steamId: '1283400', title: 'Prodeus',                      originalPrice: 19.99, isIndie: true },
+];
+
+var allResults = [];
+var currentFilter = 'all';
+
+async function runVerification(){
+  var btn = document.getElementById('start-btn');
+  btn.disabled = true;
+  btn.textContent = 'Running…';
+  allResults = [];
+
+  // Deduplicate by steamId
+  var seen = {};
+  var unique = GAMES.filter(function(g){
+    if(seen[g.steamId]) return false;
+    seen[g.steamId] = true;
+    return true;
+  });
+
+  document.getElementById('progress-wrap').style.display = 'flex';
+  document.getElementById('summary').style.display = 'flex';
+  document.getElementById('filter-wrap').style.display = 'flex';
+  document.getElementById('results-table').style.display = 'table';
+
+  var total = unique.length;
+  var done = 0;
+
+  var cfg;
+  try {
+    var cfgRes = await fetch('/api/deals');
+    cfg = await cfgRes.json();
+  } catch(e) {
+    alert('Could not fetch API config. Make sure you are running this on the dev URL, not locally.');
+    btn.disabled = false;
+    btn.textContent = 'Run verification';
+    return;
+  }
+
+  for(var b = 0; b < unique.length; b += 10){
+    var batch = unique.slice(b, b + 10);
+    var ids = batch.map(function(g){ return g.steamId; }).join(',');
+    var url = cfg.apiBase + '?key=' + cfg.apiKey + '&ids=' + ids + '&region=us';
+    var batchData = {};
+
+    try {
+      var res = await fetch(url);
+      var json = JSON.parse(await res.text());
+      if(json.success && json.data) batchData = json.data;
+    } catch(e) {}
+
+    batch.forEach(function(game){
+      var info = batchData[game.steamId];
+      var result = { game: game, ggTitle: info ? (info.title || '') : '', price: info && info.prices ? info.prices.currentRetail : null, status: 'skip' };
+
+      if(info && info.title){
+        var ggLower = info.title.toLowerCase();
+        var words = game.title.toLowerCase().split(' ').filter(function(w){ return w.length > 3; });
+        var matched = words.filter(function(w){ return ggLower.indexOf(w) >= 0; }).length;
+        if(matched === words.length) result.status = 'ok';
+        else if(matched > 0) result.status = 'warn';
+        else result.status = 'err';
+      }
+
+      allResults.push(result);
+      done++;
+    });
+
+    document.getElementById('progress-bar').style.width = Math.round((done/total)*100) + '%';
+    document.getElementById('progress-label').textContent = done + ' / ' + total;
+    renderTable();
+    updateSummary();
+  }
+
+  btn.textContent = 'Run again';
+  btn.disabled = false;
+}
+
+function updateSummary(){
+  var c = { ok:0, warn:0, err:0, skip:0 };
+  allResults.forEach(function(r){ c[r.status]++; });
+  document.getElementById('s-ok').textContent   = c.ok;
+  document.getElementById('s-warn').textContent = c.warn;
+  document.getElementById('s-err').textContent  = c.err;
+  document.getElementById('s-skip').textContent = c.skip;
+}
+
+function renderTable(){
+  var filtered = allResults.filter(function(r){
+    if(currentFilter === 'all')   return true;
+    if(currentFilter === 'indie') return !!r.game.isIndie;
+    if(currentFilter === 'aaa')   return !r.game.isIndie;
+    return r.status === currentFilter;
+  });
+
+  document.getElementById('results-body').innerHTML = filtered.map(function(r){
+    var tag = r.game.isIndie ? '<span class="tag t-indie">Indie</span>' : '<span class="tag t-aaa">AAA</span>';
+    var statusHtml = { ok:'<span class="status s-ok">Match</span>', warn:'<span class="status s-warn">Partial</span>', err:'<span class="status s-err">Wrong</span>', skip:'<span class="status s-skip">No data</span>' };
+    var priceHtml = r.price ? '<span class="price">$'+parseFloat(r.price).toFixed(2)+'</span>' : '<span style="color:#78716c">not on sale</span>';
+    return '<tr><td><span class="game-name">'+r.game.title+'</span>'+tag+'</td><td><span class="steam-id">'+r.game.steamId+'</span></td><td><span class="gg-name">'+(r.ggTitle||'—')+'</span></td><td>'+priceHtml+'</td><td>'+statusHtml[r.status]+'</td></tr>';
+  }).join('');
+}
+
+function setFilter(f, btn){
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTable();
+}
+</script>
+</body>
+</html>

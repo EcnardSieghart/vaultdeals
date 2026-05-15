@@ -415,7 +415,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
   <div class="sec" id="free-games-sec">
     <div class="sec-head">
       <div class="sec-title">🎁 Free right now</div>
-      <a href="https://www.gamerpower.com" target="_blank" rel="noopener" class="sec-more">More on GamerPower →</a>
+      <a href="#" class="sec-more" onclick="openFreeViewAll();return false;">View all →</a>
     </div>
     <p class="sec-subtitle">Legitimate giveaways from Epic, Steam, and GOG — no strings attached</p>
     <div class="free-grid" id="free-games"></div>
@@ -598,6 +598,24 @@ window.addEventListener('load', function(){ document.getElementById('search-inpu
 
 // VIEW ALL — store full deal lists after loadDeals runs
 var fullLists = {};
+
+function openFreeViewAll(){
+  var cards=fullLists['free-games']||[];
+  if(!cards.length) return;
+  document.getElementById('view-all-title').textContent='Free right now';
+  var grid=document.getElementById('view-all-grid');
+  // Show up to 8 free cards + GamerPower link at bottom
+  grid.innerHTML=cards.slice(0,8).join('')
+    +'<div style="grid-column:1/-1;text-align:center;padding-top:20px;border-top:1px solid var(--border);margin-top:8px;">'
+    +'<a href="https://www.gamerpower.com" target="_blank" rel="noopener" '
+    +'style="color:var(--green);font-size:14px;font-weight:600;text-decoration:none;">More free games on GamerPower &#8594;</a>'
+    +'<p style="font-size:12px;color:var(--text3);margin-top:6px;">GamerPower tracks giveaways across Epic, Steam, GOG and more</p>'
+    +'</div>';
+  grid.querySelectorAll('[data-url]').forEach(function(el){
+    el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  });
+  openModal('modal-view-all');
+}
 
 function openViewAll(sectionKey, title) {
   var deals = fullLists[sectionKey] || [];
@@ -992,7 +1010,9 @@ async function loadFreeGames(ggFreeGames){
     }
     var el=document.getElementById('free-games');
     if(el){
-      el.innerHTML=allCards.join('');
+      // Store full list for View all modal, display only first 4
+      fullLists['free-games']=allCards;
+      el.innerHTML=allCards.slice(0,4).join('');
       el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
     }
   }catch(err){

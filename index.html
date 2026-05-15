@@ -863,11 +863,8 @@ function setSort(s){
   rerenderSections();
 }
 
-function sortDeals(deals){
-  if(currentSort === 'price'){
-    return deals.slice().sort(function(a,b){ return parseFloat(a.currentPrice) - parseFloat(b.currentPrice); });
-  }
-  // Default: best deal (score then discount %)
+function sortByScore(deals){
+  // Sort by deal score then discount % — used for section membership, never changes
   var order = ['A+','A','B+','B','C+','C'];
   return deals.slice().sort(function(a,b){
     var d = order.indexOf(a.score) - order.indexOf(b.score);
@@ -875,18 +872,27 @@ function sortDeals(deals){
   });
 }
 
+function sortDeals(deals){
+  // Sort by current user preference (sort toggle)
+  if(currentSort === 'price'){
+    return deals.slice().sort(function(a,b){ return parseFloat(a.currentPrice) - parseFloat(b.currentPrice); });
+  }
+  return sortByScore(deals);
+}
+
 function rerenderSections(){
   if(!allDeals.length) return;
+
+  // Section MEMBERSHIP always determined by score order
+  // This ensures the same games appear in the same sections regardless of sort toggle
+  // The sort toggle only changes display ORDER within each section
+  var byScore = sortByScore(allDeals);
+
+  // sorted is used for display order within sections
   var sorted = sortDeals(allDeals);
   var shownIds = [];
 
-  // Historical lows — ALWAYS sorted by score then discount, never by price
-  // This section shows best deals by score regardless of global sort setting
-  var scoreOrder = ['A+','A','B+','B','C+','C'];
-  var byScore = allDeals.slice().sort(function(a,b){
-    var d = scoreOrder.indexOf(a.score) - scoreOrder.indexOf(b.score);
-    return d !== 0 ? d : b.discountPercent - a.discountPercent;
-  });
+  // Historical lows — ALWAYS sorted by score, never affected by global sort
   var allHistoricalLows = byScore.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
   if(allHistoricalLows.length < 4){
     var used = allHistoricalLows.map(function(d){ return d.steamId; });
@@ -899,27 +905,31 @@ function rerenderSections(){
   allHistoricalLows.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('historical-lows', allHistoricalLows.slice(0,4));
 
-  // Top discounts — exclude all historical lows (visible or not)
-  var allTopDiscounts = sorted.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
+  // Top discounts — membership by byScore, display order by sorted
+  var topMembership = byScore.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
+  var topMemberIds = topMembership.map(function(d){ return d.steamId; });
+  // Display in sorted order but only games that qualified by score membership
+  var allTopDiscounts = sorted.filter(function(d){ return topMemberIds.indexOf(d.steamId)>=0; });
   fullLists['top-discounts'] = allTopDiscounts;
-  var topDiscounts = allTopDiscounts.slice(0,4);
-  topDiscounts.forEach(function(d){ shownIds.push(d.steamId); });
-  renderSection('top-discounts-grid', topDiscounts);
+  topMembership.forEach(function(d){ shownIds.push(d.steamId); });
+  renderSection('top-discounts-grid', allTopDiscounts.slice(0,4));
 
-  // Indie picks — exclude already shown
-  var allIndiePicks = sorted.filter(function(d){ return d.isIndie && d.discountPercent>=20 && shownIds.indexOf(d.steamId)<0; });
-  if(allIndiePicks.length < 4){
-    var indieUsed = allIndiePicks.map(function(d){ return d.steamId; });
-    var indieFill = sorted.filter(function(d){ return d.isIndie && d.discountPercent>=10 && indieUsed.indexOf(d.steamId)<0 && shownIds.indexOf(d.steamId)<0; });
-    allIndiePicks = allIndiePicks.concat(indieFill);
+  // Indie picks — membership by byScore, display order by sorted
+  var indieMembership = byScore.filter(function(d){ return d.isIndie && d.discountPercent>=20 && shownIds.indexOf(d.steamId)<0; });
+  if(indieMembership.length < 4){
+    var indieUsed = indieMembership.map(function(d){ return d.steamId; });
+    var indieFill = byScore.filter(function(d){ return d.isIndie && d.discountPercent>=10 && indieUsed.indexOf(d.steamId)<0 && shownIds.indexOf(d.steamId)<0; });
+    indieMembership = indieMembership.concat(indieFill);
   }
+  var indieMemberIds = indieMembership.map(function(d){ return d.steamId; });
+  var allIndiePicks = sorted.filter(function(d){ return indieMemberIds.indexOf(d.steamId)>=0; });
   fullLists['indie-picks'] = allIndiePicks;
-  var indiePicks = allIndiePicks.slice(0,4);
-  indiePicks.forEach(function(d){ shownIds.push(d.steamId); });
-  renderSection('indie-picks', indiePicks);
+  indieMembership.forEach(function(d){ shownIds.push(d.steamId); });
+  renderSection('indie-picks', allIndiePicks.slice(0,4));
 
-  // Budget picks — exclude all above sections
-  var allBudgetPicks = sorted.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; });
+  // Budget picks — membership by byScore, display order by sorted
+  var budgetMemberIds = byScore.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; }).map(function(d){ return d.steamId; });
+  var allBudgetPicks = sorted.filter(function(d){ return budgetMemberIds.indexOf(d.steamId)>=0; });
   fullLists['budget-picks'] = allBudgetPicks;
   renderSection('budget-picks', allBudgetPicks.slice(0,4));
 
@@ -1153,7 +1163,7 @@ async function handleSearch(){
         var historical=parseFloat(p.prices.historicalRetail);
         var wasFree=historical===0;
         var score=calcScore(current,historical,original);
-        var badge=getBadge(score.grade,0,wasFree);
+        var badge=getBadge(score.grade,discPct,wasFree);
         var sc=SCORE_CSS[score.grade]||'s-c';
         var bc=BADGE_CSS[badge.type]||'b-sale';
         if(score.grade==='A+'||score.grade==='A') gold='gold';
@@ -1399,14 +1409,9 @@ async function loadDeals(){
       });
     }
 
-    deals.sort(function(a,b){
-      var order=['A+','A','B+','B','C+','C'];
-      var d=order.indexOf(a.score)-order.indexOf(b.score);
-      return d!==0?d:b.discountPercent-a.discountPercent;
-    });
-
-    // Store full deals list for sort toggle re-renders
+    deals = sortByScore(deals);
     allDeals = deals;
+
 
     var dotd=document.getElementById('deal-of-day');
     if(dotd&&deals[0]){

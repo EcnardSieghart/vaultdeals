@@ -233,10 +233,10 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 @media (max-width: 600px) {
   /* Layout */
   .grid4 { grid-template-columns: 1fr 1fr; }
-  .container { padding: 0 1rem; }
+  /* container padding unchanged on mobile */
 
   /* Nav */
-  nav { padding: 0 1rem; }
+  /* nav padding unchanged */
   nav .nav-links .nav-a { display: none; }
 
   /* Hero */
@@ -365,7 +365,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 /* MODALS */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .modal-overlay.open { opacity: 1; pointer-events: all; }
-.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: calc(100% - 16px); max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding: 36px; position: relative; animation: fadeUp .25s ease both; word-wrap: break-word; overflow-wrap: break-word; box-sizing: border-box; }
+.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding: 36px; position: relative; animation: fadeUp .25s ease both; word-wrap: break-word; overflow-wrap: break-word; box-sizing: border-box; }
 .modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg3); border: 1px solid var(--border); color: var(--text3); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color .15s; }
 .modal-close:hover { color: var(--text); }
 .modal-title { font-family: var(--fh); font-size: 21px; font-weight: 800; color: var(--text); margin-bottom: 22px; letter-spacing: -.3px; padding-right: 32px; }

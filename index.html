@@ -132,9 +132,9 @@ nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); ba
 .container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
 .sec { margin-bottom: 60px; }
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
-.sec-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.sec-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; min-width: 0; }
 .sec-more { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .15s; }
-.sec-subtitle { font-size: 12px; color: var(--text3); margin-top: -14px; margin-bottom: 18px; }
+.sec-subtitle { font-size: 12px; color: var(--text2); margin-top: -14px; margin-bottom: 18px; line-height: 1.6; }
 .sec-more:hover { color: var(--amber); }
 
 /* CARDS */
@@ -220,20 +220,116 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 .f3 { animation: fadeUp .45s .25s both ease; }
 .f4 { animation: fadeUp .45s .35s both ease; }
 
-/* RESPONSIVE */
+/* RESPONSIVE — tablet */
 @media (max-width: 960px) {
   .grid4 { grid-template-columns: repeat(2,1fr); }
   .featured { grid-template-columns: 72px 1fr; }
   .feat-right { grid-column: 1/-1; display: flex; align-items: center; gap: 16px; text-align: left; }
   .feat-price { font-size: 24px; }
+  .modal-box { padding: 28px 24px; }
 }
+
+/* RESPONSIVE — mobile */
 @media (max-width: 600px) {
+  /* Layout */
   .grid4 { grid-template-columns: 1fr 1fr; }
-  .stats .stat { padding: 16px 20px; }
+  .container { padding: 0 1rem; }
+
+  /* Nav */
+  nav { padding: 0 1rem; }
   nav .nav-links .nav-a { display: none; }
-  .hero-h1 { letter-spacing: -1.2px; }
-  .feat-right { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+  /* Hero */
+  .hero { padding: 52px 1rem 36px; }
+  .hero-h1 { letter-spacing: -1.2px; font-size: clamp(28px, 8vw, 40px); }
+  .hero-sub { font-size: 14px; margin-bottom: 24px; }
+  .search-input { padding: 13px 110px 13px 42px; font-size: 14px; }
+  .search-go { padding: 8px 16px; font-size: 12px; }
+  .search-clear-btn { right: 95px; }
+  .trending { font-size: 11px; margin-bottom: 36px; }
+
+  /* Stats */
+  .stats .stat { padding: 14px 16px; }
+  .stat-n { font-size: 20px; }
+
+  /* Section headers */
+  .sec { margin-bottom: 40px; }
+  .sec-title { font-size: 15px; }
+  .sec-subtitle { font-size: 11px; }
+  .sec-more { font-size: 12px; white-space: nowrap; }
+  .sec-head { align-items: center; }
+
+  /* Cards — shorter images on mobile to reduce scroll */
+  .card-img { height: 90px; }
+  .card-name { font-size: 12px; }
+  .price { font-size: 15px; }
+  .card-body { padding: 10px 10px 12px; }
+
+  /* Featured card — stack vertically on mobile */
+  .featured {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  .feat-img {
+    width: 100%;
+    height: 140px;
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .feat-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--r); }
+  .feat-name { font-size: 16px; }
+  .feat-right {
+    grid-column: unset;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    flex-wrap: wrap;
+  }
+  .feat-price { font-size: 22px; }
+  .feat-was { margin-bottom: 0; }
+
+  /* Sales strip */
+  .sales-strip { padding: 12px 14px; gap: 10px; }
+  .sales-links { gap: 6px; }
+  .sales-link { font-size: 11px; padding: 4px 10px; }
+  .sales-label { font-size: 12px; }
+
+  /* Section titles that might wrap */
+  .sec-head { flex-wrap: nowrap; gap: 8px; }
+
+  /* Alert banner */
   .ab-form { flex-direction: column; }
+  .ab-title { font-size: 16px; }
+  .ab-sub { font-size: 13px; }
+
+  /* Free cards */
+  .free-grid { grid-template-columns: 1fr 1fr; }
+  .free-img { height: 90px; }
+  .free-title { font-size: 12px; }
+  .free-body { padding: 10px 10px 12px; }
+
+  /* Modals — full width with safe margins */
+  .modal-overlay { padding: 12px; }
+  .modal-box {
+    padding: 24px 18px 20px;
+    max-height: 88vh;
+    width: 100%;
+  }
+  .modal-title { font-size: 17px; padding-right: 36px; }
+  .modal-body { font-size: 13px; }
+  .bundle-grid { grid-template-columns: 1fr; gap: 8px; }
+
+  /* Footer */
+  footer { padding: 24px 1rem; }
+  .foot { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .foot-note { font-size: 11px; }
+  .foot-links { gap: 12px; }
+
+  /* Search results */
+  .search-results-inner { padding: 24px 1rem 32px; }
+  .search-results-title { font-size: 14px; }
 }
 
 /* FREE GAMES */

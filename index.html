@@ -803,7 +803,9 @@ function openViewAll(sectionKey, title) {
   if(!deals.length) return;
   document.getElementById('view-all-title').textContent = title;
   var grid = document.getElementById('view-all-grid');
-  grid.innerHTML = deals.slice(0,12).map(buildCard).join('');
+  // Near all-time low always score-sorted; other sections respect current sort
+  var displayDeals = sectionKey === 'historical-lows' ? deals : sortDeals(deals);
+  grid.innerHTML = displayDeals.slice(0,12).map(buildCard).join('');
   grid.querySelectorAll('[data-url]').forEach(function(el){
     el.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
   });
@@ -892,11 +894,12 @@ function rerenderSections(){
     allHistoricalLows = allHistoricalLows.concat(fillers);
   }
   fullLists['historical-lows'] = allHistoricalLows;
-  var historicalLows = allHistoricalLows.slice(0,4);
-  historicalLows.forEach(function(d){ shownIds.push(d.steamId); });
-  renderSection('historical-lows', historicalLows);
+  // Push ALL historical low IDs into shownIds — not just the 4 visible ones
+  // This prevents games in the full modal list from appearing in lower sections
+  allHistoricalLows.forEach(function(d){ shownIds.push(d.steamId); });
+  renderSection('historical-lows', allHistoricalLows.slice(0,4));
 
-  // Top discounts — exclude already shown
+  // Top discounts — exclude all historical lows (visible or not)
   var allTopDiscounts = sorted.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
   fullLists['top-discounts'] = allTopDiscounts;
   var topDiscounts = allTopDiscounts.slice(0,4);
@@ -915,7 +918,7 @@ function rerenderSections(){
   indiePicks.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('indie-picks', indiePicks);
 
-  // Budget picks — exclude already shown
+  // Budget picks — exclude all above sections
   var allBudgetPicks = sorted.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; });
   fullLists['budget-picks'] = allBudgetPicks;
   renderSection('budget-picks', allBudgetPicks.slice(0,4));

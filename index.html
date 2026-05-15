@@ -949,7 +949,8 @@ function formatExpiry(dateStr){
   return'Ends in '+days+' days';
 }
 var MAJOR=['epic games store','steam','gog'];
-async function loadFreeGames(){
+async function loadFreeGames(ggFreeGames){
+  ggFreeGames=ggFreeGames||[];
   try{
     var res=await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
     if(!res.ok) throw new Error('GamerPower '+res.status);
@@ -959,9 +960,10 @@ async function loadFreeGames(){
       var worth=parseFloat(g.worth.replace('$',''))||0;
       var plat=g.platforms.toLowerCase();
       return MAJOR.some(function(p){ return plat.indexOf(p)>=0; })&&worth>=9.99&&g.status==='Active';
-    }).slice(0,4);
-    if(!filtered.length) return;
-    var html=filtered.map(function(g){
+    });
+
+    // Build cards from GamerPower
+    var gpCards=filtered.map(function(g){
       var expiry=formatExpiry(g.end_date);
       var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
       return '<div class="free-card" data-url="'+g.open_giveaway_url+'">'
@@ -970,11 +972,45 @@ async function loadFreeGames(){
         +'<div class="free-body"><div class="free-title">'+title+'</div><div class="free-platform">'+g.platforms+'</div>'
         +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
         +'</div></div>';
-    }).join('');
+    });
+
+    // Build cards from GG.deals free tracked games (Steam free promotions)
+    var ggCards=ggFreeGames.map(function(g){
+      return '<div class="free-card" data-url="'+g.url+'">'
+        +'<div class="free-img"><img src="'+g.image+'" alt="'+g.title+'">'
+        +'<span class="free-badge">FREE</span><span class="free-expires">On Steam now</span></div>'
+        +'<div class="free-body"><div class="free-title">'+g.title+'</div><div class="free-platform">'+g.platform+'</div>'
+        +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
+        +'</div></div>';
+    });
+
+    // Merge: GG tracked games first (more reliable), then GamerPower, cap at 4
+    var allCards=ggCards.concat(gpCards).slice(0,4);
+    if(!allCards.length){
+      var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
+      return;
+    }
     var el=document.getElementById('free-games');
-    if(el){ el.innerHTML=html; el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; }); }
+    if(el){
+      el.innerHTML=allCards.join('');
+      el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
+    }
   }catch(err){
-    var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
+    // If GamerPower fails but we have GG free games, still show those
+    if(ggFreeGames.length){
+      var ggCards=ggFreeGames.map(function(g){
+        return '<div class="free-card" data-url="'+g.url+'">'
+          +'<div class="free-img"><img src="'+g.image+'" alt="'+g.title+'">'
+          +'<span class="free-badge">FREE</span><span class="free-expires">On Steam now</span></div>'
+          +'<div class="free-body"><div class="free-title">'+g.title+'</div><div class="free-platform">'+g.platform+'</div>'
+          +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
+          +'</div></div>';
+      });
+      var el=document.getElementById('free-games');
+      if(el){ el.innerHTML=ggCards.join(''); el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; }); }
+    } else {
+      var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
+    }
     console.warn('Free games error:',err.message);
   }
 }
@@ -1002,6 +1038,23 @@ async function loadDeals(){
       if(batchJson.success&&batchJson.data) Object.assign(allData,batchJson.data);
     }
     if(!Object.keys(allData).length) throw new Error('No GG.deals data');
+
+    // Check tracked games for currentRetail === 0 (temporarily free on Steam)
+    var freeFromGG=[];
+    games.forEach(function(game){
+      var info=allData[game.steamId];
+      if(!info||!info.prices) return;
+      var current=parseFloat(info.prices.currentRetail);
+      if(current===0){
+        freeFromGG.push({
+          title: info.title||game.title,
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg',
+          url: info.url||'https://gg.deals/',
+          platform: 'PC, Steam',
+          worth: '$'+game.originalPrice.toFixed(2)
+        });
+      }
+    });
 
     var deals=[];
     for(var i=0;i<games.length;i++){
@@ -1088,15 +1141,16 @@ async function loadDeals(){
 
     updateTrending(deals);
 
+    // Pass free tracked games to free section
+    loadFreeGames(freeFromGG);
+
   }catch(err){
     console.warn('Could not load live deals:',err.message);
   }
 }
 
 loadDeals();
-loadFreeGames();
 setInterval(loadDeals,3600000);
-setInterval(loadFreeGames,3600000);
 </script>
 </body>
 </html>

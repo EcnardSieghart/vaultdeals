@@ -1281,11 +1281,12 @@ function buildCard(d, showPct){
   var wasFreeTag=d.badge.wasFree?'<span class="badge b-free" style="font-size:9px;">Was free</span>':'';
   // In scored sections: score badge is primary signal, no % badge
   // showPct=true only for search results where there is no score context
-  var primaryBadge = showPct
+  // In scored sections (default): only show 'low'/'near-low' type badges
+  // 'hot' and 'sale' badges contain % text — hidden since score is the signal
+  // showPct=true only in search results where there is no score context
+  var primaryBadge = (showPct || d.badge.type === 'low')
     ? '<span class="badge '+bc+'">'+d.badge.text+'</span>'
-    : (d.badge.type==='low'||d.badge.type==='near-low'
-        ? '<span class="badge '+bc+'">'+d.badge.text+'</span>'
-        : ''); // hide % badge in scored sections
+    : '';
   // Historical low tooltip data
   var histAttr = d.historicalLow ? ' data-histlow="'+d.historicalLow+'"' : '';
   // Store line always shows % for transparency

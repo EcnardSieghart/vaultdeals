@@ -1,213 +1,1474 @@
-// VaultDeals — Cloudflare Pages Function
-// Path: /functions/api/deals.js
-// All Steam IDs verified May 2026
-// Total: 89 AAA + 97 Indie = 186 games
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name='impact-site-verification' value='d25eddd5-c55a-4b58-b6d9-8d8b64f0e545'>
+<title>VaultDeals — Find the best game deals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #141210;
+  --bg2:       #1c1a17;
+  --bg3:       #242018;
+  --border:    #2e2a24;
+  --border2:   #3d3830;
+  --text:      #fafaf9;
+  --text2:     #c4bdb4;
+  --text3:     #78716c;
+  --amber:     #f59e0b;
+  --amber2:    #d4860a;
+  --amber-dim: #2d1d02;
+  --green:     #4ade80;
+  --green-dim: #0d2a18;
+  --red:       #f87171;
+  --red-dim:   #2d0f0f;
+  --blue:      #60a5fa;
+  --blue-dim:  #0f1f3a;
+  --purple:    #c084fc;
+  --purple-dim:#1a0a2e;
+  --fh: 'Plus Jakarta Sans', sans-serif;
+  --fb: 'DM Sans', sans-serif;
+  --r: 8px; --r2: 14px;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--fb); font-size: 15px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 
-const TRACKED_GAMES = [
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 58px; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -.5px; text-decoration: none; display: flex; align-items: center; gap: 9px; }
+.logo-icon { width: 28px; height: 28px; background: var(--amber); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.logo span { color: var(--amber); }
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-a { font-size: 13px; color: var(--text3); padding: 6px 12px; border-radius: var(--r); transition: all .15s; cursor: pointer; background: none; border: none; font-family: var(--fb); }
+.nav-a:hover { color: var(--text2); background: var(--bg2); }
+.nav-btn { font-family: var(--fb); font-size: 13px; font-weight: 600; color: #141210; background: var(--amber); border: none; padding: 8px 16px; border-radius: 100px; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+.nav-btn:hover { background: var(--amber2); transform: translateY(-1px); }
 
-  // ── AAA ────────────────────────────────────────────────────────────────
-  { steamId: '1245620', title: 'Elden Ring', genre: 'Action RPG', originalPrice: 59.99 },
-  { steamId: '1086940', title: 'Baldur\'s Gate 3', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '1091500', title: 'Cyberpunk 2077', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '1174180', title: 'Red Dead Redemption 2', genre: 'Action', originalPrice: 49.99 },
-  { steamId: '1817070', title: 'Marvel\'s Spider-Man', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '292030', title: 'The Witcher 3', genre: 'RPG', originalPrice: 39.99 },
-  { steamId: '1888930', title: 'The Last of Us Part I', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '289070', title: 'Civilization VI', genre: 'Strategy', originalPrice: 59.99 },
-  { steamId: '870780', title: 'Control', genre: 'Action', originalPrice: 39.99 },
-  { steamId: '108710', title: 'Alan Wake', genre: 'Thriller', originalPrice: 19.99 },
-  { steamId: '2561580', title: 'Horizon Zero Dawn', genre: 'Action RPG', originalPrice: 49.99 },
-  { steamId: '990080', title: 'Hogwarts Legacy', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '3240220', title: 'GTA V Enhanced', genre: 'Action', originalPrice: 29.99 },
-  { steamId: '814380', title: 'Sekiro', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '1593500', title: 'God of War', genre: 'Action', originalPrice: 49.99 },
-  { steamId: '1817190', title: 'Spider-Man Miles Morales', genre: 'Action', originalPrice: 49.99 },
-  { steamId: '1237970', title: 'Titanfall 2', genre: 'FPS', originalPrice: 29.99 },
-  { steamId: '976730', title: 'Halo Master Chief Collection', genre: 'FPS', originalPrice: 39.99 },
-  { steamId: '2322010', title: 'God of War Ragnarok', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '1868140', title: 'Dave the Diver', genre: 'Adventure', originalPrice: 19.99 },
-  { steamId: '1627720', title: 'Lies of P', genre: 'Action RPG', originalPrice: 49.99 },
-  { steamId: '1446780', title: 'Monster Hunter Rise', genre: 'Action RPG', originalPrice: 29.99 },
-  { steamId: '582010', title: 'Monster Hunter World', genre: 'Action RPG', originalPrice: 29.99 },
-  { steamId: '2050650', title: 'Resident Evil 4', genre: 'Survival Horror', originalPrice: 59.99 },
-  { steamId: '883710', title: 'Resident Evil 2', genre: 'Survival Horror', originalPrice: 39.99 },
-  { steamId: '418370', title: 'Resident Evil 7', genre: 'Survival Horror', originalPrice: 29.99 },
-  { steamId: '1716740', title: 'Starfield', genre: 'RPG', originalPrice: 69.99 },
-  { steamId: '377160', title: 'Fallout 4', genre: 'RPG', originalPrice: 29.99 },
-  { steamId: '489830', title: 'Skyrim Special Edition', genre: 'RPG', originalPrice: 39.99 },
-  { steamId: '1475810', title: 'Ghostwire Tokyo', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '534380', title: 'Dying Light 2', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '239140', title: 'Dying Light', genre: 'Action', originalPrice: 29.99 },
-  { steamId: '2208920', title: 'Assassins Creed Valhalla', genre: 'Action RPG', originalPrice: 59.99 },
-  { steamId: '812140', title: 'Assassins Creed Odyssey', genre: 'Action RPG', originalPrice: 49.99 },
-  { steamId: '3035570', title: 'Assassins Creed Mirage', genre: 'Action', originalPrice: 49.99 },
-  { steamId: '1551360', title: 'Forza Horizon 5', genre: 'Racing', originalPrice: 59.99 },
-  { steamId: '1328670', title: 'Mass Effect Legendary', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '2358720', title: 'Black Myth Wukong', genre: 'Action RPG', originalPrice: 59.99 },
-  { steamId: '2028850', title: 'Bioshock Infinite', genre: 'FPS', originalPrice: 29.99 },
-  { steamId: '409710', title: 'Bioshock Remastered', genre: 'FPS', originalPrice: 19.99 },
-  { steamId: '409720', title: 'Bioshock 2 Remastered', genre: 'FPS', originalPrice: 19.99 },
-  { steamId: '570940', title: 'Dark Souls Remastered', genre: 'Action RPG', originalPrice: 39.99 },
-  { steamId: '374320', title: 'Dark Souls III', genre: 'Action RPG', originalPrice: 59.99 },
-  { steamId: '335300', title: 'Dark Souls II Scholar', genre: 'Action RPG', originalPrice: 39.99 },
-  { steamId: '601150', title: 'Devil May Cry 5', genre: 'Action', originalPrice: 29.99 },
-  { steamId: '3280350', title: 'Death Stranding', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '782330', title: 'Doom Eternal', genre: 'FPS', originalPrice: 59.99 },
-  { steamId: '379720', title: 'Doom 2016', genre: 'FPS', originalPrice: 19.99 },
-  { steamId: '1462040', title: 'Final Fantasy VII Remake', genre: 'RPG', originalPrice: 69.99 },
-  { steamId: '637650', title: 'Final Fantasy XV', genre: 'RPG', originalPrice: 29.99 },
-  { steamId: '12210', title: 'Grand Theft Auto IV', genre: 'Action', originalPrice: 19.99 },
-  { steamId: '1708091', title: 'Halo Infinite Campaign', genre: 'FPS', originalPrice: 59.99 },
-  { steamId: '2420110', title: 'Horizon Forbidden West', genre: 'Action RPG', originalPrice: 59.99 },
-  { steamId: '412020', title: 'Metro Exodus', genre: 'FPS', originalPrice: 29.99 },
-  { steamId: '524220', title: 'NieR Automata', genre: 'Action RPG', originalPrice: 39.99 },
-  { steamId: '1113560', title: 'NieR Replicant', genre: 'Action RPG', originalPrice: 39.99 },
-  { steamId: '1113000', title: 'Persona 4 Golden', genre: 'RPG', originalPrice: 19.99 },
-  { steamId: '1687950', title: 'Persona 5 Royal', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '752590', title: 'A Plague Tale Innocence', genre: 'Action', originalPrice: 44.99 },
-  { steamId: '1182900', title: 'A Plague Tale Requiem', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '952060', title: 'Resident Evil 3', genre: 'Survival Horror', originalPrice: 39.99 },
-  { steamId: '1196590', title: 'Resident Evil Village', genre: 'Survival Horror', originalPrice: 49.99 },
-  { steamId: '1172380', title: 'Star Wars Jedi Fallen Order', genre: 'Action', originalPrice: 39.99 },
-  { steamId: '1774580', title: 'Star Wars Jedi Survivor', genre: 'Action', originalPrice: 69.99 },
-  { steamId: '1544020', title: 'The Callisto Protocol', genre: 'Survival Horror', originalPrice: 59.99 },
-  { steamId: '1235140', title: 'Yakuza Like a Dragon', genre: 'RPG', originalPrice: 59.99 },
-  { steamId: '2988580', title: 'Yakuza 0', genre: 'Action', originalPrice: 19.99 },
-  { steamId: '3717330', title: 'Yakuza Kiwami', genre: 'Action', originalPrice: 19.99 },
-  { steamId: '3717340', title: 'Yakuza Kiwami 2', genre: 'Action', originalPrice: 19.99 },
-  { steamId: '750920', title: 'Shadow of the Tomb Raider', genre: 'Action', originalPrice: 39.99 },
-  { steamId: '391220', title: 'Rise of the Tomb Raider', genre: 'Action', originalPrice: 29.99 },
-  { steamId: '203160', title: 'Tomb Raider 2013', genre: 'Action', originalPrice: 19.99 },
-  { steamId: '612880', title: 'Wolfenstein II New Colossus', genre: 'FPS', originalPrice: 39.99 },
-  { steamId: '924970', title: 'Back 4 Blood', genre: 'FPS', originalPrice: 49.99 },
-  { steamId: '1252330', title: 'Deathloop', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '1583230', title: 'High on Life', genre: 'FPS', originalPrice: 59.99 },
-  { steamId: '536270', title: 'Humankind', genre: 'Strategy', originalPrice: 49.99 },
-  { steamId: '1426210', title: 'It Takes Two', genre: 'Platformer', originalPrice: 39.99 },
-  { steamId: '1244460', title: 'Jurassic World Evolution 2', genre: 'Simulation', originalPrice: 49.99 },
-  { steamId: '920210', title: 'Lego Star Wars Skywalker Saga', genre: 'Action', originalPrice: 59.99 },
-  { steamId: '1325200', title: 'Nioh 2 Complete', genre: 'Action RPG', originalPrice: 49.99 },
-  { steamId: '1184370', title: 'Pathfinder Wrath of the Righteous', genre: 'RPG', originalPrice: 49.99 },
-  { steamId: '703080', title: 'Planet Zoo', genre: 'Simulation', originalPrice: 44.99 },
-  { steamId: '617290', title: 'Remnant From the Ashes', genre: 'Action', originalPrice: 39.99 },
-  { steamId: '1282100', title: 'Remnant II', genre: 'Action', originalPrice: 49.99 },
-  { steamId: '1096530', title: 'Solasta Crown of the Magister', genre: 'RPG', originalPrice: 34.99 },
-  { steamId: '690640', title: 'Trine 4', genre: 'Platformer', originalPrice: 29.99 },
-  { steamId: '1649080', title: 'Two Point Campus', genre: 'Simulation', originalPrice: 34.99 },
-  { steamId: '1527950', title: 'Wartales', genre: 'RPG', originalPrice: 34.99 },
+/* FILTER STRIP */
+.filter-strip {
+  position: sticky;
+  top: 58px; /* sits just below the nav */
+  z-index: 90;
+  background: rgba(20,18,16,.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transform: translateY(-100%);
+  transition: transform .25s ease;
+  pointer-events: none;
+  opacity: 0;
+}
+.filter-strip.visible {
+  transform: translateY(0);
+  pointer-events: all;
+  opacity: 1;
+}
+.filter-pills { display: flex; align-items: center; gap: 6px; }
+.filter-pill {
+  font-family: var(--fb); font-size: 12px; font-weight: 600;
+  padding: 5px 14px; border-radius: 100px; cursor: pointer;
+  border: 1px solid var(--border2); background: none;
+  color: var(--text3); transition: all .15s; white-space: nowrap;
+}
+.filter-pill:hover { color: var(--text2); border-color: var(--border2); background: var(--bg2); }
+.filter-pill.active { background: var(--amber); color: #141210; border-color: var(--amber); }
+.filter-pill.coming-soon { cursor: default; opacity: .5; }
+.filter-pill.coming-soon:hover { color: var(--text3); background: none; border-color: var(--border2); }
+.filter-divider { width: 1px; height: 20px; background: var(--border2); flex-shrink: 0; }
+.sort-pills { display: flex; align-items: center; gap: 6px; }
+.sort-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-right: 2px; }
+.coming-tooltip { position: relative; }
+.coming-tooltip::after {
+  content: 'Coming soon';
+  position: absolute; top: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg3); color: var(--text2);
+  font-size: 10px; font-weight: 600; padding: 4px 8px;
+  border-radius: 4px; border: 1px solid var(--border2);
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+}
+.coming-tooltip:hover::after { opacity: 1; }
 
-  // ── INDIE ──────────────────────────────────────────────────────────
-  { steamId: '367520', title: 'Hollow Knight', genre: 'Metroidvania', originalPrice: 14.99, isIndie: true },
-  { steamId: '504230', title: 'Celeste', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '413150', title: 'Stardew Valley', genre: 'Simulation', originalPrice: 14.99, isIndie: true },
-  { steamId: '1794680', title: 'Vampire Survivors', genre: 'Roguelite', originalPrice: 4.99, isIndie: true },
-  { steamId: '753640', title: 'Outer Wilds', genre: 'Adventure', originalPrice: 24.99, isIndie: true },
-  { steamId: '632470', title: 'Disco Elysium', genre: 'RPG', originalPrice: 39.99, isIndie: true },
-  { steamId: '105600', title: 'Terraria', genre: 'Sandbox', originalPrice: 9.99, isIndie: true },
-  { steamId: '646570', title: 'Slay the Spire', genre: 'Deckbuilder', originalPrice: 24.99, isIndie: true },
-  { steamId: '892970', title: 'Valheim', genre: 'Survival', originalPrice: 19.99, isIndie: true },
-  { steamId: '837470', title: 'Untitled Goose Game', genre: 'Puzzle', originalPrice: 19.99, isIndie: true },
-  { steamId: '264710', title: 'Subnautica', genre: 'Survival', originalPrice: 29.99, isIndie: true },
-  { steamId: '590380', title: 'Into the Breach', genre: 'Strategy', originalPrice: 14.99, isIndie: true },
-  { steamId: '1145360', title: 'Hades', genre: 'Roguelite', originalPrice: 24.99, isIndie: true },
-  { steamId: '1145350', title: 'Hades II', genre: 'Roguelite', originalPrice: 29.99, isIndie: true },
-  { steamId: '268910', title: 'Cuphead', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '107100', title: 'Bastion', genre: 'Action RPG', originalPrice: 14.99, isIndie: true },
-  { steamId: '237930', title: 'Transistor', genre: 'Action RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '462770', title: 'Pyre', genre: 'RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '653530', title: 'Return of the Obra Dinn', genre: 'Puzzle', originalPrice: 19.99, isIndie: true },
-  { steamId: '1135690', title: 'Unpacking', genre: 'Puzzle', originalPrice: 19.99, isIndie: true },
-  { steamId: '1092790', title: 'Inscryption', genre: 'Deckbuilder', originalPrice: 19.99, isIndie: true },
-  { steamId: '553420', title: 'Tunic', genre: 'Action Adventure', originalPrice: 29.99, isIndie: true },
-  { steamId: '1123450', title: 'Chicory A Colorful Tale', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '972660', title: 'Spiritfarer', genre: 'Management', originalPrice: 29.99, isIndie: true },
-  { steamId: '1562430', title: 'Dredge', genre: 'Adventure', originalPrice: 24.99, isIndie: true },
-  { steamId: '1147560', title: 'Skul The Hero Slayer', genre: 'Roguelite', originalPrice: 19.99, isIndie: true },
-  { steamId: '1055540', title: 'A Short Hike', genre: 'Adventure', originalPrice: 7.99, isIndie: true },
-  { steamId: '1282730', title: 'Loop Hero', genre: 'Roguelite', originalPrice: 14.99, isIndie: true },
-  { steamId: '418530', title: 'Spelunky 2', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '239030', title: 'Papers Please', genre: 'Simulation', originalPrice: 9.99, isIndie: true },
-  { steamId: '763890', title: 'Wildermyth', genre: 'RPG', originalPrice: 24.99, isIndie: true },
-  { steamId: '1167630', title: 'Teardown', genre: 'Sandbox', originalPrice: 19.99, isIndie: true },
-  { steamId: '1533420', title: 'Neon White', genre: 'Action', originalPrice: 19.99, isIndie: true },
-  { steamId: '1369630', title: 'Ender Lilies', genre: 'Metroidvania', originalPrice: 19.99, isIndie: true },
-  { steamId: '874260', title: 'The Forgotten City', genre: 'Adventure', originalPrice: 24.99, isIndie: true },
-  { steamId: '1593030', title: 'Terra Nil', genre: 'Strategy', originalPrice: 19.99, isIndie: true },
-  { steamId: '1491670', title: 'Venba', genre: 'Adventure', originalPrice: 14.99, isIndie: true },
-  { steamId: '1082430', title: 'Before Your Eyes', genre: 'Adventure', originalPrice: 9.99, isIndie: true },
-  { steamId: '1578650', title: 'Citizen Sleeper', genre: 'RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '1221250', title: 'Norco', genre: 'Adventure', originalPrice: 14.99, isIndie: true },
-  { steamId: '1102190', title: 'Monster Train', genre: 'Deckbuilder', originalPrice: 24.99, isIndie: true },
-  { steamId: '250760', title: 'Shovel Knight Treasure Trove', genre: 'Platformer', originalPrice: 24.99, isIndie: true },
-  { steamId: '477160', title: 'Human Fall Flat', genre: 'Puzzle', originalPrice: 14.99, isIndie: true },
-  { steamId: '964800', title: 'Prodeus', genre: 'FPS', originalPrice: 19.99, isIndie: true },
-  { steamId: '588650', title: 'Dead Cells', genre: 'Roguelite', originalPrice: 24.99, isIndie: true },
-  { steamId: '261570', title: 'Ori and the Blind Forest', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '1057090', title: 'Ori and the Will of the Wisps', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '332200', title: 'Axiom Verge', genre: 'Metroidvania', originalPrice: 19.99, isIndie: true },
-  { steamId: '946030', title: 'Axiom Verge 2', genre: 'Metroidvania', originalPrice: 19.99, isIndie: true },
-  { steamId: '736260', title: 'Baba Is You', genre: 'Puzzle', originalPrice: 14.99, isIndie: true },
-  { steamId: '774361', title: 'Blasphemous', genre: 'Action', originalPrice: 24.99, isIndie: true },
-  { steamId: '2114740', title: 'Blasphemous 2', genre: 'Action', originalPrice: 29.99, isIndie: true },
-  { steamId: '330020', title: 'Children of Morta', genre: 'Action RPG', originalPrice: 21.99, isIndie: true },
-  { steamId: '1313140', title: 'Cult of the Lamb', genre: 'Roguelite', originalPrice: 24.99, isIndie: true },
-  { steamId: '894020', title: 'Death\'s Door', genre: 'Action', originalPrice: 19.99, isIndie: true },
-  { steamId: '977880', title: 'Eastward', genre: 'Adventure', originalPrice: 24.99, isIndie: true },
-  { steamId: '427520', title: 'Factorio', genre: 'Strategy', originalPrice: 35.00, isIndie: true },
-  { steamId: '212680', title: 'FTL Faster Than Light', genre: 'Strategy', originalPrice: 9.99, isIndie: true },
-  { steamId: '683320', title: 'Gris', genre: 'Platformer', originalPrice: 16.99, isIndie: true },
-  { steamId: '304430', title: 'Inside', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '460950', title: 'Katana Zero', genre: 'Action', originalPrice: 14.99, isIndie: true },
-  { steamId: '701160', title: 'Kingdom Two Crowns', genre: 'Strategy', originalPrice: 19.99, isIndie: true },
-  { steamId: '48000', title: 'Limbo', genre: 'Platformer', originalPrice: 9.99, isIndie: true },
-  { steamId: '424840', title: 'Little Nightmares', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '860510', title: 'Little Nightmares II', genre: 'Platformer', originalPrice: 29.99, isIndie: true },
-  { steamId: '814370', title: 'Monster Sanctuary', genre: 'RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '481510', title: 'Night in the Woods', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '788100', title: 'Neon Abyss', genre: 'Roguelite', originalPrice: 16.99, isIndie: true },
-  { steamId: '1150690', title: 'Omori', genre: 'RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '388880', title: 'Oxenfree', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '1574310', title: 'Oxenfree II', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '739630', title: 'Phasmophobia', genre: 'Horror', originalPrice: 13.99, isIndie: true },
-  { steamId: '312520', title: 'Rain World', genre: 'Action', originalPrice: 19.99, isIndie: true },
-  { steamId: '632360', title: 'Risk of Rain 2', genre: 'Roguelite', originalPrice: 24.99, isIndie: true },
-  { steamId: '1253920', title: 'Rogue Legacy 2', genre: 'Roguelite', originalPrice: 24.99, isIndie: true },
-  { steamId: '283640', title: 'Salt and Sanctuary', genre: 'Action RPG', originalPrice: 17.99, isIndie: true },
-  { steamId: '2138710', title: 'Sifu', genre: 'Action', originalPrice: 39.99, isIndie: true },
-  { steamId: '1262350', title: 'Signalis', genre: 'Survival Horror', originalPrice: 19.99, isIndie: true },
-  { steamId: '1624540', title: 'Storyteller', genre: 'Puzzle', originalPrice: 9.99, isIndie: true },
-  { steamId: '848450', title: 'Subnautica Below Zero', genre: 'Survival', originalPrice: 29.99, isIndie: true },
-  { steamId: '973760', title: 'Thronebreaker', genre: 'RPG', originalPrice: 19.99, isIndie: true },
-  { steamId: '1599020', title: 'Tinykin', genre: 'Platformer', originalPrice: 19.99, isIndie: true },
-  { steamId: '501300', title: 'What Remains of Edith Finch', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '729000', title: 'Wytchwood', genre: 'Adventure', originalPrice: 16.99, isIndie: true },
-  { steamId: '637090', title: 'Battletech', genre: 'Strategy', originalPrice: 39.99, isIndie: true },
-  { steamId: '548430', title: 'Deep Rock Galactic', genre: 'FPS', originalPrice: 29.99, isIndie: true },
-  { steamId: '962130', title: 'Grounded', genre: 'Survival', originalPrice: 39.99, isIndie: true },
-  { steamId: '1954200', title: 'Kena Bridge of Spirits', genre: 'Action', originalPrice: 39.99, isIndie: true },
-  { steamId: '1118240', title: 'Lake', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '1390410', title: 'Midnight Fight Express', genre: 'Action', originalPrice: 19.99, isIndie: true },
-  { steamId: '1374970', title: 'Moonscars', genre: 'Metroidvania', originalPrice: 19.99, isIndie: true },
-  { steamId: '1466640', title: 'Road 96', genre: 'Adventure', originalPrice: 19.99, isIndie: true },
-  { steamId: '526870', title: 'Satisfactory', genre: 'Strategy', originalPrice: 34.99, isIndie: true },
-  { steamId: '1835240', title: 'Spiritfall', genre: 'Roguelite', originalPrice: 14.99, isIndie: true },
-  { steamId: '1370050', title: 'Trek to Yomi', genre: 'Action', originalPrice: 19.99, isIndie: true },
-  { steamId: '1299460', title: 'Wanderstop', genre: 'Adventure', originalPrice: 24.99, isIndie: true },
-  { steamId: '1097350', title: 'Weird West', genre: 'Action RPG', originalPrice: 39.99, isIndie: true },
+/* HERO */
+.hero { position: relative; z-index: 10; padding: 80px 2rem 52px; text-align: center; overflow: visible; }
+.hero-glow { position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(ellipse, rgba(245,158,11,.09) 0%, transparent 65%); pointer-events: none; z-index: 0; }
+.hero-inner { position: relative; z-index: 1; }
+.hero-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); padding: 5px 14px; border-radius: 100px; margin-bottom: 24px; letter-spacing: .05em; text-transform: uppercase; }
+.pill-dot { width: 5px; height: 5px; background: var(--amber); border-radius: 50%; animation: blink 2.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+.hero-h1 { font-family: var(--fh); font-size: clamp(32px, 5.5vw, 60px); font-weight: 800; line-height: 1.08; letter-spacing: -2px; color: var(--text); margin-bottom: 18px; }
+.hero-h1 em { color: var(--amber); font-style: normal; }
+.hero-sub { font-size: 16px; color: var(--text3); max-width: 460px; margin: 0 auto 38px; line-height: 1.8; }
 
-];
+/* SEARCH */
+.search-wrap { max-width: 564px; margin: 0 auto 14px; position: relative; }
+.search-input { width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: 100px; padding: 15px 140px 15px 50px; font-family: var(--fb); font-size: 15px; color: var(--text); outline: none; transition: all .2s; }
+.search-input::placeholder { color: var(--text3); }
+.search-input:focus { border-color: rgba(245,158,11,.45); box-shadow: 0 0 0 3px rgba(245,158,11,.09); }
+.search-ico { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 17px; pointer-events: none; }
+.search-go { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: var(--amber); color: #141210; border: none; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.search-go:hover { background: var(--amber2); }
+.search-go.loading { opacity: .7; cursor: not-allowed; }
 
-export async function onRequestGet(context) {
-  const apiKey = context.env.GGDEALS_API_KEY;
-  return new Response(JSON.stringify({
-    apiKey,
-    games: TRACKED_GAMES,
-    apiBase: '/gg-api/v1/prices/by-steam-app-id/',
-  }), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'public, max-age=3600',
-    }
+/* AUTOCOMPLETE SUGGESTIONS */
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  overflow: hidden;
+  z-index: 200;
+  display: none;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+.search-suggestions.open { display: block; }
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background .12s;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover, .suggestion-item.active { background: var(--bg3); }
+.suggestion-thumb {
+  width: 48px; height: 22px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: var(--bg3);
+}
+.suggestion-name { font-family: var(--fh); font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.suggestion-score { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+
+.search-clear-btn { position: absolute; right: 120px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); font-size: 16px; cursor: pointer; padding: 4px 8px; transition: color .15s; display: none; }
+.search-clear-btn:hover { color: var(--text); }
+.trending { font-size: 12px; color: var(--text3); margin-bottom: 52px; }
+.trending a { color: var(--text2); text-decoration: none; border-bottom: 1px solid var(--border2); padding-bottom: 1px; transition: color .15s; margin: 0 2px; cursor: pointer; }
+.trending a:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* SEARCH RESULTS SECTION */
+#search-results { display: none; border-top: 1px solid var(--border); background: var(--bg); }
+.search-results-inner { max-width: 1160px; margin: 0 auto; padding: 32px 2rem 40px; }
+.search-results-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+.search-results-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.search-clear { font-size: 13px; color: var(--text3); background: none; border: none; cursor: pointer; font-family: var(--fb); padding: 4px 10px; border-radius: var(--r); transition: all .15s; }
+.search-clear:hover { color: var(--red); background: var(--red-dim); }
+.search-status { color: var(--text3); font-size: 14px; padding: 32px 0; text-align: center; }
+.search-no-price { color: var(--amber); font-size: 12px; font-weight: 600; margin-top: 5px; }
+
+/* STATS */
+.stats { display: flex; justify-content: center; flex-wrap: wrap; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px; }
+.stat { padding: 22px 40px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-n { font-family: var(--fh); font-size: 26px; font-weight: 800; color: var(--amber); display: block; letter-spacing: -.5px; }
+.stat-l { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* LAYOUT */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+.sec { margin-bottom: 60px; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+.sec-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; min-width: 0; }
+.sec-more { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .15s; }
+.sec-subtitle { font-size: 12px; color: var(--text2); margin-top: -14px; margin-bottom: 18px; line-height: 1.6; }
+.sec-more:hover { color: var(--amber); }
+
+/* CARDS */
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; transition: border-color .2s, transform .18s; cursor: pointer; }
+.card:hover { border-color: var(--border2); transform: translateY(-3px); }
+.card.gold { border-color: rgba(245,158,11,.28); }
+.card.gold:hover { border-color: rgba(245,158,11,.5); }
+.card-img { height: 120px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 40px; position: relative; }
+.card-img::after { content:''; position:absolute; bottom:0; left:0; right:0; height:36px; background:linear-gradient(transparent,var(--bg2)); }
+.badges { position: absolute; top: 8px; left: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 1; }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: .02em; }
+.b-low    { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,158,11,.2); }
+.b-sale   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(74,222,128,.18); }
+.b-hot    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(248,113,113,.18); }
+.b-new    { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(96,165,250,.18); }
+.b-free   { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(192,132,252,.2); }
+.card-body { padding: 12px 14px 15px; }
+.card-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+.card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.score { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 20px; border-radius: 5px; font-family: var(--fh); font-size: 10px; font-weight: 800; flex-shrink: 0; }
+.s-a { background: var(--green-dim); color: var(--green); }
+.s-b { background: var(--amber-dim); color: var(--amber); }
+.s-c { background: var(--bg3); color: var(--text3); }
+.card-genre { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+.price-row { display: flex; align-items: center; justify-content: space-between; }
+.price { font-family: var(--fh); font-size: 17px; font-weight: 800; color: var(--green); letter-spacing: -.3px; }
+.was { font-size: 11px; color: var(--text3); text-decoration: line-through; }
+.store { font-size: 11px; color: var(--amber); margin-top: 5px; }
+
+/* FEATURED */
+.featured { background: var(--bg2); border: 1px solid rgba(245,158,11,.25); border-radius: var(--r2); padding: 22px 24px; display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; cursor: pointer; transition: border-color .2s; margin-bottom: 12px; }
+.featured:hover { border-color: rgba(245,158,11,.45); }
+.feat-img { width: 80px; height: 80px; background: var(--bg3); border-radius: var(--r); display: flex; align-items: center; justify-content: center; font-size: 34px; flex-shrink: 0; }
+.feat-name { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: -.3px; }
+.feat-sub { font-size: 13px; color: var(--text3); margin-bottom: 10px; }
+.feat-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.feat-right { text-align: right; flex-shrink: 0; }
+.feat-price { font-family: var(--fh); font-size: 32px; font-weight: 800; color: var(--green); display: block; letter-spacing: -1px; }
+.feat-was { font-size: 13px; color: var(--text3); text-decoration: line-through; display: block; margin-bottom: 10px; }
+.buy-btn { display: inline-block; background: var(--amber); color: #141210; padding: 10px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; border: none; transition: background .15s; }
+.buy-btn:hover { background: var(--amber2); }
+
+/* SALES STRIP */
+.sales-strip { background: var(--amber-dim); border: 1px solid rgba(245,158,11,.2); border-radius: var(--r2); padding: 14px 22px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 22px; }
+.sales-label { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--amber); flex-shrink: 0; }
+.sales-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.sales-link { font-size: 12px; font-weight: 600; color: var(--text2); background: var(--bg2); border: 1px solid var(--border2); padding: 5px 14px; border-radius: 100px; text-decoration: none; transition: all .15s; }
+.sales-link:hover { color: var(--amber); border-color: rgba(245,158,11,.4); background: var(--amber-dim); }
+
+/* ALERT BANNER */
+.alert-banner { border: 1px dashed var(--border2); border-radius: var(--r2); padding: 28px 32px; text-align: center; }
+.ab-title { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -.3px; }
+.ab-sub { font-size: 14px; color: var(--text3); margin-bottom: 20px; line-height: 1.7; }
+.ab-form { display: flex; max-width: 420px; margin: 0 auto; gap: 8px; }
+.ab-input { flex: 1; background: var(--bg2); border: 1px solid var(--border2); border-radius: 100px; padding: 11px 20px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: all .2s; }
+.ab-input::placeholder { color: var(--text3); }
+.ab-input:focus { border-color: rgba(245,158,11,.4); }
+.ab-btn { background: var(--amber); color: #141210; border: none; padding: 11px 22px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.ab-btn:hover { background: var(--amber2); }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20px; }
+.foot { max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.foot-logo { font-family: var(--fh); font-size: 15px; font-weight: 800; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+.foot-logo-icon { width: 20px; height: 20px; background: var(--amber); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+.foot-note { font-size: 12px; color: var(--text3); max-width: 460px; line-height: 1.7; }
+.foot-note a { color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
+.foot-note a:hover { color: var(--text2); }
+.foot-btn { background: none; border: none; font-family: var(--fb); font-size: 12px; color: var(--text3); cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }
+.foot-btn:hover { color: var(--text2); }
+.foot-links { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.foot-a { font-size: 12px; color: var(--text3); background: none; border: none; font-family: var(--fb); cursor: pointer; padding: 0; transition: color .15s; }
+.foot-a:hover { color: var(--text2); }
+
+/* SCROLL OFFSET */
+.scroll-target { scroll-margin-top: 78px; }
+
+/* ANIMATIONS */
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+.f1 { animation: fadeUp .45s .05s both ease; }
+.f2 { animation: fadeUp .45s .15s both ease; }
+.f3 { animation: fadeUp .45s .25s both ease; }
+.f4 { animation: fadeUp .45s .35s both ease; }
+
+/* RESPONSIVE — tablet */
+@media (max-width: 960px) {
+  .grid4 { grid-template-columns: repeat(2,1fr); }
+  .featured { grid-template-columns: 72px 1fr; }
+  .feat-right { grid-column: 1/-1; display: flex; align-items: center; gap: 16px; text-align: left; }
+  .feat-price { font-size: 24px; }
+  .modal-box { padding: 28px 24px; }
+}
+
+/* RESPONSIVE — mobile */
+@media (max-width: 600px) {
+  /* Layout */
+  .grid4 { grid-template-columns: 1fr 1fr; }
+  /* container padding unchanged on mobile */
+
+  /* Nav */
+  /* nav padding unchanged */
+  nav .nav-links .nav-a { display: none; }
+
+  /* Hero */
+  .hero { padding: 52px 1rem 36px; }
+  .hero-h1 { letter-spacing: -1.2px; font-size: clamp(28px, 8vw, 40px); }
+  .hero-sub { font-size: 14px; margin-bottom: 24px; }
+  .search-input { padding: 13px 100px 13px 38px; font-size: 14px; }
+  .search-go { padding: 8px 16px; font-size: 12px; }
+  .search-clear-btn { right: 95px; }
+  .search-suggestions { max-width: calc(100vw - 2rem); }
+  .search-wrap { max-width: 100%; }
+  .trending { font-size: 11px; margin-bottom: 36px; }
+  .hero-glow { width: 100vw; height: 300px; }
+
+  /* Stats */
+  .stats .stat { padding: 14px 16px; }
+  .stat-n { font-size: 20px; }
+
+  /* Section headers */
+  .sec { margin-bottom: 40px; }
+  .sec-title { font-size: 15px; }
+  .sec-subtitle { font-size: 11px; }
+  .sec-more { font-size: 12px; white-space: nowrap; }
+  .sec-head { align-items: center; }
+
+  /* Cards — shorter images on mobile to reduce scroll */
+  .card-img { height: 90px; }
+  .card-name { font-size: 12px; }
+  .price { font-size: 15px; }
+  .card-body { padding: 10px 10px 12px; }
+
+  /* Featured card — stack vertically on mobile */
+  .featured {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  .feat-img {
+    width: 100%;
+    height: 140px;
+    border-radius: var(--r);
+    overflow: hidden;
+  }
+  .feat-img img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--r); }
+  .feat-name { font-size: 16px; }
+  .feat-right {
+    grid-column: unset;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: left;
+    flex-wrap: wrap;
+  }
+  .feat-price { font-size: 22px; }
+  .feat-was { margin-bottom: 0; }
+
+  /* Sales strip */
+  .sales-strip { padding: 12px 14px; gap: 10px; }
+  .sales-links { gap: 6px; }
+  .sales-link { font-size: 11px; padding: 4px 10px; }
+  .sales-label { font-size: 12px; }
+
+  /* Section titles that might wrap */
+  .sec-head { flex-wrap: nowrap; gap: 8px; }
+
+  /* Alert banner */
+  .ab-form { flex-direction: column; }
+  .ab-title { font-size: 16px; }
+  .ab-sub { font-size: 13px; }
+
+  /* Free cards */
+  .free-grid { grid-template-columns: 1fr 1fr; }
+  .free-img { height: 90px; }
+  .free-title { font-size: 12px; }
+  .free-body { padding: 10px 10px 12px; }
+
+  /* Modals — bottom sheet on mobile */
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+  .modal-box {
+    padding: 22px 16px 28px !important;
+    max-height: 88vh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0 !important;
+    margin: 0 !important;
+  }
+  .modal-title { font-size: 17px !important; padding-right: 36px; margin-bottom: 16px; }
+  .modal-body { font-size: 13px !important; overflow-x: hidden !important; }
+  .modal-body p, .modal-body li { word-break: break-word; }
+  .modal-body h3 { font-size: 13px !important; }
+  .bundle-grid { grid-template-columns: 1fr !important; gap: 8px; }
+  /* View all grid — 2 cols on mobile */
+  #view-all-grid { grid-template-columns: 1fr 1fr !important; }
+  .modal-close { top: 12px !important; right: 12px !important; }
+
+  /* Footer */
+  footer { padding: 24px 1rem; }
+  .foot { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .foot-note { font-size: 11px; }
+  .foot-links { gap: 12px; }
+
+  /* Search results */
+  .search-results-inner { padding: 24px 1rem 32px; }
+  .search-results-title { font-size: 14px; }
+
+  /* Filter strip — compact on mobile */
+  .filter-strip { padding: 0 1rem; gap: 10px; height: 42px; }
+  .filter-pill { font-size: 11px; padding: 4px 10px; }
+  .sort-label { display: none; }
+}
+
+/* FREE GAMES */
+.free-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.free-card { background: linear-gradient(135deg,#0d2a18 0%,#1c1a17 100%); border: 1px solid rgba(74,222,128,.25); border-radius: var(--r2); overflow: hidden; cursor: pointer; transition: border-color .2s, transform .18s; }
+.free-card:hover { border-color: rgba(74,222,128,.5); transform: translateY(-3px); }
+.free-img { height: 120px; background: var(--bg3); overflow: hidden; position: relative; }
+.free-img img { width: 100%; height: 100%; object-fit: cover; }
+.free-badge { position: absolute; top: 8px; left: 8px; background: var(--green); color: #0d2a18; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 4px; }
+.free-expires { position: absolute; top: 8px; right: 8px; background: rgba(13,42,24,.85); color: var(--green); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(74,222,128,.3); }
+.free-body { padding: 12px 14px 14px; }
+.free-title { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.free-platform { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.free-worth { font-size: 12px; color: var(--green); font-weight: 600; }
+.free-worth span { color: var(--text3); text-decoration: line-through; margin-left: 4px; font-weight: 400; font-size: 11px; }
+.free-btn { display: block; width: 100%; margin-top: 10px; background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,.3); padding: 8px; border-radius: var(--r); font-family: var(--fb); font-size: 12px; font-weight: 600; text-align: center; transition: background .15s; }
+.free-card:hover .free-btn { background: rgba(74,222,128,.2); }
+@media(max-width:960px){ .free-grid { grid-template-columns: repeat(2,1fr); } }
+@media(max-width:600px){ .free-grid { grid-template-columns: 1fr 1fr; } }
+
+/* MODALS */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(6px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2); max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; overflow-x: hidden; padding: 36px; position: relative; animation: fadeUp .25s ease both; word-wrap: break-word; overflow-wrap: break-word; box-sizing: border-box; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg3); border: 1px solid var(--border); color: var(--text3); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: color .15s; }
+.modal-close:hover { color: var(--text); }
+.modal-title { font-family: var(--fh); font-size: 21px; font-weight: 800; color: var(--text); margin-bottom: 22px; letter-spacing: -.3px; padding-right: 32px; }
+.modal-body { color: var(--text2); line-height: 1.85; font-size: 14px; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word; }
+.modal-body h3 { font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); margin: 22px 0 6px; }
+.modal-body h3:first-child { margin-top: 0; }
+.modal-body p { margin-bottom: 12px; }
+.modal-body p:last-child { margin-bottom: 0; }
+.modal-body ul { padding-left: 20px; margin-bottom: 12px; }
+.modal-body li { margin-bottom: 6px; }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-q { width: 100%; text-align: left; background: none; border: none; padding: 14px 0; font-family: var(--fh); font-size: 14px; font-weight: 700; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.faq-q:hover { color: var(--amber); }
+.faq-chevron { color: var(--text3); font-size: 11px; flex-shrink: 0; transition: transform .2s; }
+.faq-a { display: none; padding: 0 0 14px; font-size: 14px; color: var(--text2); line-height: 1.8; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--amber); }
+.bundle-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px; }
+.bundle-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; text-decoration: none; transition: border-color .15s, transform .15s; display: block; }
+.bundle-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+.bundle-card-name { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.bundle-card-desc { font-size: 11px; color: var(--text3); line-height: 1.6; }
+.bundle-card-link { font-size: 11px; color: var(--amber); margin-top: 8px; display: block; }
+.wishlist-coming { text-align: center; padding: 12px 0; }
+.wishlist-icon { font-size: 48px; margin-bottom: 16px; }
+.wishlist-coming h3 { font-family: var(--fh); font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.wishlist-coming p { font-size: 14px; color: var(--text3); margin-bottom: 16px; line-height: 1.7; }
+.wishlist-form { display: flex; gap: 8px; max-width: 380px; margin: 0 auto; }
+.wishlist-input { flex: 1; background: var(--bg3); border: 1px solid var(--border2); border-radius: 100px; padding: 10px 18px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; }
+.wishlist-input:focus { border-color: rgba(245,158,11,.4); }
+.wishlist-btn { background: var(--amber); color: #141210; border: none; padding: 10px 20px; border-radius: 100px; font-family: var(--fb); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.wishlist-success { color: var(--green); font-size: 13px; margin-top: 12px; display: none; }
+.contact-form { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.form-row { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); }
+.form-input, .form-textarea { background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r); padding: 10px 14px; font-family: var(--fb); font-size: 14px; color: var(--text); outline: none; transition: border-color .2s; width: 100%; }
+.form-input:focus, .form-textarea:focus { border-color: rgba(245,158,11,.4); }
+.form-textarea { min-height: 110px; resize: vertical; }
+.form-submit { background: var(--amber); color: #141210; border: none; padding: 12px 24px; border-radius: 100px; font-family: var(--fb); font-size: 14px; font-weight: 700; cursor: pointer; align-self: flex-start; transition: background .15s; }
+.form-submit:hover { background: var(--amber2); }
+.form-submit:disabled { opacity: .6; cursor: not-allowed; }
+.form-feedback { font-size: 13px; margin-top: 4px; display: none; }
+.form-feedback.ok  { color: var(--green); display: block; }
+.form-feedback.err { color: var(--red);   display: block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <svg width="28" height="28" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+  <rect width="512" height="512" rx="96" fill="#1c1a17"/>
+  <circle cx="256" cy="256" r="148" fill="#242018" stroke="#f59e0b" stroke-width="10"/>
+  <circle cx="256" cy="256" r="112" fill="#1c1a17" stroke="#3d3830" stroke-width="5"/>
+  <line x1="256" y1="144" x2="256" y2="368" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="144" y1="256" x2="368" y2="256" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="177" y1="177" x2="335" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <line x1="335" y1="177" x2="177" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="36" fill="#f59e0b"/>
+  <circle cx="256" cy="256" r="20" fill="#1c1a17"/>
+  <circle cx="256" cy="256" r="8" fill="#f59e0b"/>
+  <circle cx="256" cy="144" r="10" fill="#f59e0b"/>
+  <circle cx="256" cy="368" r="10" fill="#f59e0b"/>
+  <circle cx="144" cy="256" r="10" fill="#f59e0b"/>
+  <circle cx="368" cy="256" r="10" fill="#f59e0b"/>
+  <rect x="330" y="344" width="100" height="36" rx="18" fill="#f59e0b"/>
+  <text x="380" y="368" font-family="Arial Black,sans-serif" font-size="16" font-weight="900" fill="#141210" text-anchor="middle">−60%</text>
+</svg>
+    Vault<span>Deals</span>.io
+  </a>
+  <div class="nav-links">
+    <button class="nav-a" onclick="scrollToSection('top-discounts')">Deals</button>
+    <button class="nav-a" onclick="scrollToSection('historical-lows-sec')">Historical lows</button>
+    <button class="nav-a" onclick="openModal('modal-bundles')">Bundles</button>
+    <button class="nav-a" onclick="openModal('modal-wishlist')">Wishlist</button>
+    <button class="nav-btn" onclick="scrollToSection('alert-section')">🔔 Alert me</button>
+  </div>
+</nav>
+
+<!-- FILTER STRIP — appears fixed below nav after scrolling past hero -->
+<div class="filter-strip" id="filter-strip">
+  <div class="filter-pills">
+    <button class="filter-pill active" id="pill-pc" onclick="setPlatform('pc')">💻 PC</button>
+    <button class="filter-pill coming-soon coming-tooltip" disabled>🎮 Consoles</button>
+  </div>
+  <div class="filter-divider"></div>
+  <div class="sort-pills">
+    <span class="sort-label">Sort</span>
+    <button class="filter-pill active" id="sort-best" onclick="setSort('best')">Best deal</button>
+    <button class="filter-pill" id="sort-price" onclick="setSort('price')">Lowest price</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero f1">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-pill"><span class="pill-dot"></span> Updated hourly · 12 authorized stores</div>
+    <h1 class="hero-h1">Stop overpaying.<br><em>Find the deal, then buy.</em></h1>
+    <p class="hero-sub">We track prices across every major legitimate store — so you know not just the price, but whether right now is actually a good time to buy.</p>
+    <div class="search-wrap f2">
+      <span class="search-ico">🔍</span>
+      <input
+        class="search-input"
+        id="search-input"
+        type="text"
+        placeholder="Search any game — Elden Ring, Cyberpunk 2077…"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-clear-btn" id="search-clear-btn" onclick="clearSearchInput()" title="Clear">&#10005;</button>
+      <button class="search-go" id="search-go" onclick="handleSearch()">Search</button>
+      <!-- Autocomplete dropdown -->
+      <div id="search-suggestions" class="search-suggestions"></div>
+    </div>
+    <p class="trending f3" id="trending-bar">Trending: <a onclick="searchGame('Elden Ring')">Elden Ring</a> · <a onclick="searchGame('Baldur\'s Gate 3')">Baldur's Gate 3</a> · <a onclick="searchGame('Cyberpunk 2077')">Cyberpunk 2077</a> · <a onclick="searchGame('Red Dead Redemption 2')">RDR2</a></p>
+  </div>
+</section>
+
+<!-- SEARCH RESULTS -->
+<div id="search-results" class="scroll-target">
+  <div class="search-results-inner">
+    <div class="search-results-head">
+      <div class="search-results-title">🔍 Results for "<span id="search-query-label"></span>"</div>
+      <button class="search-clear" onclick="closeSearch()">Clear ✕</button>
+    </div>
+    <div class="grid4" id="search-results-grid"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats f3">
+  <div class="stat"><span class="stat-n">300k+</span><span class="stat-l">Prices monitored</span></div>
+  <div class="stat"><span class="stat-n">12</span><span class="stat-l">Authorized stores only</span></div>
+  <div class="stat"><span class="stat-n">Hourly</span><span class="stat-l">Price updates</span></div>
+  <div class="stat"><span class="stat-n">Free</span><span class="stat-l">Always, no catch</span></div>
+</div>
+
+<div class="container">
+
+  <div class="sec f4">
+    <div class="sales-strip">
+      <div class="sales-label">🛍️ Browse current sales</div>
+      <div class="sales-links">
+        <a href="https://www.fanatical.com/en/on-sale" target="_blank" rel="noopener" class="sales-link">Fanatical</a>
+        <a href="https://store.steampowered.com/specials" target="_blank" rel="noopener" class="sales-link">Steam</a>
+        <a href="https://www.humblebundle.com/store/search?sort=discount&filter=onsale" target="_blank" rel="noopener" class="sales-link">Humble Bundle</a>
+        <a href="https://www.greenmangaming.com/sale/" target="_blank" rel="noopener" class="sales-link">Green Man Gaming</a>
+        <a href="https://www.gog.com/games?discounted=true" target="_blank" rel="noopener" class="sales-link">GOG</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">🏆 Deal of the day</div><a href="#" class="sec-more" onclick="openViewAll('top-discounts','Top deals');return false;">All top deals →</a></div>
+    <p class="sec-subtitle">The single best value game on sale right now, scored against its all-time low</p>
+    <div id="deal-of-day"></div>
+  </div>
+
+  <div class="sec scroll-target" id="historical-lows-sec">
+    <div class="sec-head"><div class="sec-title">📉 Near all-time low</div><a href="#" class="sec-more" onclick="openViewAll('historical-lows','Near all-time low');return false;">View all →</a></div>
+    <p class="sec-subtitle">These games are at or within striking distance of their lowest price ever</p>
+    <div class="grid4" id="historical-lows"></div>
+  </div>
+
+  <div class="sec scroll-target" id="top-discounts">
+    <div class="sec-head"><div class="sec-title">🔥 Biggest discounts today</div><a href="#" class="sec-more" onclick="openViewAll('top-discounts','Biggest discounts today');return false;">View all →</a></div>
+    <p class="sec-subtitle">Largest drops off retail price right now — these games have been cheaper before, but not by much</p>
+    <div class="grid4" id="top-discounts-grid"></div>
+  </div>
+
+  <!-- INDIE PICKS -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">🎮 Indie picks</div><a href="#" class="sec-more" onclick="openViewAll('indie-picks','Indie picks');return false;">View all →</a></div>
+    <p class="sec-subtitle">Critically acclaimed indie games on sale — often outscoring AAA titles at a fraction of the price</p>
+    <div class="grid4" id="indie-picks"></div>
+  </div>
+
+  <!-- UNDER $10 -->
+  <div class="sec">
+    <div class="sec-head"><div class="sec-title">💰 Under $10 right now</div><a href="#" class="sec-more" onclick="openViewAll('budget-picks','Under $10 right now');return false;">View all →</a></div>
+    <p class="sec-subtitle">Quality games you can grab for less than a coffee — original price $5 or more</p>
+    <div class="grid4" id="budget-picks"></div>
+  </div>
+  <div class="sec" id="free-games-sec">
+    <div class="sec-head">
+      <div class="sec-title">🎁 Free right now</div>
+      <a href="#" class="sec-more" onclick="openFreeViewAll();return false;">View all →</a>
+    </div>
+    <p class="sec-subtitle">Legitimate giveaways from Epic, Steam, and GOG — no strings attached</p>
+    <div class="free-grid" id="free-games"></div>
+  </div>
+
+  <div class="sec scroll-target" id="alert-section">
+    <div class="alert-banner">
+      <div class="ab-title">🔔 Get alerted when your game drops in price</div>
+      <p class="ab-sub">Add games to your wishlist and we email you the moment the price falls below what you want to pay.<br>No spam. One click to unsubscribe.</p>
+      <div class="ab-form">
+        <input class="ab-input" type="email" placeholder="your@email.com">
+        <button class="ab-btn">Get free alerts →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot">
+    <div class="foot-logo"><svg width="20" height="20" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><rect width="512" height="512" rx="96" fill="#1c1a17"/><circle cx="256" cy="256" r="148" fill="#242018" stroke="#f59e0b" stroke-width="10"/><circle cx="256" cy="256" r="112" fill="#1c1a17" stroke="#3d3830" stroke-width="5"/><line x1="256" y1="144" x2="256" y2="368" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="144" y1="256" x2="368" y2="256" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="177" y1="177" x2="335" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><line x1="335" y1="177" x2="177" y2="335" stroke="#3d3830" stroke-width="7" stroke-linecap="round"/><circle cx="256" cy="256" r="36" fill="#f59e0b"/><circle cx="256" cy="256" r="20" fill="#1c1a17"/><circle cx="256" cy="256" r="8" fill="#f59e0b"/><circle cx="256" cy="144" r="10" fill="#f59e0b"/><circle cx="256" cy="368" r="10" fill="#f59e0b"/><circle cx="144" cy="256" r="10" fill="#f59e0b"/><circle cx="368" cy="256" r="10" fill="#f59e0b"/></svg>VaultDeals.io</div>
+    <p class="foot-note">
+      Prices powered by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> &middot;
+      This site uses affiliate links — when you click through and buy, we may earn a small commission at no extra cost to you. We only list authorized, legitimate stores.
+      <button class="foot-btn" onclick="openModal('modal-privacy')">Privacy</button> ·
+      <button class="foot-btn" onclick="openModal('modal-disclosure')">Affiliate disclosure</button>
+    </p>
+    <div class="foot-links">
+      <button class="foot-a" onclick="openModal('modal-about')">About</button>
+      <button class="foot-a" onclick="openModal('modal-faq')">FAQ</button>
+      <button class="foot-a" onclick="openModal('modal-contact')">Contact</button>
+    </div>
+  </div>
+</footer>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-about" onclick="handleOverlayClick(event,'modal-about')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
+    <div class="modal-title">About VaultDeals</div>
+    <div class="modal-body">
+      <p>VaultDeals.io tracks prices across every major authorized PC game retailer so you always know whether right now is actually a good time to buy. We score every deal against its historical low — A+ means you're at or within 5% of the all-time lowest price ever recorded.</p>
+      <p>We built this because buying a game at full price and watching it drop 60% two weeks later is genuinely frustrating. VaultDeals exists so that doesn't happen to you anymore.</p>
+      <h3>What we do</h3>
+      <ul>
+        <li>Track live prices across 12+ authorized stores</li>
+        <li>Score deals A+ through C+ based on historical pricing data</li>
+        <li>Surface games at or near their all-time lows</li>
+        <li>Show free game giveaways from Epic, Steam, and GOG</li>
+        <li>Never list grey market or unauthorized key sellers</li>
+      </ul>
+      <p>VaultDeals is independent. We're not affiliated with any of the stores we track.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-faq" onclick="handleOverlayClick(event,'modal-faq')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-faq')">✕</button>
+    <div class="modal-title">Frequently asked questions</div>
+    <div class="modal-body">
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How does the deal scoring work?<span class="faq-chevron">▼</span></button><div class="faq-a">We compare the current price to the game's all-time historical low. A+ = within 5% of all-time low. A = within 20%. B+ = up to 50% above. B = up to 2× the low. C+ = on sale but not exceptional.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What does "Was free" mean?<span class="faq-chevron">▼</span></button><div class="faq-a">The game was previously available for free — for example via Epic Free Games. Since $0 is the historical low, no paid price scores well against it, so we show the badge instead of a misleading grade.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Where does your price data come from?<span class="faq-chevron">▼</span></button><div class="faq-a">Live prices are powered by GG.deals, which aggregates data from major authorized retailers. Free game giveaways come from GamerPower.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Are all the stores legitimate?<span class="faq-chevron">▼</span></button><div class="faq-a">Yes. We only track authorized retailers: Steam, GOG, Humble Bundle, Fanatical, Green Man Gaming, and similar. We never list grey market key sellers.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How often do prices update?<span class="faq-chevron">▼</span></button><div class="faq-a">Hourly. If a price looks different from what a store shows, try a hard refresh (Ctrl+Shift+R).</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you make money from this?<span class="faq-chevron">▼</span></button><div class="faq-a">VaultDeals uses affiliate links. If you click through and make a purchase, we may earn a small commission at no extra cost to you. This keeps the site free. It never affects which games we feature or how we score deals.</div></div>
+      <div class="faq-item" style="border-bottom:none;"><button class="faq-q" onclick="toggleFaq(this)">Can I request a game to be tracked?<span class="faq-chevron">▼</span></button><div class="faq-a">Not yet, but it's coming. Sign up for alerts and we'll let you know when custom tracking launches.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-privacy" onclick="handleOverlayClick(event,'modal-privacy')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-privacy')">✕</button>
+    <div class="modal-title">Privacy Policy</div>
+    <div class="modal-body">
+      <p style="color:var(--text3);font-size:12px;margin-bottom:18px;">Last updated: May 2026</p>
+      <h3>What we collect</h3>
+      <p>VaultDeals.io does not collect personal data simply from visiting the site. We do not use tracking pixels, behavioral analytics, or fingerprinting of any kind.</p>
+      <p>If you sign up for price alerts, your email address is stored solely to send you notifications. You can unsubscribe at any time using the link in every email — this permanently removes your address from our system.</p>
+      <h3>Cookies and local storage</h3>
+      <p>We use browser localStorage for session preferences only. No advertising cookies or third-party tracking cookies are set by VaultDeals.</p>
+      <h3>Third-party services</h3>
+      <p>This site loads fonts from Google Fonts (fonts.googleapis.com). As a result, Google may log your IP address as part of serving font files. You can block fonts.googleapis.com in your browser and the site will fall back to system fonts.</p>
+      <p>The site is hosted on Cloudflare Pages. Cloudflare logs request metadata at the infrastructure level as standard practice. See <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare's privacy policy</a>.</p>
+      <p>When you click through to a store, that store may set its own cookies. Price data is provided by <a href="https://gg.deals" target="_blank" rel="noopener">GG.deals</a> and free game data by <a href="https://www.gamerpower.com" target="_blank" rel="noopener">GamerPower</a>.</p>
+      <h3>Contact</h3>
+      <p><button class="foot-btn" onclick="closeModal('modal-privacy');openModal('modal-contact')">Contact us →</button></p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-disclosure" onclick="handleOverlayClick(event,'modal-disclosure')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-disclosure')">✕</button>
+    <div class="modal-title">Affiliate Disclosure</div>
+    <div class="modal-body">
+      <p>VaultDeals.io participates in affiliate programs with authorized game retailers. When you click a link on our site and make a purchase, we may earn a small commission at no additional cost to you.</p>
+      <p>Affiliate relationships do not influence which games we feature, what prices we display, or how deals are scored. All deal scores are calculated from real pricing data regardless of any affiliate relationship.</p>
+      <h3>Stores we may earn commissions from</h3>
+      <p>Amazon, Green Man Gaming, GOG, Fanatical, Humble Bundle, and others. Not every link on this site is an affiliate link.</p>
+      <h3>Third-party affiliate tracking</h3>
+      <p>GG.deals URLs may include their own affiliate tracking tags. We are not responsible for their affiliate arrangements.</p>
+      <h3>FTC compliance</h3>
+      <p>This disclosure is provided in accordance with FTC guidelines on endorsements and testimonials.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-bundles" onclick="handleOverlayClick(event,'modal-bundles')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-bundles')">✕</button>
+    <div class="modal-title">Game bundles</div>
+    <div class="modal-body">
+      <p>Bundles are one of the best ways to get great games at deep discounts. These are the most trusted bundle platforms — all authorized, all legitimate.</p>
+      <div class="bundle-grid">
+        <a href="https://www.fanatical.com/en/bundles" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">Fanatical</div><div class="bundle-card-desc">Weekly rotating bundles, often featuring AAA and indie titles at 90%+ off.</div><div class="bundle-card-link">Browse bundles →</div></a>
+        <a href="https://www.humblebundle.com" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">Humble Bundle</div><div class="bundle-card-desc">Pay what you want bundles. A portion of every purchase goes to charity.</div><div class="bundle-card-link">Browse bundles →</div></a>
+        <a href="https://www.indiegala.com/bundles" target="_blank" rel="noopener" class="bundle-card"><div class="bundle-card-name">IndieGala</div><div class="bundle-card-desc">Indie-focused bundles with regular flash deals and deep discounts.</div><div class="bundle-card-link">Browse bundles →</div></a>
+      </div>
+      <p style="margin-top:18px;font-size:12px;color:var(--text3);">Bundle tracking with expiry countdowns and deal scoring is coming to VaultDeals soon.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-wishlist" onclick="handleOverlayClick(event,'modal-wishlist')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-wishlist')">✕</button>
+    <div class="modal-body">
+      <div class="wishlist-coming">
+        <div class="wishlist-icon">💛</div>
+        <h3>Wishlist is coming soon</h3>
+        <p>Save games to your wishlist and get notified the moment they hit a price you're happy with. We'll email you — no account required.</p>
+        <p style="color:var(--text3);font-size:13px;">Leave your email and we'll let you know the moment it launches.</p>
+        <div class="wishlist-form">
+          <input class="wishlist-input" type="email" placeholder="your@email.com" id="wishlist-email">
+          <button class="wishlist-btn" onclick="handleWishlistSignup()">Notify me</button>
+        </div>
+        <div class="wishlist-success" id="wishlist-success">✓ We'll let you know when it's ready!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-contact" onclick="handleOverlayClick(event,'modal-contact')">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('modal-contact')">✕</button>
+    <div class="modal-title">Contact us</div>
+    <div class="modal-body">
+      <p style="margin-bottom:18px;">Have a question, found a bug, or want to suggest a game to track? We read every message.</p>
+      <form class="contact-form" id="contact-form" action="https://formspree.io/f/xnjwkppr" method="POST">
+        <div class="form-row"><label class="form-label" for="contact-name">Your name</label><input class="form-input" type="text" id="contact-name" name="name" placeholder="Alex" required></div>
+        <div class="form-row"><label class="form-label" for="contact-email">Email address</label><input class="form-input" type="email" id="contact-email" name="email" placeholder="alex@example.com" required></div>
+        <div class="form-row"><label class="form-label" for="contact-msg">Message</label><textarea class="form-textarea" id="contact-msg" name="message" placeholder="Your message…" required></textarea></div>
+        <button type="submit" class="form-submit" id="contact-submit">Send message →</button>
+        <div class="form-feedback" id="contact-feedback"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- VIEW ALL MODAL — shared, populated dynamically per section -->
+<div class="modal-overlay" id="modal-view-all" onclick="handleOverlayClick(event,'modal-view-all')">
+  <div class="modal-box" style="max-width:min(900px, 96vw);">
+    <button class="modal-close" onclick="closeModal('modal-view-all')">&#10005;</button>
+    <div class="modal-title" id="view-all-title"></div>
+    <div class="modal-body">
+      <div class="grid4" id="view-all-grid" style="margin-top:4px;min-width:0;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Clear search bar on every page load — prevents browser form restore
+window.addEventListener('load', function(){ document.getElementById('search-input').value = ''; });
+
+
+// VIEW ALL — store full deal lists after loadDeals runs
+var fullLists = {};
+
+function openFreeViewAll(){
+  var cards=fullLists['free-games']||[];
+  if(!cards.length) return;
+  document.getElementById('view-all-title').textContent='Free right now';
+  var grid=document.getElementById('view-all-grid');
+  // Show up to 8 free cards + GamerPower link at bottom
+  grid.innerHTML=cards.slice(0,16).join('')
+    +'<div style="grid-column:1/-1;text-align:center;padding-top:20px;border-top:1px solid var(--border);margin-top:8px;">'
+    +'<a href="https://www.gamerpower.com" target="_blank" rel="noopener" '
+    +'style="color:var(--green);font-size:14px;font-weight:600;text-decoration:none;">More free games on GamerPower &#8594;</a>'
+    +'<p style="font-size:12px;color:var(--text3);margin-top:6px;">GamerPower tracks giveaways across Epic, Steam, GOG and more</p>'
+    +'</div>';
+  grid.querySelectorAll('[data-url]').forEach(function(el){
+    el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  });
+  openModal('modal-view-all');
+}
+
+function openViewAll(sectionKey, title) {
+  var deals = fullLists[sectionKey] || [];
+  if(!deals.length) return;
+  document.getElementById('view-all-title').textContent = title;
+  var grid = document.getElementById('view-all-grid');
+  // Near all-time low always score-sorted; other sections respect current sort
+  var displayDeals = sectionKey === 'historical-lows' ? deals : sortDeals(deals);
+  grid.innerHTML = displayDeals.map(buildCard).join('');
+  grid.querySelectorAll('[data-url]').forEach(function(el){
+    el.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  });
+  openModal('modal-view-all');
+}
+
+// MODAL SYSTEM
+function openModal(id){ document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+function handleOverlayClick(e,id){ if(e.target===e.currentTarget)closeModal(id); }
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); });
+    document.body.style.overflow='';
+    closeSuggestions();
+  }
+});
+
+// SCROLL
+function scrollToSection(id){ var el=document.getElementById(id); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }
+
+// FILTER STRIP — show after scrolling past hero
+var filterStrip = document.getElementById('filter-strip');
+var heroSection = document.querySelector('.hero');
+var filterVisible = false;
+
+window.addEventListener('scroll', function(){
+  var heroBottom = heroSection.getBoundingClientRect().bottom;
+  if(heroBottom < 58 && !filterVisible){
+    filterStrip.classList.add('visible');
+    filterVisible = true;
+  } else if(heroBottom >= 58 && filterVisible){
+    filterStrip.classList.remove('visible');
+    filterVisible = false;
+  }
+}, { passive: true });
+
+// PLATFORM TOGGLE
+var currentPlatform = 'pc';
+function setPlatform(p){
+  currentPlatform = p;
+  document.getElementById('pill-pc').classList.toggle('active', p === 'pc');
+  // Consoles coming soon — no action needed yet
+}
+
+// SORT TOGGLE
+var currentSort = 'best';
+var allDeals = [];
+
+function setSort(s){
+  if(currentSort === s) return;
+  currentSort = s;
+  document.getElementById('sort-best').classList.toggle('active', s === 'best');
+  document.getElementById('sort-price').classList.toggle('active', s === 'price');
+  rerenderSections();
+}
+
+function sortByScore(deals){
+  // Sort by deal score then discount % — used for section membership, never changes
+  var order = ['A+','A','B+','B','C+','C'];
+  return deals.slice().sort(function(a,b){
+    var d = order.indexOf(a.score) - order.indexOf(b.score);
+    return d !== 0 ? d : b.discountPercent - a.discountPercent;
   });
 }
+
+function sortDeals(deals){
+  // Sort by current user preference (sort toggle)
+  if(currentSort === 'price'){
+    return deals.slice().sort(function(a,b){ return parseFloat(a.currentPrice) - parseFloat(b.currentPrice); });
+  }
+  return sortByScore(deals);
+}
+
+function rerenderSections(){
+  if(!allDeals.length) return;
+
+  // Section MEMBERSHIP always determined by score order
+  // This ensures the same games appear in the same sections regardless of sort toggle
+  // The sort toggle only changes display ORDER within each section
+  var byScore = sortByScore(allDeals);
+
+  // sorted is used for display order within sections
+  var sorted = sortDeals(allDeals);
+
+  // Deal of the Day — always best scored game, never changes with sort toggle
+  var dotd = document.getElementById('deal-of-day');
+  if(dotd && byScore[0]){
+    dotd.innerHTML = buildFeatured(byScore[0]);
+    var feat = dotd.querySelector('[data-url]');
+    if(feat) feat.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  }
+  var shownIds = [];
+
+  // Historical lows — ALWAYS sorted by score, never affected by global sort
+  var allHistoricalLows = byScore.filter(function(d){ return['A+','A'].indexOf(d.score)>=0; });
+  if(allHistoricalLows.length < 4){
+    var used = allHistoricalLows.map(function(d){ return d.steamId; });
+    var fillers = byScore.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && used.indexOf(d.steamId)<0; });
+    allHistoricalLows = allHistoricalLows.concat(fillers);
+  }
+  fullLists['historical-lows'] = allHistoricalLows;
+  // Push ALL historical low IDs into shownIds
+  allHistoricalLows.forEach(function(d){ shownIds.push(d.steamId); });
+  // Display order respects current sort, but membership always determined by score
+  var histDisplay = currentSort === 'price'
+    ? allHistoricalLows.slice().sort(function(a,b){ return parseFloat(a.currentPrice)-parseFloat(b.currentPrice); })
+    : allHistoricalLows;
+  renderSection('historical-lows', histDisplay.slice(0,4));
+
+  // Top discounts — membership by byScore, display order by sorted
+  var topMembership = byScore.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
+  var topMemberIds = topMembership.map(function(d){ return d.steamId; });
+  // Display in sorted order but only games that qualified by score membership
+  var allTopDiscounts = sorted.filter(function(d){ return topMemberIds.indexOf(d.steamId)>=0; });
+  fullLists['top-discounts'] = allTopDiscounts;
+  topMembership.forEach(function(d){ shownIds.push(d.steamId); });
+  renderSection('top-discounts-grid', allTopDiscounts.slice(0,4));
+
+  // Indie picks — membership by byScore, display order by sorted
+  var indieMembership = byScore.filter(function(d){ return d.isIndie && d.discountPercent>=20 && shownIds.indexOf(d.steamId)<0; });
+  if(indieMembership.length < 4){
+    var indieUsed = indieMembership.map(function(d){ return d.steamId; });
+    var indieFill = byScore.filter(function(d){ return d.isIndie && d.discountPercent>=10 && indieUsed.indexOf(d.steamId)<0 && shownIds.indexOf(d.steamId)<0; });
+    indieMembership = indieMembership.concat(indieFill);
+  }
+  var indieMemberIds = indieMembership.map(function(d){ return d.steamId; });
+  var allIndiePicks = sorted.filter(function(d){ return indieMemberIds.indexOf(d.steamId)>=0; });
+  fullLists['indie-picks'] = allIndiePicks;
+  indieMembership.forEach(function(d){ shownIds.push(d.steamId); });
+  renderSection('indie-picks', allIndiePicks.slice(0,4));
+
+  // Budget picks — membership by byScore, display order by sorted
+  var budgetMemberIds = byScore.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; }).map(function(d){ return d.steamId; });
+  var allBudgetPicks = sorted.filter(function(d){ return budgetMemberIds.indexOf(d.steamId)>=0; });
+  fullLists['budget-picks'] = allBudgetPicks;
+  renderSection('budget-picks', allBudgetPicks.slice(0,4));
+
+  // Reattach click handlers
+  document.querySelectorAll('[data-url]').forEach(function(el){
+    el.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  });
+}
+
+// FAQ
+function toggleFaq(btn){ btn.closest('.faq-item').classList.toggle('open'); }
+
+// WISHLIST
+function handleWishlistSignup(){
+  var email=document.getElementById('wishlist-email').value.trim();
+  if(!email||!email.includes('@'))return;
+  document.getElementById('wishlist-success').style.display='block';
+  document.getElementById('wishlist-email').value='';
+  document.querySelector('.wishlist-btn').disabled=true;
+}
+
+// CONTACT FORM
+document.getElementById('contact-form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var btn=document.getElementById('contact-submit');
+  var fb=document.getElementById('contact-feedback');
+  btn.disabled=true; btn.textContent='Sending…'; fb.className='form-feedback';
+  try{
+    var res=await fetch(this.action,{method:'POST',body:new FormData(this),headers:{Accept:'application/json'}});
+    if(res.ok){ fb.textContent="✓ Message sent! We'll get back to you soon."; fb.className='form-feedback ok'; this.reset(); }
+    else{ throw new Error(); }
+  }catch(err){ fb.textContent='Something went wrong. Please try again.'; fb.className='form-feedback err'; }
+  btn.disabled=false; btn.textContent='Send message →';
+});
+
+// DEAL SCORING
+function calcScore(current,historical,originalPrice){
+  // If historical was free, score against original retail price instead
+  // The free period is historical context, not a useful price benchmark
+  var benchmark = (historical===0 && originalPrice>0) ? originalPrice : historical;
+  if(!benchmark||benchmark<=0)return{grade:'C+',label:'On sale'};
+  var r=current/benchmark;
+  if(r<=1.05)return{grade:'A+',label:'At historical low'};
+  if(r<=1.20)return{grade:'A',label:'Near historical low'};
+  if(r<=1.50)return{grade:'B+',label:'Good deal'};
+  if(r<=2.00)return{grade:'B',label:'Decent deal'};
+  return{grade:'C+',label:'On sale'};
+}
+function getBadge(grade,pct,wasFree){
+  // Score badge is primary — wasFree is now shown as a secondary badge in the card
+  if(grade==='A+')return{type:'low',text:'All-time low',wasFree:wasFree};
+  if(grade==='A')return{type:'low',text:'Near low',wasFree:wasFree};
+  if(pct>=50)return{type:'hot',text:'-'+pct+'% off',wasFree:wasFree};
+  return{type:'sale',text:'-'+pct+'% off',wasFree:wasFree};
+}
+var SCORE_CSS={'A+':'s-a','A':'s-a','B+':'s-b','B':'s-b','C+':'s-c','C':'s-c'};
+var BADGE_CSS={'low':'b-low','sale':'b-sale','hot':'b-hot','new':'b-new','free':'b-free'};
+var cachedApiKey=null;
+var cachedApiBase=null;
+
+// ── AUTOCOMPLETE ────────────────────────────────────────────
+var suggestTimer=null;
+var currentSuggestions=[];
+var activeSuggIdx=-1;
+
+var searchInput=document.getElementById('search-input');
+
+searchInput.addEventListener('input',function(){
+  clearTimeout(suggestTimer);
+  var q=this.value.trim();
+  var clearBtn=document.getElementById('search-clear-btn');
+  if(clearBtn) clearBtn.style.display=q.length?'block':'none';
+  if(q.length<2){ closeSuggestions(); return; }
+  suggestTimer=setTimeout(function(){ fetchSuggestions(q); }, 280);
+});
+
+function clearSearchInput(){
+  searchInput.value='';
+  var clearBtn=document.getElementById('search-clear-btn');
+  if(clearBtn) clearBtn.style.display='none';
+  closeSuggestions();
+  document.getElementById('search-results').style.display='none';
+}
+
+searchInput.addEventListener('keydown',function(e){
+  var box=document.getElementById('search-suggestions');
+  var open=box.classList.contains('open');
+
+  if(e.key==='ArrowDown'){
+    if(!open) return;
+    e.preventDefault();
+    activeSuggIdx=Math.min(activeSuggIdx+1, currentSuggestions.length-1);
+    highlightSuggestion();
+  } else if(e.key==='ArrowUp'){
+    if(!open) return;
+    e.preventDefault();
+    activeSuggIdx=Math.max(activeSuggIdx-1, -1);
+    highlightSuggestion();
+  } else if(e.key==='Enter'){
+    e.preventDefault();
+    if(open && activeSuggIdx>=0 && currentSuggestions[activeSuggIdx]){
+      selectSuggestion(currentSuggestions[activeSuggIdx].name);
+    } else {
+      closeSuggestions();
+      handleSearch();
+    }
+  } else if(e.key==='Escape'){
+    closeSuggestions();
+  }
+});
+
+async function fetchSuggestions(q){
+  try{
+    var res=await fetch('/cheapshark-api/games?title='+encodeURIComponent(q)+'&limit=8');
+    if(!res.ok) return;
+    var data=await res.json();
+    if(!Array.isArray(data)) return;
+    currentSuggestions=data.slice(0,5);
+    renderSuggestions();
+  }catch(e){ /* silent fail */ }
+}
+
+function renderSuggestions(){
+  var box=document.getElementById('search-suggestions');
+  if(!currentSuggestions.length){ closeSuggestions(); return; }
+  activeSuggIdx=-1;
+  box.innerHTML=currentSuggestions.map(function(item,idx){
+    var priceHtml=item.cheapest?"<span class=\"suggestion-score\">from $"+item.cheapest+"</span>":"";
+    var safeName=item.external.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+    return "<div class=\"suggestion-item\" data-idx=\""+idx+"\" data-name=\""+safeName+"\">"
+      +"<img class=\"suggestion-thumb\" src=\""+item.thumb+"\" alt=\"\">"
+      +"<span class=\"suggestion-name\">"+item.external+"</span>"
+      +priceHtml
+      +"</div>";
+  }).join("");
+  box.classList.add('open');
+  // Hide trending bar while suggestions are visible
+  var tb=document.getElementById('trending-bar');
+  if(tb) tb.style.visibility='hidden';
+  // Wire click handlers via data-name to avoid all inline onclick quoting issues
+  box.querySelectorAll('.suggestion-item').forEach(function(el){
+    el.addEventListener('click',function(){ selectSuggestion(this.getAttribute('data-name')); });
+  });
+}
+
+function highlightSuggestion(){
+  var items=document.querySelectorAll('.suggestion-item');
+  items.forEach(function(el,i){ el.classList.toggle('active', i===activeSuggIdx); });
+  if(activeSuggIdx>=0 && currentSuggestions[activeSuggIdx]){
+    searchInput.value=currentSuggestions[activeSuggIdx].external;
+  }
+}
+
+function selectSuggestion(name){
+  searchInput.value=name;
+  closeSuggestions();
+  handleSearch();
+}
+
+function closeSuggestions(){
+  document.getElementById('search-suggestions').classList.remove('open');
+  activeSuggIdx=-1;
+  var tb=document.getElementById('trending-bar');
+  if(tb) tb.style.visibility='visible';
+}
+
+// Close suggestions when clicking outside search bar
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.search-wrap')) closeSuggestions();
+});
+
+// ── FULL SEARCH ─────────────────────────────────────────────
+async function handleSearch(){
+  var query=searchInput.value.trim();
+  if(!query) return;
+  closeSuggestions();
+
+  var panel=document.getElementById('search-results');
+  var grid=document.getElementById('search-results-grid');
+  var label=document.getElementById('search-query-label');
+  var btn=document.getElementById('search-go');
+
+  label.textContent=query;
+  panel.style.display='block';
+  grid.innerHTML='<div class="search-status">Searching\u2026</div>';
+  btn.classList.add('loading'); btn.textContent='Searching\u2026';
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+
+  try{
+    // CheapShark: only indexes legit stores, adult content naturally absent
+    var csRes=await fetch('/cheapshark-api/games?title='+encodeURIComponent(query)+'&limit=8');
+    if(!csRes.ok) throw new Error('CheapShark search failed');
+    var csData=await csRes.json();
+
+    if(!Array.isArray(csData)||!csData.length){
+      grid.innerHTML='<div class="search-status">No games found for "'+query+'". Try a different title.</div>';
+      return;
+    }
+
+    // Fetch GG.deals pricing for games that have a Steam ID
+    if(!cachedApiKey){
+      var cfgRes=await fetch('/api/deals');
+      var cfg=await cfgRes.json();
+      cachedApiKey=cfg.apiKey;
+      cachedApiBase=cfg.apiBase;
+    }
+    var steamGames=csData.filter(function(g){ return g.steamAppID; });
+    var prices={};
+    if(steamGames.length&&cachedApiKey){
+      var ids=steamGames.map(function(g){ return g.steamAppID; }).join(',');
+      var priceRes=await fetch(cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us');
+      var priceText=await priceRes.text();
+      try{
+        var priceData=JSON.parse(priceText);
+        if(priceData.success&&priceData.data) prices=priceData.data;
+      }catch(e){}
+    }
+
+    var html=csData.map(function(game){
+      // Prefer Steam header art; fall back to CheapShark thumb for non-Steam games
+      var img=game.steamAppID
+        ?'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamAppID+'/header.jpg'
+        :game.thumb;
+      // Prefer GG.deals link; fall back to CheapShark redirect
+      var storeUrl='https://www.cheapshark.com/redirect?dealID='+game.cheapestDealID;
+      var priceHtml='',scoreHtml='',badgeHtml='',gold='';
+
+      var p=game.steamAppID?prices[game.steamAppID]:null;
+      if(p&&p.prices&&p.prices.currentRetail){
+        var current=parseFloat(p.prices.currentRetail);
+        var historical=parseFloat(p.prices.historicalRetail);
+        var original=parseFloat(game.normalPrice)||current;
+        var discPct=original>0?Math.round((1-current/original)*100):0;
+        var wasFree=historical===0;
+        var score=calcScore(current,historical,original);
+        var badge=getBadge(score.grade,discPct,wasFree);
+        var sc=SCORE_CSS[score.grade]||'s-c';
+        var bc=BADGE_CSS[badge.type]||'b-sale';
+        if(score.grade==='A+'||score.grade==='A') gold='gold';
+        if(p.url) storeUrl=p.url;
+        priceHtml='<div class="price-row"><span class="price">$'+current.toFixed(2)+'</span></div>';
+        scoreHtml='<span class="score '+sc+'">'+score.grade+'</span>';
+        badgeHtml='<span class="badge '+bc+'">'+badge.text+'</span>';
+      }else{
+        // No GG.deals data — show CheapShark cheapest
+        priceHtml='<div class="price-row"><span class="price">$'+game.cheapest+'</span></div>';
+      }
+
+      return '<div class="card '+gold+'" data-url="'+storeUrl+'">'
+        +'<div class="card-img" style="position:relative;">'
+        +'<div class="badges">'+badgeHtml+'</div>'
+        +'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+img+'" alt="'+game.external+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.style.display=\'none\'">'
+        +'</div></div>'
+        +'<div class="card-body">'
+        +'<div class="card-row"><div class="card-name">'+game.external+'</div>'+scoreHtml+'</div>'
+        +'<div class="card-genre">PC Game</div>'
+        +priceHtml
+        +'<div class="store">via GG.deals</div>'
+        +'</div></div>';
+    }).join('');
+
+    grid.innerHTML=html;
+    grid.querySelectorAll('[data-url]').forEach(function(el){
+      el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+    });
+
+  }catch(err){
+    grid.innerHTML='<div class="search-status">Something went wrong. Please try again.</div>';
+    console.warn('Search error:',err.message);
+  }finally{
+    btn.classList.remove('loading'); btn.textContent='Search';
+  }
+}
+
+function closeSearch(){
+  document.getElementById('search-results').style.display='none';
+  searchInput.value='';
+}
+
+function searchGame(title){
+  searchInput.value=title;
+  handleSearch();
+}
+
+// TRENDING — updated from live deals after loadDeals runs
+function updateTrending(deals){
+  if(!deals||!deals.length) return;
+  var bar=document.getElementById('trending-bar');
+  if(!bar) return;
+  // Use data-title to avoid apostrophe/quote escaping issues in onclick
+  var links=deals.slice(0,5).map(function(d){
+    return '<a class="trending-link" data-title="'+d.title.replace(/"/g,'&quot;')+'">'+d.title+'</a>';
+  }).join(' · ');
+  bar.innerHTML='Trending deals: '+links;
+  // Attach click handlers safely via JS, no inline onclick
+  bar.querySelectorAll('.trending-link').forEach(function(el){
+    el.addEventListener('click', function(){
+      searchGame(this.getAttribute('data-title'));
+    });
+  });
+}
+
+// BUILD CARD / FEATURED
+function buildCard(d){
+  var sc=SCORE_CSS[d.score]||'s-c';
+  var bc=BADGE_CSS[d.badge.type]||'b-sale';
+  var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
+  var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
+  // Secondary "Was free" badge shown below primary badge
+  var wasFreeTag=d.badge.wasFree?'<span class="badge b-free" style="font-size:9px;">Was free</span>':'';
+  // Always show discount % in the store line for clarity
+  var discLabel=d.discountPercent>0?' · -'+d.discountPercent+'% off retail':'';
+  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'">'
+    +'<div class="card-img" style="position:relative;"><div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span>'+wasFreeTag+'</div>'+img+'</div>'
+    +'<div class="card-body">'
+    +'<div class="card-row"><div class="card-name">'+d.title+'</div><span class="score '+sc+'">'+d.score+'</span></div>'
+    +'<div class="card-genre">'+d.genre+'</div>'
+    +'<div class="price-row"><span class="price">$'+d.currentPrice+'</span><span class="was">$'+d.originalPrice+'</span></div>'
+    +'<div class="store">via GG.deals'+discLabel+'</div>'
+    +'</div></div>';
+}
+function buildFeatured(d){
+  var img=d.image?'<img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">':'';
+  return '<div class="featured" data-url="'+d.storeUrl+'">'
+    +'<div class="feat-img">'+img+'</div>'
+    +'<div><div class="feat-name">'+d.title+'</div><div class="feat-sub">'+d.genre+'</div>'
+    +'<div class="feat-tags"><span class="badge b-low">'+d.badge.text+'</span><span class="badge b-hot">Score '+d.score+'</span><span class="badge b-sale">-'+d.discountPercent+'% off</span></div></div>'
+    +'<div class="feat-right"><span class="feat-price">$'+d.currentPrice+'</span><span class="feat-was">Was $'+d.originalPrice+'</span><button class="buy-btn">See best price &rarr;</button></div>'
+    +'</div>';
+}
+function renderSection(id,deals){
+  var el=document.getElementById(id);
+  if(!el||!deals.length) return;
+  el.innerHTML=deals.map(buildCard).join('');
+}
+
+// FREE GAMES
+function formatExpiry(dateStr){
+  if(!dateStr||dateStr==='N/A') return'While supplies last';
+  var d=new Date(dateStr);
+  var days=Math.ceil((d-new Date())/86400000);
+  if(days<=0) return'Ending soon';
+  if(days===1) return'Ends tomorrow';
+  return'Ends in '+days+' days';
+}
+var MAJOR=['epic games store','steam','gog'];
+async function loadFreeGames(ggFreeGames){
+  ggFreeGames=ggFreeGames||[];
+  try{
+    var res=await fetch('/gamerpower-api/giveaways?platform=pc&type=game&sort-by=value');
+    if(!res.ok) throw new Error('GamerPower '+res.status);
+    var games=await res.json();
+    if(!Array.isArray(games)) throw new Error('bad data');
+    var filtered=games.filter(function(g){
+      var worth=parseFloat(g.worth.replace('$',''))||0;
+      var plat=g.platforms.toLowerCase();
+      return MAJOR.some(function(p){ return plat.indexOf(p)>=0; })&&worth>=1.99&&g.status==='Active';
+    });
+
+    // Build cards from GamerPower
+    var gpCards=filtered.map(function(g){
+      var expiry=formatExpiry(g.end_date);
+      var title=g.title.replace(/ [(][^)]*[)] Giveaway$/,'').replace(/ Giveaway$/,'');
+      return '<div class="free-card" data-url="'+g.open_giveaway_url+'">'
+        +'<div class="free-img"><img src="'+g.image+'" alt="'+title+'">'
+        +'<span class="free-badge">FREE</span><span class="free-expires">'+expiry+'</span></div>'
+        +'<div class="free-body"><div class="free-title">'+title+'</div><div class="free-platform">'+g.platforms+'</div>'
+        +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
+        +'</div></div>';
+    });
+
+    // Build cards from GG.deals free tracked games (Steam free promotions)
+    var ggCards=ggFreeGames.map(function(g){
+      return '<div class="free-card" data-url="'+g.url+'">'
+        +'<div class="free-img"><img src="'+g.image+'" alt="'+g.title+'">'
+        +'<span class="free-badge">FREE</span><span class="free-expires">On Steam now</span></div>'
+        +'<div class="free-body"><div class="free-title">'+g.title+'</div><div class="free-platform">'+g.platform+'</div>'
+        +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
+        +'</div></div>';
+    });
+
+    // Merge: GG tracked games first (more reliable), then GamerPower, cap at 4
+    var allCards=ggCards.concat(gpCards); // store full list — main section slices to 4, modal shows up to 16
+    if(!allCards.length){
+      var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
+      return;
+    }
+    var el=document.getElementById('free-games');
+    if(el){
+      // Store full list for View all modal, display only first 4
+      fullLists['free-games']=allCards; // full list stored for modal
+      el.innerHTML=allCards.slice(0,4).join(''); // main section shows 4
+      el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
+    }
+  }catch(err){
+    // If GamerPower fails but we have GG free games, still show those
+    if(ggFreeGames.length){
+      var ggCards=ggFreeGames.map(function(g){
+        return '<div class="free-card" data-url="'+g.url+'">'
+          +'<div class="free-img"><img src="'+g.image+'" alt="'+g.title+'">'
+          +'<span class="free-badge">FREE</span><span class="free-expires">On Steam now</span></div>'
+          +'<div class="free-body"><div class="free-title">'+g.title+'</div><div class="free-platform">'+g.platform+'</div>'
+          +'<div class="free-worth">Free <span>'+g.worth+'</span></div><div class="free-btn">Claim free &rarr;</div>'
+          +'</div></div>';
+      });
+      var el=document.getElementById('free-games');
+      if(el){
+        fullLists['free-games']=ggCards;
+        el.innerHTML=ggCards.slice(0,4).join('');
+        el.querySelectorAll('[data-url]').forEach(function(c){ c.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); }; });
+      }
+    } else {
+      var sec=document.getElementById('free-games-sec'); if(sec) sec.style.display='none';
+    }
+    console.warn('Free games error:',err.message);
+  }
+}
+
+// MAIN DEALS
+async function loadDeals(){
+  try{
+    var cfgRes=await fetch('/api/deals');
+    var cfg=await cfgRes.json();
+    cachedApiKey=cfg.apiKey;
+    cachedApiBase=cfg.apiBase;
+    var games=cfg.games;
+    if(!cachedApiKey) throw new Error('No API key');
+
+    var allData={};
+    for(var b=0;b<games.length;b+=10){
+      var batch=games.slice(b,b+10);
+      var ids=batch.map(function(g){ return g.steamId; }).join(',');
+      var url=cachedApiBase+'?key='+cachedApiKey+'&ids='+ids+'&region=us';
+      console.log('Fetching batch:',url);
+      var batchRes=await fetch(url);
+      var batchText=await batchRes.text();
+      var batchJson;
+      try{ batchJson=JSON.parse(batchText); }catch(e){ console.warn('Batch parse error:',batchText.slice(0,200)); continue; }
+      if(batchJson.success&&batchJson.data) Object.assign(allData,batchJson.data);
+    }
+    if(!Object.keys(allData).length) throw new Error('No GG.deals data');
+
+    // Check tracked games for currentRetail === 0 (temporarily free on Steam)
+    var freeFromGG=[];
+    games.forEach(function(game){
+      var info=allData[game.steamId];
+      if(!info||!info.prices) return;
+      var current=parseFloat(info.prices.currentRetail);
+      if(current===0){
+        freeFromGG.push({
+          title: info.title||game.title,
+          image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg',
+          url: info.url||'https://gg.deals/',
+          platform: 'PC, Steam',
+          worth: '$'+game.originalPrice.toFixed(2)
+        });
+      }
+    });
+
+    var deals=[];
+    for(var i=0;i<games.length;i++){
+      var game=games[i];
+      var info=allData[game.steamId];
+      if(!info||!info.prices) continue;
+      var ggTitle=(info.title||'').toLowerCase();
+      var words=game.title.toLowerCase().split(' ').filter(function(w){ return w.length>3; });
+      if(!words.some(function(w){ return ggTitle.indexOf(w)>=0; })) continue;
+      var current=parseFloat(info.prices.currentRetail);
+      var historical=parseFloat(info.prices.historicalRetail);
+      if(!current||current<=0) continue;
+      var wasFree=historical===0;
+      var discPct=Math.round((1-current/game.originalPrice)*100);
+      // AAA: require 20% discount. Indie: include at 10%+ so fallback fill works
+      var minDisc=game.isIndie?10:20;
+      if(discPct<minDisc||game.originalPrice<4.99) continue;
+      var score=calcScore(current,historical,game.originalPrice);
+      var badge=getBadge(score.grade,discPct,wasFree);
+      deals.push({
+        steamId:game.steamId, title:info.title||game.title, genre:game.genre,
+        currentPrice:current.toFixed(2), originalPrice:game.originalPrice.toFixed(2),
+        discountPercent:discPct, score:score.grade, scoreLabel:score.label, badge:badge,
+        storeUrl:info.url||'https://gg.deals/',
+        image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg',
+        isIndie:!!game.isIndie
+      });
+    }
+
+    deals = sortByScore(deals);
+    allDeals = deals;
+
+
+    // Render all sections — Deal of the Day handled inside rerenderSections
+    rerenderSections();
+
+
+    document.querySelectorAll('[data-url]').forEach(function(el){
+      el.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+    });
+
+    updateTrending(deals);
+
+    // Pass free tracked games to free section
+    loadFreeGames(freeFromGG);
+
+  }catch(err){
+    console.warn('Could not load live deals:',err.message);
+  }
+}
+
+loadDeals();
+setInterval(loadDeals,3600000);
+</script>
+</body>
+</html>

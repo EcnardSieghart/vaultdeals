@@ -67,6 +67,7 @@
 <div class="controls">
   <button onclick="startVerification()">▶ Verify All</button>
   <button class="secondary" onclick="verifyWrongOnly()">⚠ Re-check Wrong/No-data</button>
+  <button class="secondary" onclick="autoFixAll()">🤖 Auto-fix All Wrong</button>
   <button class="secondary" onclick="generateOutput()">📋 Generate deals.js</button>
   <button class="secondary" onclick="copyOutput()">Copy Output</button>
   <span class="progress" id="progress"></span>
@@ -457,7 +458,7 @@ async function doSteamSearch(originalId) {
   const resultsDiv = document.getElementById(`steam-results-${originalId}`);
 
   try {
-    const res = await fetch(`https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(query)}&cc=us&l=en`);
+    const res = await fetch(`/steam-api/api/storesearch/?term=${encodeURIComponent(query)}&cc=us&l=en`);
     const data = await res.json();
     const items = (data.items || []).slice(0, 5);
 
@@ -484,7 +485,25 @@ async function doSteamSearch(originalId) {
       <div style="margin-top:6px;font-size:11px;color:#78716c;">Click the correct game to apply its ID</div>
     `;
   } catch(e) {
-    resultsDiv.innerHTML += '<div style="color:#f87171;font-size:12px;margin-top:6px;">Steam search unavailable. Enter ID manually:</div>';
+    resultsDiv.innerHTML += `<div style="color:#f87171;font-size:12px;margin-top:6px;">Search failed: ${e.message}. Enter ID manually:</div>
+  <div class="search-input-row" style="margin-top:4px;">
+    <input type="text" id="manual-id-${originalId}" placeholder="Paste Steam App ID..." style="font-family:monospace;">
+    <button onclick="applyManualId('${originalId}')" style="font-size:11px;padding:4px 10px;">Apply</button>
+  </div>`;
+  }
+}
+
+function applyManualId(originalId) {
+  const input = document.getElementById(`manual-id-${originalId}`);
+  if (!input || !input.value.trim()) return;
+  const newId = input.value.trim().replace(/[^0-9]/g, '');
+  if (!newId) { alert('Please enter a numeric Steam App ID'); return; }
+  fixedIds[originalId] = newId;
+  const game = ALL_GAMES.find(g => g.steamId === originalId);
+  if (game) {
+    results[originalId] = { status: 'fixed', ggTitle: 'Manually entered', price: '' };
+    updateRow(game);
+    setTimeout(() => verifyGame(game), 300);
   }
 }
 
@@ -532,6 +551,57 @@ async function startVerification() {
 
   prog.textContent = `Done! ${total} games checked.`;
   running = false;
+}
+
+async function autoFixAll() {
+  if (!window.GGKEY) {
+    try {
+      const cfg = await fetch('/api/deals');
+      const data = await cfg.json();
+      window.GGKEY = data.apiKey;
+    } catch(e) { alert('Could not load API key.'); return; }
+  }
+
+  const toFix = ALL_GAMES.filter(g => {
+    const r = results[g.steamId];
+    return r && (r.status === 'wrong' || r.status === 'nodata') && !fixedIds[g.steamId];
+  });
+
+  if (!toFix.length) { alert('No wrong/no-data games to fix!'); return; }
+
+  const prog = document.getElementById('progress');
+  prog.textContent = `Auto-fixing ${toFix.length} games...`;
+
+  let fixed = 0, failed = 0;
+  for (const game of toFix) {
+    try {
+      const res = await fetch(`/steam-api/api/storesearch/?term=${encodeURIComponent(game.title)}&cc=us&l=en`);
+      const data = await res.json();
+      const items = data.items || [];
+      if (items.length > 0) {
+        // Pick best match — exact title match preferred, otherwise top result
+        const exact = items.find(i => i.name.toLowerCase() === game.title.toLowerCase());
+        const best = exact || items[0];
+        fixedIds[game.steamId] = String(best.id);
+        results[game.steamId] = { status: 'fixed', ggTitle: best.name, price: '' };
+        updateRow(game);
+        fixed++;
+      } else {
+        failed++;
+      }
+    } catch(e) { failed++; }
+    await new Promise(r => setTimeout(r, 150));
+  }
+
+  prog.textContent = `Auto-fix done: ${fixed} fixed, ${failed} not found. Now re-verifying...`;
+
+  // Re-verify all fixed games
+  const toVerify = ALL_GAMES.filter(g => fixedIds[g.steamId]);
+  for (let i = 0; i < toVerify.length; i += 10) {
+    await Promise.all(toVerify.slice(i, i+10).map(g => verifyGame(g)));
+    await new Promise(r => setTimeout(r, 400));
+  }
+  prog.textContent = `Complete! Check results and manually fix any remaining wrong/no-data games.`;
 }
 
 async function verifyWrongOnly() {

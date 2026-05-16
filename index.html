@@ -820,8 +820,8 @@ function openViewAll(sectionKey, title) {
   if(!deals.length) return;
   document.getElementById('view-all-title').textContent = title;
   var grid = document.getElementById('view-all-grid');
-  // Near all-time low always score-sorted; other sections respect current sort
-  var displayDeals = sectionKey === 'historical-lows' ? deals : sortDeals(deals);
+  // All sections respect current sort toggle in their modal
+  var displayDeals = sortDeals(deals);
   grid.innerHTML = displayDeals.map(buildCard).join('');
   grid.querySelectorAll('[data-url]').forEach(function(el){
     el.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
@@ -907,6 +907,14 @@ function rerenderSections(){
 
   // sorted is used for display order within sections
   var sorted = sortDeals(allDeals);
+
+  // Deal of the Day — always best scored game, never changes with sort toggle
+  var dotd = document.getElementById('deal-of-day');
+  if(dotd && byScore[0]){
+    dotd.innerHTML = buildFeatured(byScore[0]);
+    var feat = dotd.querySelector('[data-url]');
+    if(feat) feat.onclick = function(){ window.open(this.getAttribute('data-url'),'_blank'); };
+  }
   var shownIds = [];
 
   // Historical lows — ALWAYS sorted by score, never affected by global sort
@@ -917,17 +925,21 @@ function rerenderSections(){
     allHistoricalLows = allHistoricalLows.concat(fillers);
   }
   fullLists['historical-lows'] = allHistoricalLows;
-  // Push ALL historical low IDs into shownIds — not just the 4 visible ones
-  // This prevents games in the full modal list from appearing in lower sections
+  // Push ALL historical low IDs into shownIds
   allHistoricalLows.forEach(function(d){ shownIds.push(d.steamId); });
-  renderSection('historical-lows', allHistoricalLows.slice(0,4));
+  // Display order respects current sort, but membership always determined by score
+  var histDisplay = currentSort === 'price'
+    ? allHistoricalLows.slice().sort(function(a,b){ return parseFloat(a.currentPrice)-parseFloat(b.currentPrice); })
+    : allHistoricalLows;
+  renderSection('historical-lows', histDisplay.slice(0,4));
 
   // Top discounts — membership by byScore, display order by sorted
   var topMembership = byScore.filter(function(d){ return['B+','B'].indexOf(d.score)>=0 && shownIds.indexOf(d.steamId)<0; });
   var topMemberIds = topMembership.map(function(d){ return d.steamId; });
-  // Display in sorted order but only games that qualified by score membership
+  // Store score-ordered membership list — display sort applied at render time
+  fullLists['top-discounts'] = topMembership;
+  // Display in sorted order
   var allTopDiscounts = sorted.filter(function(d){ return topMemberIds.indexOf(d.steamId)>=0; });
-  fullLists['top-discounts'] = allTopDiscounts;
   topMembership.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('top-discounts-grid', allTopDiscounts.slice(0,4));
 
@@ -939,15 +951,18 @@ function rerenderSections(){
     indieMembership = indieMembership.concat(indieFill);
   }
   var indieMemberIds = indieMembership.map(function(d){ return d.steamId; });
+  // Store score-ordered membership — display sort applied at render time
+  fullLists['indie-picks'] = indieMembership;
   var allIndiePicks = sorted.filter(function(d){ return indieMemberIds.indexOf(d.steamId)>=0; });
-  fullLists['indie-picks'] = allIndiePicks;
   indieMembership.forEach(function(d){ shownIds.push(d.steamId); });
   renderSection('indie-picks', allIndiePicks.slice(0,4));
 
   // Budget picks — membership by byScore, display order by sorted
-  var budgetMemberIds = byScore.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; }).map(function(d){ return d.steamId; });
+  var budgetMembership = byScore.filter(function(d){ return parseFloat(d.currentPrice)<=10 && parseFloat(d.originalPrice)>=5 && shownIds.indexOf(d.steamId)<0; });
+  var budgetMemberIds = budgetMembership.map(function(d){ return d.steamId; });
+  // Store score-ordered membership — display sort applied at render time
+  fullLists['budget-picks'] = budgetMembership;
   var allBudgetPicks = sorted.filter(function(d){ return budgetMemberIds.indexOf(d.steamId)>=0; });
-  fullLists['budget-picks'] = allBudgetPicks;
   renderSection('budget-picks', allBudgetPicks.slice(0,4));
 
   // Reattach click handlers
@@ -1438,14 +1453,7 @@ async function loadDeals(){
     allDeals = deals;
 
 
-    var dotd=document.getElementById('deal-of-day');
-    if(dotd&&deals[0]){
-      dotd.innerHTML=buildFeatured(deals[0]);
-      var feat=dotd.querySelector('[data-url]');
-      if(feat) feat.onclick=function(){ window.open(this.getAttribute('data-url'),'_blank'); };
-    }
-
-    // Render all sections with consistent dedup logic
+    // Render all sections — Deal of the Day handled inside rerenderSections
     rerenderSections();
 
 

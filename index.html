@@ -185,7 +185,15 @@ nav { position: sticky; top: 0; z-index: 100; background: rgba(20,18,16,.94); ba
 .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
 .sec-title { font-family: var(--fh); font-size: 17px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; word-break: break-word; min-width: 0; }
 .sec-more { font-size: 13px; color: var(--text3); text-decoration: none; transition: color .15s; }
-.sec-subtitle { font-size: 12px; color: var(--text2); margin-top: -14px; margin-bottom: 18px; line-height: 1.6; }
+.sec-subtitle { font-size: 12px; color: var(--text2); margin-top: -14px; margin-bottom: 18px; line-height: 1.6; display: flex; align-items: center; gap: 6px; }
+.sec-subtitle-text { flex: 1; }
+.sec-help { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text3); font-size: 10px; cursor: help; flex-shrink: 0; position: relative; }
+.sec-help::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); font-size: 11px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 100; width: max-content; max-width: 260px; white-space: normal; line-height: 1.5; }
+.sec-help:hover::after { opacity: 1; }
+/* Card historical low tooltip */
+.card { position: relative; }
+.card-hist-tip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); font-size: 11px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 100; margin-bottom: 6px; }
+.card:hover .card-hist-tip { opacity: 1; }
 .sec-more:hover { color: var(--amber); }
 
 /* CARDS */
@@ -581,33 +589,33 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
 
   <div class="sec">
     <div class="sec-head"><div class="sec-title">🏆 Deal of the day</div><a href="#" class="sec-more" onclick="openViewAll('top-discounts','Top deals');return false;">All top deals →</a></div>
-    <p class="sec-subtitle">The single best value game on sale right now, scored against its all-time low</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">The single best value game on sale right now, scored against its all-time low</span><span class="sec-help" data-tip="Scored A+ to C+ based on how close the current price is to the game's all-time historical low — not just % off retail.">?</span></p>
     <div id="deal-of-day"></div>
   </div>
 
   <div class="sec scroll-target" id="historical-lows-sec">
     <div class="sec-head"><div class="sec-title">📉 Near all-time low</div><a href="#" class="sec-more" onclick="openViewAll('historical-lows','Near all-time low');return false;">View all →</a></div>
-    <p class="sec-subtitle">These games are at or within striking distance of their lowest price ever</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">These games are at or within striking distance of their lowest price ever</span><span class="sec-help" data-tip="A+ = within 5% of all-time low. A = within 20%. Hover any card to see the exact all-time low price.">?</span></p>
     <div class="grid4" id="historical-lows"></div>
   </div>
 
   <div class="sec scroll-target" id="top-discounts">
     <div class="sec-head"><div class="sec-title">🔥 Biggest discounts today</div><a href="#" class="sec-more" onclick="openViewAll('top-discounts','Biggest discounts today');return false;">View all →</a></div>
-    <p class="sec-subtitle">Largest drops off retail price right now — these games have been cheaper before, but not by much</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">Largest drops off retail price right now — these games have been cheaper before, but not by much</span><span class="sec-help" data-tip="B+ and B scored games have good discounts off retail but haven't reached their historical low. The % off retail is shown below each price.">?</span></p>
     <div class="grid4" id="top-discounts-grid"></div>
   </div>
 
   <!-- INDIE PICKS -->
   <div class="sec">
     <div class="sec-head"><div class="sec-title">🎮 Indie picks</div><a href="#" class="sec-more" onclick="openViewAll('indie-picks','Indie picks');return false;">View all →</a></div>
-    <p class="sec-subtitle">Critically acclaimed indie games on sale — often outscoring AAA titles at a fraction of the price</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">Critically acclaimed indie games on sale — often outscoring AAA titles at a fraction of the price</span><span class="sec-help" data-tip="Indie games scored A+ to C+ against their own historical lows — a 25% discount on an indie can outrank a 90% AAA sale if the timing is better.">?</span></p>
     <div class="grid4" id="indie-picks"></div>
   </div>
 
   <!-- UNDER $10 -->
   <div class="sec">
     <div class="sec-head"><div class="sec-title">💰 Under $10 right now</div><a href="#" class="sec-more" onclick="openViewAll('budget-picks','Under $10 right now');return false;">View all →</a></div>
-    <p class="sec-subtitle">Quality games you can grab for less than a coffee — original price $5 or more</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">Quality games you can grab for less than a coffee — original price $5 or more</span><span class="sec-help" data-tip="Games currently under $10 that haven't appeared in higher-scored sections. Original price must be $5 or more to filter out permanently cheap titles.">?</span></p>
     <div class="grid4" id="budget-picks"></div>
   </div>
   <div class="sec" id="free-games-sec">
@@ -615,7 +623,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 2rem; margin-top: 20
       <div class="sec-title">🎁 Free right now</div>
       <a href="#" class="sec-more" onclick="openFreeViewAll();return false;">View all →</a>
     </div>
-    <p class="sec-subtitle">Legitimate giveaways from Epic, Steam, and GOG — no strings attached</p>
+    <p class="sec-subtitle"><span class="sec-subtitle-text">Legitimate giveaways from Epic, Steam, and GOG — no strings attached</span><span class="sec-help" data-tip="Free game promotions from official stores only. No grey market keys, no survey farms, no email harvesting.">?</span></p>
     <div class="free-grid" id="free-games"></div>
   </div>
 
@@ -1265,17 +1273,29 @@ function updateTrending(deals){
 }
 
 // BUILD CARD / FEATURED
-function buildCard(d){
+function buildCard(d, showPct){
   var sc=SCORE_CSS[d.score]||'s-c';
   var bc=BADGE_CSS[d.badge.type]||'b-sale';
   var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
   var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
-  // Secondary "Was free" badge shown below primary badge
   var wasFreeTag=d.badge.wasFree?'<span class="badge b-free" style="font-size:9px;">Was free</span>':'';
-  // Always show discount % in the store line for clarity
+  // In scored sections: score badge is primary signal, no % badge
+  // showPct=true only for search results where there is no score context
+  var primaryBadge = showPct
+    ? '<span class="badge '+bc+'">'+d.badge.text+'</span>'
+    : (d.badge.type==='low'||d.badge.type==='near-low'
+        ? '<span class="badge '+bc+'">'+d.badge.text+'</span>'
+        : ''); // hide % badge in scored sections
+  // Historical low tooltip data
+  var histAttr = d.historicalLow ? ' data-histlow="'+d.historicalLow+'"' : '';
+  // Store line always shows % for transparency
   var discLabel=d.discountPercent>0?' · -'+d.discountPercent+'% off retail':'';
-  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'">'
-    +'<div class="card-img" style="position:relative;"><div class="badges"><span class="badge '+bc+'">'+d.badge.text+'</span>'+wasFreeTag+'</div>'+img+'</div>'
+  var histTip = d.historicalLow
+    ? '<div class="card-hist-tip">All-time low: $'+d.historicalLow+'</div>'
+    : '';
+  return '<div class="card '+gold+'" data-url="'+d.storeUrl+'"'+histAttr+'>'
+    +histTip
+    +'<div class="card-img" style="position:relative;"><div class="badges">'+primaryBadge+wasFreeTag+'</div>'+img+'</div>'
     +'<div class="card-body">'
     +'<div class="card-row"><div class="card-name">'+d.title+'</div><span class="score '+sc+'">'+d.score+'</span></div>'
     +'<div class="card-genre">'+d.genre+'</div>'
@@ -1442,6 +1462,7 @@ async function loadDeals(){
       deals.push({
         steamId:game.steamId, title:info.title||game.title, genre:game.genre,
         currentPrice:current.toFixed(2), originalPrice:game.originalPrice.toFixed(2),
+        historicalLow:historical>0?historical.toFixed(2):null,
         discountPercent:discPct, score:score.grade, scoreLabel:score.label, badge:badge,
         storeUrl:info.url||'https://gg.deals/',
         image:'https://cdn.cloudflare.steamstatic.com/steam/apps/'+game.steamId+'/header.jpg',
@@ -1476,4 +1497,3 @@ setInterval(loadDeals,3600000);
 </script>
 </body>
 </html>
-

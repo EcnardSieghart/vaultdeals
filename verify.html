@@ -392,10 +392,16 @@ async function verifyGame(game) {
       results[game.steamId] = { status: 'nodata', ggTitle: '', price: '' };
     } else {
       const info = data.data[effectiveId];
-      const ggTitle = (info.title || '').toLowerCase();
-      const gameTitle = game.title.toLowerCase();
-      const words = gameTitle.split(' ').filter(w => w.length > 3);
-      const match = words.some(w => ggTitle.includes(w));
+      // Normalize unicode for comparison (Ragnarök → ragnarok)
+      const normalize = s => s.toLowerCase()
+        .replace(/[öo]/g,'o').replace(/[üu]/g,'u').replace(/[äa]/g,'a')
+        .replace(/[éèê]/g,'e').replace(/[íì]/g,'i').replace(/[áà]/g,'a')
+        .replace(/[™®©]/g,'').replace(/[^a-z0-9 ]/g,' ').trim();
+      const ggTitle = normalize(info.title || '');
+      const gameTitle = normalize(game.title);
+      // Match if any word >= 3 chars from game title appears in GG title
+      const words = gameTitle.split(' ').filter(w => w.length >= 3);
+      const match = words.length > 0 && words.some(w => ggTitle.includes(w));
       const currentPrice = info.prices?.currentRetail;
       const priceStr = currentPrice != null ? `$${parseFloat(currentPrice).toFixed(2)}` : 'not on sale';
 

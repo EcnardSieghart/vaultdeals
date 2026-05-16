@@ -1280,13 +1280,19 @@ function buildCard(d, showPct){
   var gold=['A+','A'].indexOf(d.score)>=0?'gold':'';
   var img=d.image?'<div style="position:absolute;inset:0;overflow:hidden;"><img src="'+d.image+'" alt="game" style="width:100%;height:100%;object-fit:cover;"></div>':'';
   var wasFreeTag=d.badge.wasFree?'<span class="badge b-free" style="font-size:9px;">Was free</span>':'';
-  // In scored sections: score badge is primary signal, no % badge
-  // showPct=true only for search results where there is no score context
-  // In scored sections (default): only show 'low'/'near-low' type badges
-  // 'hot' and 'sale' badges contain % text — hidden since score is the signal
-  // showPct=true only in search results where there is no score context
-  var primaryBadge = (showPct || d.badge.type === 'low')
-    ? '<span class="badge '+bc+'">'+d.badge.text+'</span>'
+  // Primary badge: only show score-based label, never % off in scored sections
+  // showPct=true only for search results where score context is absent
+  var primaryBadgeText = '';
+  if(showPct && d.discountPercent > 0){
+    primaryBadgeText = '-'+d.discountPercent+'% off';
+  } else if(d.score === 'A+'){
+    primaryBadgeText = 'All-time low';
+  } else if(d.score === 'A'){
+    primaryBadgeText = 'Near low';
+  }
+  // Never show % badge in scored sections — score pill is the signal
+  var primaryBadge = primaryBadgeText
+    ? '<span class="badge '+(d.score==='A+'||d.score==='A'?'b-low':'b-sale')+'">'+primaryBadgeText+'</span>'
     : '';
   // Historical low tooltip data
   var histAttr = d.historicalLow ? ' data-histlow="'+d.historicalLow+'"' : '';
